@@ -1,4 +1,7 @@
 from trbox import Strategy, Backtest, Market
+import logging
+
+logging.basicConfig(level='INFO')
 
 
 class St(Strategy):

@@ -19,3 +19,11 @@ class Price(MarketEvent):
     @property
     def price(self):
         return self._price
+
+
+class SystemEvent(Event):
+    pass
+
+
+class Exit(SystemEvent):
+    pass

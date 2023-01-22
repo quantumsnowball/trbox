@@ -1,11 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-
-from trbox.event import PriceFeedRequest
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.market import Market
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from trbox.event import Exit, PriceFeedRequest
+import logging
 
 
 class Runner:
@@ -29,10 +29,21 @@ class Runner:
     # main thread pool
     def run(self):
         with ThreadPoolExecutor() as executor:
-            executor.submit(self._strategy.run)
-            executor.submit(self._market.run)
+            handlers = [self.strategy,
+                        self.market]
+            futures = [executor.submit(h.run) for h in handlers]
             # start the market data
             self._market.put(PriceFeedRequest('BTC'))
+            # wait for future results
+            # also catch KeyboardInterrupt
+            try:
+                for future in as_completed(futures):
+                    future.result()
+            except KeyboardInterrupt:
+                logging.info('KeyboardInterrupt: requested handlers to quit.')
+                for handler in handlers:
+                    handler.put(Exit())
+        logging.info('Runner has completed.')
 
 
 class Backtest(Runner):

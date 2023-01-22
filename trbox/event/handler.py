@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from queue import Queue
-from trbox.event import Event
+from trbox.event import Event, Exit
 from trbox.runner import Runner
 import logging
 
@@ -37,9 +37,15 @@ class EventHandler(ABC):
             # block by the get method until a event is retrieved
             e = self._event_queue.get()
             logging.debug(f'Event {type(e)} collected.')
+
+            # break handler if received the Exit event
+            if isinstance(e, Exit):
+                break
+
             # pass the event to the subclass method for handling
             self.handle(e)
             logging.debug(f'Event {type(e)} sent to {type(self)}.')
+
             # mark the task done and update event count
             self._event_queue.task_done()
             logging.debug(f'Event {type(e)} done.')
