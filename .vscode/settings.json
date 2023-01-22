@@ -1,0 +1,9 @@
+{
+    "python.formatting.provider": "yapf",
+    "cSpell.words": [
+        "backtest",
+        "trbox",
+        "dropna",
+        "iloc"
+    ]
+}
