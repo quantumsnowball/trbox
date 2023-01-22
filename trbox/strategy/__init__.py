@@ -1,9 +1,14 @@
+from abc import ABC, abstractmethod
 from threading import Event
 from trbox.event import Price
 from trbox.event.handler import EventHandler
 
 
-class Strategy(EventHandler):
+class Strategy(EventHandler, ABC):
     def handle(self, e: Event):
         if isinstance(e, Price):
-            print(f'St: price={e.price}')
+            self.step(e)
+
+    @abstractmethod
+    def step(self, e: Price):
+        pass
