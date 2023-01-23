@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.market import Market
@@ -62,5 +62,5 @@ class Runner:
 
 
 class Trader(Runner):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
