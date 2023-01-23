@@ -35,6 +35,11 @@ class Runner:
     def broker(self) -> Broker:
         return self._broker
 
+    # system controls
+    def stop(self):
+        for handler in self._handlers:
+            handler.put(Exit())
+
     # main thread pool
     def run(self):
         with ThreadPoolExecutor() as executor:
@@ -49,8 +54,7 @@ class Runner:
             except KeyboardInterrupt:
                 logging.info(
                     'KeyboardInterrupt: requested all handlers to quit.')
-                for handler in self._handlers:
-                    handler.put(Exit())
+                self.stop()
         logging.info('Runner has completed.')
 
 

@@ -4,14 +4,14 @@ from trbox.market.simulated import DummyPrice
 
 
 def test_dummy():
-    class St(Strategy):
+    class TeStSt(Strategy):
         def step(self, e):
             print(f'St: price={e.price}')
             self.runner.broker.trade('BTC', +10)
 
     bt = Backtest(
-        strategy=St(),
-        market=DummyPrice(),
+        strategy=TeStSt(),
+        market=DummyPrice(delay=0),
         broker=PaperEX()
     )
 

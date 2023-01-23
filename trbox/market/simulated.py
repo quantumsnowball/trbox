@@ -6,11 +6,19 @@ from trbox.market import Market
 
 
 class DummyPrice(Market):
-    def simulate_price_feed(self, n=30):
+    def __init__(self, n=30, delay=1):
+        super().__init__()
+        self._n = n
+        self._delay = delay
+
+    def simulate_price_feed(self):
         def worker():
-            for i in range(n):
+            # gen random price to simulate live market
+            for i in range(self._n):
                 self.runner.strategy.put(Price(i))
-                time.sleep(1)
+                time.sleep(self._delay)
+            # simulate the end of data
+            self.runner.stop()
         # deamon thread will not block program from exiting
         t = Thread(target=worker, daemon=True)
         t.start()
