@@ -4,7 +4,7 @@ from trbox.event import MarketEvent
 #
 class PriceFeedRequest(MarketEvent):
     def __init__(self,
-                 symbol: str):
+                 symbol: Symbol):
         self._symbol = symbol
 
 
