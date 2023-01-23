@@ -1,10 +1,7 @@
-from trbox.event import Event
+from trbox.event import MarketEvent
 
 
-class MarketEvent(Event):
-    pass
-
-
+#
 class PriceFeedRequest(MarketEvent):
     def __init__(self,
                  symbol: str):

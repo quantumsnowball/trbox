@@ -1,8 +1,4 @@
-from trbox.event import Event
-
-
-class SystemEvent(Event):
-    pass
+from trbox.event import SystemEvent
 
 
 class Exit(SystemEvent):
