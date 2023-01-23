@@ -7,29 +7,28 @@ from pandas import DataFrame
 #
 # Requests
 #
+
 @dataclass
 class OhlcvWindowRequest(MarketEvent):
     symbol: Symbol
     length: int
 
 
+@dataclass
 class PriceFeedRequest(MarketEvent):
-    def __init__(self,
-                 symbol: Symbol):
-        self._symbol = symbol
+    symbol: Symbol
 
 
 #
 # Response
 #
+
+@dataclass
 class OhlcvWindow(MarketEvent):
-    dfs: dict[Symbol, DataFrame]
+    symbol: Symbol
+    df: DataFrame
 
 
+@dataclass
 class Price(MarketEvent):
-    def __init__(self, price: float):
-        self._price = price
-
-    @property
-    def price(self) -> float:
-        return self._price
+    price: float
