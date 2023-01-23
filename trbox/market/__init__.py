@@ -1,5 +1,6 @@
 import time
-from trbox.event import Event, Price, PriceFeedRequest
+from trbox.event import Event
+from trbox.event.market import Price, PriceFeedRequest
 from trbox.event.handler import EventHandler
 from threading import Thread
 

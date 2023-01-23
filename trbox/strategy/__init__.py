@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from threading import Event
-from trbox.event import Price
+from trbox.event import Event
+from trbox.event.market import Price
 from trbox.event.handler import EventHandler
 
 

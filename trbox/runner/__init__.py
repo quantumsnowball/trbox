@@ -5,7 +5,8 @@ if TYPE_CHECKING:
     from trbox.market import Market
     from trbox.broker import Broker
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from trbox.event import Exit, PriceFeedRequest
+from trbox.event import Exit
+from trbox.event.market import PriceFeedRequest
 import logging
 
 
