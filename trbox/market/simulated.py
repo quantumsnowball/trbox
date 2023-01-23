@@ -6,13 +6,15 @@ from trbox.market import Market
 
 
 class DummyPrice(Market):
-    def __init__(self, n=30, delay=1):
+    def __init__(self,
+                 n: int = 30,
+                 delay: int = 1) -> None:
         super().__init__()
         self._n = n
         self._delay = delay
 
-    def simulate_price_feed(self):
-        def worker():
+    def simulate_price_feed(self) -> None:
+        def worker() -> None:
             # gen random price to simulate live market
             for i in range(self._n):
                 self.runner.strategy.put(Price(i))
@@ -23,7 +25,7 @@ class DummyPrice(Market):
         t = Thread(target=worker, daemon=True)
         t.start()
 
-    def handle(self, e: Event):
+    def handle(self, e: Event) -> None:
         if isinstance(e, PriceFeedRequest):
             # generate some dummy price data
             # simulating live feed data from websocket

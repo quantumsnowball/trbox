@@ -16,5 +16,5 @@ class Price(MarketEvent):
         self._price = price
 
     @property
-    def price(self):
+    def price(self) -> float:
         return self._price

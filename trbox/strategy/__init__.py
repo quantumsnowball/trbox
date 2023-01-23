@@ -5,10 +5,10 @@ from trbox.event.handler import EventHandler
 
 
 class Strategy(EventHandler, ABC):
-    def handle(self, e: Event):
+    def handle(self, e: Event) -> None:
         if isinstance(e, Price):
             self.step(e)
 
     @abstractmethod
-    def step(self, e: Price):
+    def step(self, e: Price) -> None:
         pass

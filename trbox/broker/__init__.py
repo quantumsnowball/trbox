@@ -6,10 +6,10 @@ from trbox.event.handler import EventHandler
 
 
 class Broker(EventHandler, ABC):
-    def handle(self, e: Event):
+    def handle(self, e: Event) -> None:
         if isinstance(e, Trade):
             logging.info(f'Trade: {e.quantity} {e.symbol}')
 
     @abstractmethod
-    def trade(self, symbol: str, quantity: float):
+    def trade(self, symbol: str, quantity: float) -> None:
         pass

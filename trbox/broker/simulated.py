@@ -5,5 +5,5 @@ from trbox.event.broker import Trade
 class PaperEX(Broker):
     def trade(self,
               symbol: str,
-              quantity: float):
+              quantity: float) -> None:
         self.put(Trade(symbol, quantity))

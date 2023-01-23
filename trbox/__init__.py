@@ -4,5 +4,5 @@ from trbox.market import Market
 from trbox.broker import Broker
 
 
-def hello():
+def hello() -> None:
     print('trbox: Hello world!')

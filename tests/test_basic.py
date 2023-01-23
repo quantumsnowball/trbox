@@ -3,12 +3,13 @@ from trbox.broker.simulated import PaperEX
 from trbox.market.simulated import DummyPrice
 
 
-def test_dummy():
-    class TeStSt(Strategy):
-        def step(self, e):
-            print(f'St: price={e.price}')
-            self.runner.broker.trade('BTC', +10)
+class TeStSt(Strategy):
+    def step(self, e):
+        print(f'St: price={e.price}')
+        self.runner.broker.trade('BTC', +10)
 
+
+def test_dummy():
     bt = Backtest(
         strategy=TeStSt(),
         market=DummyPrice(delay=0),
@@ -16,3 +17,7 @@ def test_dummy():
     )
 
     bt.run()
+
+
+def test_historical_data():
+    pass

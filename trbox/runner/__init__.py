@@ -15,9 +15,9 @@ class Runner:
                  strategy: Strategy,
                  market: Market,
                  broker: Broker):
-        self._strategy = strategy.attach(self)
-        self._market = market.attach(self)
-        self._broker = broker.attach(self)
+        self._strategy: Strategy = strategy.attach(self)
+        self._market: Market = market.attach(self)
+        self._broker: Broker = broker.attach(self)
         self._handlers = [self._strategy, self._market, self._broker]
         for handler in self._handlers:
             assert handler.attached
@@ -36,12 +36,12 @@ class Runner:
         return self._broker
 
     # system controls
-    def stop(self):
+    def stop(self) -> None:
         for handler in self._handlers:
             handler.put(Exit())
 
     # main thread pool
-    def run(self):
+    def run(self) -> None:
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(h.run) for h in self._handlers]
             # start the market data
