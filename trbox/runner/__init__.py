@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.market import Market
+    from trbox.broker import Broker
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from trbox.event import Exit, PriceFeedRequest
 import logging
@@ -11,10 +12,13 @@ import logging
 class Runner:
     def __init__(self,
                  strategy: Strategy,
-                 market: Market):
+                 market: Market,
+                 broker: Broker):
         self._strategy = strategy.attach(self)
         self._market = market.attach(self)
-        for handler in [self._strategy, self._market]:
+        self._broker = broker.attach(self)
+        self._handlers = [self._strategy, self._market, self._broker]
+        for handler in self._handlers:
             assert handler.attached
 
     # refs to major event handlers
@@ -26,12 +30,14 @@ class Runner:
     def market(self) -> Market:
         return self._market
 
+    @property
+    def broker(self) -> Broker:
+        return self._broker
+
     # main thread pool
     def run(self):
         with ThreadPoolExecutor() as executor:
-            handlers = [self.strategy,
-                        self.market]
-            futures = [executor.submit(h.run) for h in handlers]
+            futures = [executor.submit(h.run) for h in self._handlers]
             # start the market data
             self._market.put(PriceFeedRequest('BTC'))
             # wait for future results
@@ -40,8 +46,9 @@ class Runner:
                 for future in as_completed(futures):
                     future.result()
             except KeyboardInterrupt:
-                logging.info('KeyboardInterrupt: requested handlers to quit.')
-                for handler in handlers:
+                logging.info(
+                    'KeyboardInterrupt: requested all handlers to quit.')
+                for handler in self._handlers:
                     handler.put(Exit())
         logging.info('Runner has completed.')
 
