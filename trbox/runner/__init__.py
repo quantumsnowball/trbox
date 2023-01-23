@@ -45,7 +45,7 @@ class Runner:
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(h.run) for h in self._handlers]
             # start the market data
-            self._market.put(PriceFeedRequest('BTC'))
+            self.market.put(PriceFeedRequest('BTC'))
             # wait for future results
             # also catch KeyboardInterrupt
             try:
