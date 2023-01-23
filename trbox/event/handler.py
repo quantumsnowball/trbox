@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from queue import Queue
-from trbox.event import Event, Exit
+from trbox.event import Event
+from trbox.event.system import Exit
 from trbox.runner import Runner
 import logging
 
