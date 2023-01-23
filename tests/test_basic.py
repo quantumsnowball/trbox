@@ -1,5 +1,6 @@
-from trbox import Strategy, Backtest, Market
+from trbox import Strategy, Backtest
 from trbox.broker.simulated import PaperEX
+from trbox.market.simulated import DummyPrice
 
 
 def test_dummy():
@@ -10,7 +11,7 @@ def test_dummy():
 
     bt = Backtest(
         strategy=St(),
-        market=Market(),
+        market=DummyPrice(),
         broker=PaperEX()
     )
 
