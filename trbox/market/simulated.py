@@ -1,7 +1,8 @@
 import time
 from trbox.event import Event
-from trbox.event.market import Price, PriceFeedRequest
+from trbox.event.market import Price
 from threading import Thread
+from trbox.event.system import Start
 from trbox.market import Market
 
 
@@ -26,7 +27,7 @@ class DummyPrice(Market):
         t.start()
 
     def handle(self, e: Event) -> None:
-        if isinstance(e, PriceFeedRequest):
+        if isinstance(e, Start):
             # generate some dummy price data
             # simulating live feed data from websocket
             self.simulate_price_feed()

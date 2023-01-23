@@ -5,13 +5,12 @@ if TYPE_CHECKING:
     from trbox.market import Market
     from trbox.broker import Broker
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from trbox.event.system import Exit
-from trbox.event.market import PriceFeedRequest
+from trbox.event.system import Exit, Start
 import logging
 
 
 class Runner:
-    def __init__(self,
+    def __init__(self, *,
                  strategy: Strategy,
                  market: Market,
                  broker: Broker):
@@ -36,6 +35,10 @@ class Runner:
         return self._broker
 
     # system controls
+    def start(self) -> None:
+        for handler in self._handlers:
+            handler.put(Start())
+
     def stop(self) -> None:
         for handler in self._handlers:
             handler.put(Exit())
@@ -44,8 +47,8 @@ class Runner:
     def run(self) -> None:
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(h.run) for h in self._handlers]
-            # start the market data
-            self.market.put(PriceFeedRequest('BTC'))
+            # notify the event handlers start
+            self.start()
             # wait for future results
             # also catch KeyboardInterrupt
             try:
@@ -59,4 +62,5 @@ class Runner:
 
 
 class Trader(Runner):
-    pass
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)

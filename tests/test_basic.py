@@ -1,6 +1,7 @@
 import logging
 from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
+from trbox.market.historical import YahooOHLCV
 from trbox.market.simulated import DummyPrice
 
 
@@ -11,14 +12,17 @@ class DummyStg(Strategy):
 
 
 def test_dummy():
-    bt = Trader(
+    Trader(
         strategy=DummyStg(),
         market=DummyPrice(delay=0),
         broker=PaperEX()
-    )
-
-    bt.run()
+    ).run()
 
 
 def test_historical_data():
-    pass
+    assert 1
+    Trader(
+        strategy=DummyStg(),
+        market=YahooOHLCV('tests/_data_/BTC_bar1day.csv'),
+        broker=PaperEX()
+    ).run()
