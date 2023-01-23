@@ -24,11 +24,15 @@ class PriceFeedRequest(MarketEvent):
 #
 
 @dataclass
-class OhlcvWindow(MarketEvent):
+class PriceData(MarketEvent):
     symbol: Symbol
+
+
+@dataclass
+class OhlcvWindow(PriceData):
     df: DataFrame
 
 
 @dataclass
-class Price(MarketEvent):
+class Price(PriceData):
     price: float
