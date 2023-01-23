@@ -58,5 +58,5 @@ class Runner:
         logging.info('Runner has completed.')
 
 
-class Backtest(Runner):
+class Trader(Runner):
     pass

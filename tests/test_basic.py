@@ -1,17 +1,18 @@
-from trbox import Strategy, Backtest
+import logging
+from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
 from trbox.market.simulated import DummyPrice
 
 
-class TeStSt(Strategy):
+class DummyStg(Strategy):
     def step(self, e):
-        print(f'St: price={e.price}')
+        logging.info(f'St: price={e.price}')
         self.runner.broker.trade('BTC', +10)
 
 
 def test_dummy():
-    bt = Backtest(
-        strategy=TeStSt(),
+    bt = Trader(
+        strategy=DummyStg(),
         market=DummyPrice(delay=0),
         broker=PaperEX()
     )
