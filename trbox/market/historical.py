@@ -1,6 +1,8 @@
-from trbox.event.market import MarketDataRequest, OhlcvWindow, OhlcvWindowRequest
+from trbox.common.types import Symbol, Symbols
+from trbox.event.market import \
+    MarketDataRequest, OhlcvWindow, OhlcvWindowRequest
 from trbox.market.datasource import OnRequestSource
-from trbox.market.utils import import_yahoo_csv
+from trbox.market.utils import import_yahoo_csv, concat_dfs_by_columns
 
 
 class YahooOHLCV(OnRequestSource):
@@ -10,13 +12,16 @@ class YahooOHLCV(OnRequestSource):
     '''
 
     def __init__(self,
-                 file_path: str,
+                 source: dict[Symbol, str],
                  length: int) -> None:
         super().__init__()
-        self._file_path = file_path
+        self._source = source
+        self._symbols = tuple(self._source.keys())
         self._length = length
         # data preprocessing here
-        self._df = import_yahoo_csv(self._file_path)
+        dfs = {s: import_yahoo_csv(p) for s, p in self._source.items()}
+        self._df = concat_dfs_by_columns(dfs)
+        assert len(self._df) > self._length
         self._window_generator = (win
                                   for win in self._df.rolling(self._length)
                                   if len(win) >= self._length)
@@ -25,7 +30,7 @@ class YahooOHLCV(OnRequestSource):
         # actively listening to request
         if isinstance(e, OhlcvWindowRequest):
             try:
-                next_df = next(self._window_generator)
-                self.runner.strategy.put(OhlcvWindow('BTC', next_df))
+                df = next(self._window_generator)
+                self.runner.strategy.put(OhlcvWindow(self._symbols, df))
             except StopIteration:
                 self.runner.stop()

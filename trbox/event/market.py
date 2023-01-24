@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from trbox.common.types import Symbol
+from trbox.common.types import Symbols
 from trbox.common.utils import verify_ohlcv
 from trbox.event import MarketEvent
 from pandas import DataFrame
@@ -16,7 +16,7 @@ class MarketDataRequest(MarketEvent):
 
 @dataclass
 class OhlcvWindowRequest(MarketDataRequest):
-    length: int
+    pass
 
 
 #
@@ -25,7 +25,7 @@ class OhlcvWindowRequest(MarketDataRequest):
 
 @dataclass
 class PriceData(MarketEvent):
-    pass
+    symbols: Symbols
 
 
 @dataclass
@@ -36,7 +36,7 @@ class OhlcvWindow(PriceData):
         self.win = verify_ohlcv(self.win)
         self.last = self.win.iloc[-1]
         self.datetime = self.win.index[-1]
-        self.close = self.win.Close[-1]
+        self.close = self.last.loc[(slice(None), 'Close')]
 
 
 @dataclass

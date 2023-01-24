@@ -1,3 +1,4 @@
+import logging
 from typing import Self
 from trbox.event import Event
 from trbox.event.handler import EventHandler
@@ -21,10 +22,14 @@ class Market(EventHandler):
 
     def handle(self, e: Event) -> None:
         # listen to system Start event
-        if isinstance(e, Start) and \
-                isinstance(self._source, StreamingSource):
-            self._source.start()
+        if isinstance(e, Start):
+            if isinstance(self._source, StreamingSource):
+                self._source.start()
+                logging.debug((f'`{self.__class__.__name__}` '
+                               'started the `StreamingSource`.'))
         # listen to PriceDataRequest from Strategyy
-        if isinstance(e, MarketDataRequest) and \
-                isinstance(self._source, OnRequestSource):
-            self._source.on_request(e)
+        if isinstance(e, MarketDataRequest):
+            if isinstance(self._source, OnRequestSource):
+                self._source.on_request(e)
+                logging.debug((f'`{self.__class__.__name__}` '
+                               'requested the `OnRequestSource`.'))

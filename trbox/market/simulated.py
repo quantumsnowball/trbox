@@ -21,7 +21,7 @@ class DummyPrice(StreamingSource):
         def worker() -> None:
             # gen random price to simulate live market
             for i in range(self._n):
-                self.runner.strategy.put(Price('DUMMY', i))
+                self.runner.strategy.put(Price(('DUMMY',), i))
                 time.sleep(self._delay)
             # simulate the end of data
             self.runner.stop()

@@ -24,8 +24,10 @@ def test_dummy():
 
 @pytest.mark.parametrize('win_size', [100, 200, 500])
 def test_historical_data(win_size: int):
+    SYMBOLS = ['BTC', 'ETH']
+
     def dummy_action(self: Strategy, e: OhlcvWindow):
-        assert e.win.shape == (win_size, 5)
+        assert e.win.shape == (win_size, 10)
         self.runner.broker.trade('BTC', +10)
         logging.info(
             f'St: date={e.datetime} last={e.last.shape}, close={e.close}')
@@ -35,7 +37,8 @@ def test_historical_data(win_size: int):
             on_window=dummy_action),
         market=Market(
             source=YahooOHLCV(
-                file_path='tests/_data_/BTC_bar1day.csv',
+                source={s: f'tests/_data_/{s}_bar1day.csv'
+                        for s in SYMBOLS},
                 length=win_size)),
         broker=PaperEX()
     ).run()

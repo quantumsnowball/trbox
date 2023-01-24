@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from trbox.common.types import Symbol
 from trbox.event import Event
 from trbox.event.handler import EventHandler
 from trbox.event.market import OhlcvWindow, OhlcvWindowRequest, Price
@@ -18,8 +17,8 @@ class Strategy(EventHandler):
         self._on_window = on_window
 
     # operations
-    def request_ohlcv_window(self, symbol: Symbol, length: int) -> None:
-        self.runner.market.put(OhlcvWindowRequest(symbol, length))
+    def request_ohlcv_window(self) -> None:
+        self.runner.market.put(OhlcvWindowRequest())
 
     def handle(self, e: Event) -> None:
         # for live streaming data
@@ -30,8 +29,8 @@ class Strategy(EventHandler):
         if self._on_window:
             # need to make the first request manually
             if isinstance(e, Start):
-                self.request_ohlcv_window('BTC', 200)
+                self.request_ohlcv_window()
             # upon receive window data, process using hook function
             if isinstance(e, OhlcvWindow):
                 self._on_window(self, e)
-                self.request_ohlcv_window('BTC', 200)
+                self.request_ohlcv_window()
