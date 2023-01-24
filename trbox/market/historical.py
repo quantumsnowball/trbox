@@ -11,12 +11,16 @@ class YahooOHLCV(Market):
     '''
 
     def __init__(self,
-                 file_path: str = '') -> None:
+                 file_path: str,
+                 length: int) -> None:
         super().__init__()
         self._file_path = file_path
+        self._length = length
         # data preprocessing here
         self._df = import_yahoo_csv(self._file_path)
-        self._window_generator = (win for win in self._df.rolling(200))
+        self._window_generator = (win
+                                  for win in self._df.rolling(self._length)
+                                  if len(win) >= self._length)
 
     def handle(self, e: Event) -> None:
         # actively listening to request

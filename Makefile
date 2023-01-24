@@ -16,6 +16,8 @@ debug:
 # generallyy, do this check before each commit
 check:
 	@pytest . --pdb && mypy tests && mypy --strict trbox
+check-type:
+	@mypy tests && mypy --strict trbox
 
 # regenerate the UML and package diagram
 uml-diagrams:

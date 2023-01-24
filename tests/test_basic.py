@@ -20,12 +20,13 @@ def test_dummy():
 
 def test_historical_data():
     def dummy_action(self: Strategy, e: OhlcvWindow):
-        logging.info(
-            f'St: df={e.df.shape}, from={e.df.index[0]}, to={e.df.index[-1]}')
+        assert e.win.shape == (200, 5)
         self.runner.broker.trade('BTC', +10)
+        logging.info(
+            f'St: date={e.datetime} last={e.last.shape}, close={e.close}')
 
     Trader(
         strategy=Strategy(on_window=dummy_action),
-        market=YahooOHLCV('tests/_data_/BTC_bar1day.csv'),
+        market=YahooOHLCV('tests/_data_/BTC_bar1day.csv', 200),
         broker=PaperEX()
     ).run()
