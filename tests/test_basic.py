@@ -20,7 +20,8 @@ def test_dummy():
 
 def test_historical_data():
     def dummy_action(self: Strategy, e: OhlcvWindow):
-        logging.info(f'St: df={e.df.shape}')
+        logging.info(
+            f'St: df={e.df.shape}, from={e.df.index[0]}, to={e.df.index[-1]}')
         self.runner.broker.trade('BTC', +10)
 
     Trader(

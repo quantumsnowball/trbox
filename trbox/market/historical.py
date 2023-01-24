@@ -16,7 +16,7 @@ class YahooOHLCV(Market):
         self._file_path = file_path
         # data preprocessing here
         self._df = import_yahoo_csv(self._file_path)
-        self._window_generator = (self._df for _ in range(10))
+        self._window_generator = (win for win in self._df.rolling(200))
 
     def handle(self, e: Event) -> None:
         # actively listening to request
