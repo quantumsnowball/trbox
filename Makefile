@@ -10,15 +10,19 @@ dev-debug:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb --log-cli-level DEBUG
 
 # run all test cases with all debug message 
-debug:
+test:
+	@pytest . --pdb
+test-parallel:
+	@pytest . --pdb --workers auto
+test-debug:
 	@pytest . --log-cli-level DEBUG
 
 # generally, do these check before each major commit
-check:
+test-and-checktype:
 	@pytest . --pdb && mypy tests && mypy --strict trbox
-check-parallel:
+test-parallel-and-checktype:
 	@pytest . --pdb --workers auto && mypy tests && mypy --strict trbox
-check-type:
+checktype:
 	@mypy tests && mypy --strict trbox
 
 # regenerate the UML and package diagram

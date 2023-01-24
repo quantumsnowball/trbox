@@ -1,3 +1,4 @@
+from pandas import Timestamp
 import pytest
 import logging
 from trbox import Strategy, Trader
@@ -9,6 +10,7 @@ from trbox.market.simulated import DummyPrice
 
 
 def test_dummy():
+    # on_tick
     def dummy_action(self: Strategy, e: Price):
         logging.info(f'St: price={e.price}')
         self.runner.broker.trade('BTC', +10)
@@ -22,13 +24,18 @@ def test_dummy():
     ).run()
 
 
-@pytest.mark.parametrize('win_size', [100, 200, 500])
-def test_historical_data(win_size: int):
+@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2020-01-01', None])
+@pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
+@pytest.mark.parametrize('length', [100, 200, 500])
+def test_historical_data(start: Timestamp | str | None,
+                         end: Timestamp | str | None,
+                         length: int):
     SYMBOLS = ['BTC', 'ETH']
 
+    # on_window
     def dummy_action(self: Strategy, e: OhlcvWindow):
-        assert e.win.shape == (win_size, 10)
-        self.runner.broker.trade('BTC', +10)
+        assert e.win.shape == (length, 10)
+        self.runner.broker.trade(SYMBOLS[0], +10)
         logging.info(
             f'St: date={e.datetime} last={e.last.shape}, close={e.close}')
 
@@ -39,6 +46,8 @@ def test_historical_data(win_size: int):
             source=YahooOHLCV(
                 source={s: f'tests/_data_/{s}_bar1day.csv'
                         for s in SYMBOLS},
-                length=win_size)),
+                start=start,
+                end=end,
+                length=length)),
         broker=PaperEX()
     ).run()

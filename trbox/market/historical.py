@@ -1,4 +1,6 @@
-from trbox.common.types import Symbol, Symbols
+from pandas import Timestamp, to_datetime
+from trbox.common.types import Symbol
+from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.market import \
     MarketDataRequest, OhlcvWindow, OhlcvWindowRequest
 from trbox.market.datasource import OnRequestSource
@@ -11,17 +13,24 @@ class YahooOHLCV(OnRequestSource):
     It simulates market data fetch using http request/response.
     '''
 
-    def __init__(self,
+    def __init__(self, *,
                  source: dict[Symbol, str],
+                 start: Timestamp | str | None = None,
+                 end: Timestamp | str | None = None,
                  length: int) -> None:
         super().__init__()
         self._source = source
         self._symbols = tuple(self._source.keys())
+        self._start = to_datetime(start)
+        self._end = to_datetime(end)
         self._length = length
-        # data preprocessing here
+        # data preprocessing
         dfs = {s: import_yahoo_csv(p) for s, p in self._source.items()}
         self._df = concat_dfs_by_columns(dfs)
-        assert len(self._df) > self._length
+        # data validation
+        self._df = trim_ohlcv_by_range_length(
+            self._df, self._start, self._end, self._length)
+        # data ready
         self._window_generator = (win
                                   for win in self._df.rolling(self._length)
                                   if len(win) >= self._length)
