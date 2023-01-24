@@ -1,13 +1,12 @@
-from trbox.event import Event
-from trbox.event.market import OhlcvWindow, OhlcvWindowRequest
-from trbox.market import Market
+from trbox.event.market import MarketDataRequest, OhlcvWindow, OhlcvWindowRequest
+from trbox.market.datasource import OnRequestSource
 from trbox.market.utils import import_yahoo_csv
 
 
-class YahooOHLCV(Market):
+class YahooOHLCV(OnRequestSource):
     '''
-    This is a relative low speed price simulator
-    simulating market data fetch using http request/response
+    This is a relative low speed price simulator.
+    It simulates market data fetch using http request/response.
     '''
 
     def __init__(self,
@@ -22,7 +21,7 @@ class YahooOHLCV(Market):
                                   for win in self._df.rolling(self._length)
                                   if len(win) >= self._length)
 
-    def handle(self, e: Event) -> None:
+    def on_request(self, e: MarketDataRequest) -> None:
         # actively listening to request
         if isinstance(e, OhlcvWindowRequest):
             try:

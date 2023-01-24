@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+from trbox.common.types import Symbol
+
+
 class Event:
     pass
 
@@ -9,11 +13,12 @@ class BrokerEvent(Event):
     pass
 
 
+@dataclass
 class MarketEvent(Event):
     '''
-    Price data request / response
+    All price data related events
     '''
-    pass
+    symbol: Symbol
 
 
 class SystemEvent(Event):

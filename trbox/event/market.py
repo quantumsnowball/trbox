@@ -10,14 +10,13 @@ from pandas import DataFrame
 #
 
 @dataclass
-class OhlcvWindowRequest(MarketEvent):
-    symbol: Symbol
-    length: int
+class MarketDataRequest(MarketEvent):
+    pass
 
 
 @dataclass
-class PriceFeedRequest(MarketEvent):
-    symbol: Symbol
+class OhlcvWindowRequest(MarketDataRequest):
+    length: int
 
 
 #
@@ -26,7 +25,7 @@ class PriceFeedRequest(MarketEvent):
 
 @dataclass
 class PriceData(MarketEvent):
-    symbol: Symbol
+    pass
 
 
 @dataclass

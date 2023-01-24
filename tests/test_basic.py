@@ -3,6 +3,7 @@ import logging
 from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
 from trbox.event.market import OhlcvWindow, Price
+from trbox.market import Market
 from trbox.market.historical import YahooOHLCV
 from trbox.market.simulated import DummyPrice
 
@@ -13,8 +14,10 @@ def test_dummy():
         self.runner.broker.trade('BTC', +10)
 
     Trader(
-        strategy=Strategy(on_tick=dummy_action),
-        market=DummyPrice(delay=0),
+        strategy=Strategy(
+            on_tick=dummy_action),
+        market=Market(
+            source=DummyPrice(delay=1)),
         broker=PaperEX()
     ).run()
 
@@ -28,7 +31,9 @@ def test_historical_data(win_size: int):
             f'St: date={e.datetime} last={e.last.shape}, close={e.close}')
 
     Trader(
-        strategy=Strategy(on_window=dummy_action),
-        market=YahooOHLCV('tests/_data_/BTC_bar1day.csv', win_size),
+        strategy=Strategy(
+            on_window=dummy_action),
+        market=Market(
+            source=YahooOHLCV('tests/_data_/BTC_bar1day.csv', win_size)),
         broker=PaperEX()
     ).run()
