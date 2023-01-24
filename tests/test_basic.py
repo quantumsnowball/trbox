@@ -3,7 +3,7 @@ import pytest
 import logging
 from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
-from trbox.event.market import OhlcvWindow, Price
+from trbox.event.market import OhlcvWindow, Candlestick
 from trbox.market import Market
 from trbox.market.historical import YahooOHLCV
 from trbox.market.simulated import DummyPrice
@@ -11,7 +11,7 @@ from trbox.market.simulated import DummyPrice
 
 def test_dummy():
     # on_tick
-    def dummy_action(self: Strategy, e: Price):
+    def dummy_action(self: Strategy, e: Candlestick):
         logging.info(f'St: price={e.price}')
         self.runner.broker.trade('BTC', +10)
 

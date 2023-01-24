@@ -25,6 +25,10 @@ test-parallel-and-checktype:
 checktype:
 	@mypy tests && mypy --strict trbox
 
+# not test case but can be testing anything
+demo:
+	@python tests/demo.py
+
 # regenerate the UML and package diagram
 uml-diagrams:
 	cd ./uml/ && \

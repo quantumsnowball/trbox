@@ -1,14 +1,14 @@
 from collections.abc import Callable
 from trbox.event import Event
 from trbox.event.handler import EventHandler
-from trbox.event.market import OhlcvWindow, OhlcvWindowRequest, Price
+from trbox.event.market import OhlcvWindow, OhlcvWindowRequest, Candlestick
 from trbox.event.system import Start
 
 
 class Strategy(EventHandler):
     def __init__(
         self, *,
-        on_tick: Callable[['Strategy', Price], None] | None = None,
+        on_tick: Callable[['Strategy', Candlestick], None] | None = None,
         on_window: Callable[['Strategy', OhlcvWindow], None] | None = None
     ) -> None:
         super().__init__()
@@ -23,7 +23,7 @@ class Strategy(EventHandler):
     def handle(self, e: Event) -> None:
         # for live streaming data
         if self._on_tick:
-            if isinstance(e, Price):
+            if isinstance(e, Candlestick):
                 self._on_tick(self, e)
         # for request and response data
         if self._on_window:

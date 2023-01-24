@@ -40,5 +40,5 @@ class OhlcvWindow(PriceData):
 
 
 @dataclass
-class Price(PriceData):
+class Candlestick(PriceData):
     price: float
