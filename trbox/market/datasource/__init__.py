@@ -27,7 +27,7 @@ class StreamingSource(DataSource, ABC):
     trading, it could also be a websocket connection pushing new tick data.
     '''
     @abstractmethod
-    def start(self):
+    def start(self) -> None:
         pass
 
 
@@ -39,5 +39,5 @@ class OnRequestSource(DataSource, ABC):
     price data per request.
     '''
     @abstractmethod
-    def on_request(self, e: MarketDataRequest):
+    def on_request(self, e: MarketDataRequest) -> None:
         pass

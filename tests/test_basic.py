@@ -34,6 +34,8 @@ def test_historical_data(win_size: int):
         strategy=Strategy(
             on_window=dummy_action),
         market=Market(
-            source=YahooOHLCV('tests/_data_/BTC_bar1day.csv', win_size)),
+            source=YahooOHLCV(
+                file_path='tests/_data_/BTC_bar1day.csv',
+                length=win_size)),
         broker=PaperEX()
     ).run()
