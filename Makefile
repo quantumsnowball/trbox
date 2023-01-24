@@ -13,9 +13,11 @@ dev-debug:
 debug:
 	@pytest . --log-cli-level DEBUG
 
-# generallyy, do this check before each commit
+# generally, do these check before each major commit
 check:
 	@pytest . --pdb && mypy tests && mypy --strict trbox
+check-parallel:
+	@pytest . --pdb --workers auto && mypy tests && mypy --strict trbox
 check-type:
 	@mypy tests && mypy --strict trbox
 
