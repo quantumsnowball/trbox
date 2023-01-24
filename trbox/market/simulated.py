@@ -1,4 +1,5 @@
 import time
+from trbox.common.types import Symbol
 from trbox.event.market import Candlestick
 from threading import Thread
 from trbox.market.datasource import StreamingSource
@@ -11,9 +12,11 @@ class DummyPrice(StreamingSource):
     '''
 
     def __init__(self,
+                 symbol: Symbol,
                  n: int = 30,
                  delay: int = 1) -> None:
         super().__init__()
+        self._symbol = symbol
         self._n = n
         self._delay = delay
 
@@ -21,7 +24,7 @@ class DummyPrice(StreamingSource):
         def worker() -> None:
             # gen random price to simulate live market
             for i in range(self._n):
-                self.runner.strategy.put(Candlestick(('DUMMY',), i))
+                self.runner.strategy.put(Candlestick(self._symbol, i))
                 time.sleep(self._delay)
             # simulate the end of data
             self.runner.stop()

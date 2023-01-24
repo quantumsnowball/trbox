@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from trbox.common.types import Symbols
+from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import verify_ohlcv
 from trbox.event import MarketEvent
 from pandas import DataFrame
@@ -25,11 +25,12 @@ class OhlcvWindowRequest(MarketDataRequest):
 
 @dataclass
 class PriceData(MarketEvent):
-    symbols: Symbols
+    pass
 
 
 @dataclass
 class OhlcvWindow(PriceData):
+    symbols: Symbols
     win: DataFrame
 
     def __post_init__(self) -> None:
@@ -41,4 +42,5 @@ class OhlcvWindow(PriceData):
 
 @dataclass
 class Candlestick(PriceData):
+    symbol: Symbol
     price: float

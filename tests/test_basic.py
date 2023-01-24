@@ -10,16 +10,18 @@ from trbox.market.simulated import DummyPrice
 
 
 def test_dummy():
+    SYMBOL = 'BTC'
+
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
         logging.info(f'St: price={e.price}')
-        self.runner.broker.trade('BTC', +10)
+        self.runner.broker.trade(SYMBOL, +10)
 
     Trader(
         strategy=Strategy(
             on_tick=dummy_action),
         market=Market(
-            source=DummyPrice(delay=0)),
+            source=DummyPrice(SYMBOL, delay=0)),
         broker=PaperEX()
     ).run()
 
