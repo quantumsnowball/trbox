@@ -9,3 +9,9 @@ debug:
 # generallyy, do this check before each commit
 check:
 	@pytest . --pdb && mypy tests && mypy --strict trbox
+
+# regenerate the UML and package diagram
+uml-diagrams:
+	cd ./uml/ && \
+	pyreverse -o png --colorized ../trbox && \
+	cd ..
