@@ -49,15 +49,22 @@ class Runner:
             futures = [executor.submit(h.run) for h in self._handlers]
             # notify the event handlers start
             self.start()
-            # wait for future results
-            # also catch KeyboardInterrupt
+            # wait for future results and catch exceptions in other threads
             try:
                 for future in as_completed(futures):
                     future.result()
+            # catch KeyboardInterrupt first to stop threads gracefully
             except KeyboardInterrupt:
                 logging.info(
                     'KeyboardInterrupt: requested all handlers to quit.')
                 self.stop()
+            # if other Exception are catched, stop all threads gracefully and
+            # then raise them again in main thread to fail any test cases
+            except Exception as e:
+                logging.exception(e.__class__)
+                self.stop()
+                raise e
+
         logging.info('Runner has completed.')
 
 
