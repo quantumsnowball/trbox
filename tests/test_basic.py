@@ -1,3 +1,4 @@
+import pytest
 import logging
 from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
@@ -18,15 +19,16 @@ def test_dummy():
     ).run()
 
 
-def test_historical_data():
+@pytest.mark.parametrize('win_size', [100, 200, 500])
+def test_historical_data(win_size: int):
     def dummy_action(self: Strategy, e: OhlcvWindow):
-        assert e.win.shape == (200, 5)
+        assert e.win.shape == (win_size, 5)
         self.runner.broker.trade('BTC', +10)
         logging.info(
             f'St: date={e.datetime} last={e.last.shape}, close={e.close}')
 
     Trader(
         strategy=Strategy(on_window=dummy_action),
-        market=YahooOHLCV('tests/_data_/BTC_bar1day.csv', 200),
+        market=YahooOHLCV('tests/_data_/BTC_bar1day.csv', win_size),
         broker=PaperEX()
     ).run()
