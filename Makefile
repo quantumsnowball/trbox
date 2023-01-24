@@ -1,6 +1,13 @@
-# run this during dev, put assert 0 for a handy breakpoint
+# run these during dev 
+# put assert 0 (or breakpoint() inside a worker thread) for a handy breakpoint
+DEV_FILE=test_basic.py
+DEV_FUNCTION=test_historical_data
 dev:
-	@pytest ./tests/test_basic.py::test_historical_data --pdb --log-cli-level DEBUG
+	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 
+dev-info:
+	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb --log-cli-level INFO
+dev-debug:
+	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb --log-cli-level DEBUG
 
 # run all test cases with all debug message 
 debug:
