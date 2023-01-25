@@ -18,7 +18,7 @@ class Strategy(EventHandler):
 
     # operations
     def request_ohlcv_window(self) -> None:
-        self.runner.market.put(OhlcvWindowRequest())
+        self.runner.new_market_data_request(OhlcvWindowRequest())
 
     def handle(self, e: Event) -> None:
         # for live streaming data
