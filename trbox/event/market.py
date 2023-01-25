@@ -24,12 +24,12 @@ class OhlcvWindowRequest(MarketDataRequest):
 #
 
 @dataclass
-class PriceData(MarketEvent):
+class MarketData(MarketEvent):
     pass
 
 
 @dataclass
-class OhlcvWindow(PriceData):
+class OhlcvWindow(MarketData):
     symbols: Symbols
     win: DataFrame
 
@@ -41,6 +41,6 @@ class OhlcvWindow(PriceData):
 
 
 @dataclass
-class Candlestick(PriceData):
+class Candlestick(MarketData):
     symbol: Symbol
     price: float

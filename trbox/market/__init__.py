@@ -28,7 +28,7 @@ class Market(EventHandler):
                 self._source.start()
                 logging.debug((f'`{self.__class__.__name__}` '
                                'started the `StreamingSource`.'))
-        # listen to PriceDataRequest from Strategyy
+        # listen to MarketDataRequest from Strategy
         if isinstance(e, MarketDataRequest):
             if isinstance(self._source, OnRequestSource):
                 self._source.on_request(e)
