@@ -1,3 +1,4 @@
+from typing_extensions import override
 from pandas import Timestamp, to_datetime
 from trbox.common.types import Symbol
 from trbox.common.utils import trim_ohlcv_by_range_length
@@ -35,6 +36,7 @@ class YahooOHLCV(OnRequestSource):
                                   for win in self._df.rolling(self._length)
                                   if len(win) >= self._length)
 
+    @override
     def on_request(self, e: MarketDataRequest) -> None:
         # actively listening to request
         if isinstance(e, OhlcvWindowRequest):

@@ -1,4 +1,5 @@
 import time
+from typing_extensions import override
 from trbox.common.types import Symbol
 from trbox.event.market import Candlestick
 from threading import Thread
@@ -20,6 +21,7 @@ class DummyPrice(StreamingSource):
         self._n = n
         self._delay = delay
 
+    @override
     def start(self) -> None:
         def worker() -> None:
             # gen random price to simulate live market
