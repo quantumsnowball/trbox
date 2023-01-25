@@ -8,8 +8,12 @@ dev-info:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb --log-cli-level INFO
 dev-debug:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb --log-cli-level DEBUG
-dev-lab:
+
+# dev lab playground
+dev-lab-ccxt:
 	@pytest "./tests/test_lab.py::test_ccxt" --pdb --log-cli-level INFO
+dev-lab-binance:
+	@pytest "./tests/test_lab.py::test_binance" --pdb --log-cli-level INFO
 
 # run all test cases with all debug message 
 test:
