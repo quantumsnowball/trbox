@@ -31,6 +31,10 @@ class Runner:
     def new_market_data_request(self, e: MarketDataRequest) -> None:
         self._market.put(e)
 
+    def new_trade(self) -> None:
+        # TODO may be trade should be package as Event as well
+        pass
+
     # system controls
     def start(self) -> None:
         for handler in self._handlers:
@@ -39,10 +43,6 @@ class Runner:
     def stop(self) -> None:
         for handler in self._handlers:
             handler.put(Exit())
-
-    # investment decision
-    def trade(self, symbol: Symbol, quantity: float) -> None:
-        return self._broker.trade(symbol, quantity)
 
     # main thread pool
     def run(self) -> None:
@@ -71,3 +71,7 @@ class Runner:
 class Trader(Runner):
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
+
+    # investment decision
+    def trade(self, symbol: Symbol, quantity: float) -> None:
+        return self._broker.trade(symbol, quantity)
