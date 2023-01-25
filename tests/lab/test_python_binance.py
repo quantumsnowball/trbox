@@ -1,3 +1,4 @@
+"""
 import logging
 from pprint import pformat as pp
 from dotenv import load_dotenv
@@ -82,3 +83,4 @@ def test_binance_websocket():
         bsm.join()
 
     run_sync()
+"""

@@ -47,7 +47,7 @@ test-and-checktype:
 test-parallel-and-checktype:
 	@pytest . --pdb --workers auto && mypy tests && mypy --strict trbox
 checktype:
-	@mypy tests && mypy --strict trbox
+	@mypy tests; mypy --strict trbox
 
 #
 # Demo

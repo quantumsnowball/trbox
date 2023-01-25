@@ -6,7 +6,6 @@ from pprint import pformat as pp
 from binance.spot import Spot
 from binance.websocket.spot.websocket_client \
     import SpotWebsocketClient
-from pandas import Series
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
