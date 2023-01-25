@@ -36,3 +36,10 @@ uml-diagrams:
 	cd ./uml/ && \
 	pyreverse -o png --colorized ../trbox && \
 	cd ..
+
+# scan for project requirements
+requirements:
+	@pipreqs ./trbox --savepath ./requirements.txt 
+	@echo; echo 'requirements.txt:'; cat ./requirements.txt
+requirements-print:
+	@pipreqs ./trbox --print
