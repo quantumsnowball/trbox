@@ -11,17 +11,19 @@ dev-debug:
 
 # dev lab playground
 dev-lab-ccxt:
-	@pytest "./tests/test_lab.py::test_ccxt" --pdb --log-cli-level INFO
-dev-lab-binance:
-	@pytest "./tests/test_lab.py::test_binance" --pdb --log-cli-level INFO
+	@pytest "./tests/lab/test_binance_wrapper.py::test_ccxt" --pdb --log-cli-level INFO
+dev-lab-binance-restful:
+	@pytest "./tests/lab/test_binance_wrapper.py::test_binance_restful" --pdb --log-cli-level INFO
+dev-lab-binance-websocket:
+	@pytest "./tests/lab/test_binance_wrapper.py::test_binance_websocket" --pdb --log-cli-level DEBUG
 
 # run all test cases with all debug message 
 test:
-	@pytest . --pdb
-test-parallel:
-	@pytest . --pdb --workers auto
+	@pytest . -k 'not lab' --pdb
 test-debug:
-	@pytest . --log-cli-level DEBUG
+	@pytest . -k 'not lab' --pdb --log-cli-level DEBUG
+test-parallel:
+	@pytest . -k 'not lab' --pdb --workers auto
 
 # generally, do these check before each major commit
 test-and-checktype:
