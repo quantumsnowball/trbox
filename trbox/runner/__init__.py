@@ -17,12 +17,10 @@ class Runner:
                  strategy: Strategy,
                  market: Market,
                  broker: Broker):
-        self._strategy: Strategy = strategy.attach(self)
-        self._market: Market = market.attach(self)
-        self._broker: Broker = broker.attach(self)
+        self._strategy: Strategy = strategy
+        self._market: Market = market
+        self._broker: Broker = broker
         self._handlers = [self._strategy, self._market, self._broker]
-        for handler in self._handlers:
-            assert handler.attached
 
     # event routing
     def new_market_data(self, e: MarketData) -> None:
@@ -30,10 +28,6 @@ class Runner:
 
     def new_market_data_request(self, e: MarketDataRequest) -> None:
         self._market.put(e)
-
-    def new_trade(self) -> None:
-        # TODO may be trade should be package as Event as well
-        pass
 
     # system controls
     def start(self) -> None:
@@ -71,6 +65,10 @@ class Runner:
 class Trader(Runner):
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
+        for handler in self._handlers:
+            handler.attach(self)
+        for handler in self._handlers:
+            assert handler.attached
 
     # investment decision
     def trade(self, symbol: Symbol, quantity: float) -> None:

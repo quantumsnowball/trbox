@@ -18,7 +18,7 @@ class Strategy(CounterParty):
 
     # operations
     def request_ohlcv_window(self) -> None:
-        self.runner.new_market_data_request(OhlcvWindowRequest())
+        self.trader.new_market_data_request(OhlcvWindowRequest())
 
     def handle(self, e: Event) -> None:
         # for live streaming data

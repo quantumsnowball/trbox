@@ -1,5 +1,5 @@
 from typing import Self
-from trbox.runner import Runner
+from trbox.runner import Trader
 
 
 class DataSource:
@@ -9,10 +9,10 @@ class DataSource:
     to other handlers.
     '''
 
-    def attach(self, runner: Runner) -> Self:
-        self._runner = runner
+    def attach(self, trader: Trader) -> Self:
+        self._trader = trader
         return self
 
     @property
-    def runner(self) -> Runner:
-        return self._runner
+    def trader(self) -> Trader:
+        return self._trader

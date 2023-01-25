@@ -3,7 +3,7 @@ from queue import Queue
 from typing import Self
 from trbox.event import Event
 from trbox.event.system import Exit
-from trbox.runner import Runner
+from trbox.runner import Trader
 from logging import debug
 
 
@@ -47,18 +47,22 @@ class EventHandler(ABC):
 
 
 class CounterParty(EventHandler, ABC):
+    '''
+    Middle class that is attached to a Trader
+    '''
+
     def __init__(self) -> None:
         super().__init__()
 
-    # EventHandler must attach to a Runner to function properly
-    def attach(self, runner: Runner) -> Self:
-        self._runner = runner
+    # CounterParty must attach to a Trader to function properly
+    def attach(self, trader: Trader) -> Self:
+        self._trader = trader
         return self
 
     @property
-    def runner(self) -> Runner:
-        return self._runner
+    def trader(self) -> Trader:
+        return self._trader
 
     @property
     def attached(self) -> bool:
-        return isinstance(self._runner, Runner)
+        return isinstance(self._trader, Trader)
