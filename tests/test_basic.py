@@ -1,6 +1,6 @@
 from pandas import Timestamp
 import pytest
-import logging
+from logging import info
 from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
 from trbox.event.market import OhlcvWindow, Candlestick
@@ -14,7 +14,7 @@ def test_dummy():
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
-        logging.info(f'St: price={e.price}')
+        info(f'St: price={e.price}')
         self.runner.broker.trade(SYMBOL, +10)
 
     Trader(
@@ -38,8 +38,7 @@ def test_historical_data(start: Timestamp | str | None,
     def dummy_action(self: Strategy, e: OhlcvWindow):
         assert e.win.shape == (length, 10)
         self.runner.broker.trade(SYMBOLS[0], +10)
-        logging.info(
-            f'St: date={e.datetime} last={e.last.shape}, close={e.close}')
+        info(f'St: date={e.datetime} last={e.last.shape}, close={e.close}')
 
     Trader(
         strategy=Strategy(

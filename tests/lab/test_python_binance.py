@@ -1,5 +1,5 @@
 """
-import logging
+from logging import info
 from pprint import pformat as pp
 from dotenv import load_dotenv
 import os
@@ -25,12 +25,12 @@ def test_binance_restful():
 
         def print_exchange_info():
             exinfo = client.get_exchange_info()
-            logging.info(pp(exinfo))
+            info(pp(exinfo))
         print_exchange_info()
 
         def print_tick(symbol: str):
             tick = client.get_symbol_ticker(symbol=symbol)
-            logging.info(pp(tick))
+            info(pp(tick))
         print_tick('BTCUSDT')
 
     run_sync()
@@ -42,12 +42,12 @@ def test_binance_restful():
 
         async def print_exchange_info():
             exinfo = await client.get_exchange_info()
-            logging.info(pp(exinfo))
+            info(pp(exinfo))
         await print_exchange_info()
 
         async def print_tick(symbol: str):
             tick = await client.get_symbol_ticker(symbol=symbol)
-            logging.info(pp(tick))
+            info(pp(tick))
         await print_tick('BTCUSDT')
 
         # close
@@ -66,11 +66,11 @@ def test_binance_websocket():
 
     def run_sync():
         # await asyncio.sleep(1)
-        # logging.info('Already slept for 1 seconds.')
+        # info('Already slept for 1 seconds.')
 
         def handle_socket_message(msg):
-            logging.info(f"message type: {msg['e']}")
-            logging.info(msg)
+            info(f"message type: {msg['e']}")
+            info(msg)
 
         bsm = ThreadedWebsocketManager(API_KEY, API_SECRET)
         bsm.start()

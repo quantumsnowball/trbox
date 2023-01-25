@@ -1,4 +1,4 @@
-import logging
+from logging import info, warning
 import pytest
 from dotenv import load_dotenv
 import os
@@ -22,21 +22,20 @@ def test_restful():
 
     def print_time():
         client = Spot()
-        logging.info(client.time())
+        info(client.time())
     print_time()
 
     def print_account_info():
         client = Spot(api_key=API_KEY, api_secret=API_SECRET)
-        logging.info(client.account())
-    # print_account_info()
+        info(client.account())
+    print_account_info()
 
     def print_kline():
         client = Spot()
         # response = client.new_order(**params)
-        # logging.info(response)
+        # info(response)
         klines = client.klines(SYMBOL, '1d')
-        logging.info(klines)
-        breakpoint()
+        info(klines)
     print_kline()
 
 
@@ -50,7 +49,7 @@ def test_websocket():
 
     def print_streaming_ticks(fn: str):
         def message_handler(msg_dict):
-            logging.info('\n' + pp(msg_dict))
+            info('\n' + pp(msg_dict))
 
         ws = SpotWebsocketClient()
         ws.start()
@@ -66,7 +65,7 @@ def test_websocket():
                     pass
             ws.join()
         except KeyboardInterrupt:
-            logging.warning('User stopped execution by KeyboardInterrupt')
+            warning('User stopped execution by KeyboardInterrupt')
         except Exception as e:
             raise e
         finally:

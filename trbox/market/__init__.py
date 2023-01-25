@@ -1,4 +1,4 @@
-import logging
+from logging import debug
 from typing import Self
 from trbox.event import Event
 from trbox.event.handler import EventHandler
@@ -26,11 +26,11 @@ class Market(EventHandler):
         if isinstance(e, Start):
             if isinstance(self._source, StreamingSource):
                 self._source.start()
-                logging.debug((f'`{self.__class__.__name__}` '
-                               'started the `StreamingSource`.'))
+                debug((f'`{self.__class__.__name__}` '
+                       'started the `StreamingSource`.'))
         # listen to MarketDataRequest from Strategy
         if isinstance(e, MarketDataRequest):
             if isinstance(self._source, OnRequestSource):
                 self._source.on_request(e)
-                logging.debug((f'`{self.__class__.__name__}` '
-                               'requested the `OnRequestSource`.'))
+                debug((f'`{self.__class__.__name__}` '
+                       'requested the `OnRequestSource`.'))

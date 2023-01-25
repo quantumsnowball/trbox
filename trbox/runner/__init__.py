@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from trbox.broker import Broker
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from trbox.event.system import Exit, Start
-import logging
+from logging import info, exception
 
 
 class Runner:
@@ -55,17 +55,16 @@ class Runner:
                     future.result()
             # catch KeyboardInterrupt first to stop threads gracefully
             except KeyboardInterrupt:
-                logging.info(
-                    'KeyboardInterrupt: requested all handlers to quit.')
+                info('KeyboardInterrupt: requested all handlers to quit.')
                 self.stop()
             # if other Exception are catched, stop all threads gracefully and
             # then raise them again in main thread to fail any test cases
             except Exception as e:
-                logging.exception(e.__class__)
+                exception(e.__class__)
                 self.stop()
                 raise e
 
-        logging.info('Runner has completed.')
+        info('Runner has completed.')
 
 
 class Trader(Runner):

@@ -22,4 +22,4 @@ def test_binance():
         market=Market(
             source=BinanceRestful()),
         broker=PaperEX()
-    ).run()
+    )
