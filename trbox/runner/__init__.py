@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
+
+from trbox.event.market import MarketData
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.market import Market
@@ -23,16 +25,16 @@ class Runner:
 
     # refs to major event handlers
     @property
-    def strategy(self) -> Strategy:
-        return self._strategy
-
-    @property
     def market(self) -> Market:
         return self._market
 
     @property
     def broker(self) -> Broker:
         return self._broker
+
+    # event routing
+    def new_market_data(self, e: MarketData) -> None:
+        self._strategy.put(e)
 
     # system controls
     def start(self) -> None:

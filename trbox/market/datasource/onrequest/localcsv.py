@@ -42,6 +42,6 @@ class YahooOHLCV(OnRequestSource):
         if isinstance(e, OhlcvWindowRequest):
             try:
                 df = next(self._window_generator)
-                self.runner.strategy.put(OhlcvWindow(self._symbols, df))
+                self.runner.new_market_data(OhlcvWindow(self._symbols, df))
             except StopIteration:
                 self.runner.stop()
