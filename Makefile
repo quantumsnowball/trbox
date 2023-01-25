@@ -46,6 +46,7 @@ typecheck:
 	@mypy --strict trbox
 typecheck-test:
 	@mypy tests 
+typecheck-everything: typecheck typecheck-test
 
 #
 # All

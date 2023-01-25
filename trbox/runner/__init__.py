@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
+from trbox.common.types import Symbol
 
 from trbox.event.market import MarketData, MarketDataRequest
 if TYPE_CHECKING:
@@ -23,11 +24,6 @@ class Runner:
         for handler in self._handlers:
             assert handler.attached
 
-    # refs to major event handlers
-    @property
-    def broker(self) -> Broker:
-        return self._broker
-
     # event routing
     def new_market_data(self, e: MarketData) -> None:
         self._strategy.put(e)
@@ -43,6 +39,10 @@ class Runner:
     def stop(self) -> None:
         for handler in self._handlers:
             handler.put(Exit())
+
+    # investment decision
+    def trade(self, symbol: Symbol, quantity: float) -> None:
+        return self._broker.trade(symbol, quantity)
 
     # main thread pool
     def run(self) -> None:
