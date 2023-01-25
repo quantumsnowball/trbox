@@ -3,7 +3,7 @@ from trbox.common.types import Symbol
 from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.market import \
     MarketDataRequest, OhlcvWindow, OhlcvWindowRequest
-from trbox.market.datasource import OnRequestSource
+from trbox.market.datasource.onrequest import OnRequestSource
 from trbox.market.utils import import_yahoo_csv, concat_dfs_by_columns
 
 

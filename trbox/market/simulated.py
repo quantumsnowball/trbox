@@ -2,7 +2,7 @@ import time
 from trbox.common.types import Symbol
 from trbox.event.market import Candlestick
 from threading import Thread
-from trbox.market.datasource import StreamingSource
+from trbox.market.datasource.streaming import StreamingSource
 
 
 class DummyPrice(StreamingSource):

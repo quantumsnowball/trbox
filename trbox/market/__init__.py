@@ -5,8 +5,9 @@ from trbox.event.handler import EventHandler
 from trbox.event.market import MarketDataRequest
 from trbox.event.system import Start
 from trbox.runner import Runner
-from trbox.market.datasource import \
-    DataSource, OnRequestSource, StreamingSource
+from trbox.market.datasource import DataSource
+from trbox.market.datasource.streaming import StreamingSource
+from trbox.market.datasource.onrequest import OnRequestSource
 
 
 class Market(EventHandler):
