@@ -42,12 +42,17 @@ test-parallel:
 # Typecheck
 #
 # generally, do these check before each major commit
-test-and-checktype:
-	@pytest . --pdb && mypy tests && mypy --strict trbox
-test-parallel-and-checktype:
-	@pytest . --pdb --workers auto && mypy tests && mypy --strict trbox
-checktype:
-	@mypy tests; mypy --strict trbox
+typecheck:
+	@mypy --strict trbox
+typecheck-test:
+	@mypy tests 
+
+#
+# All
+#
+# test and check everything possible
+test-and-checktype: test typecheck typecheck-test
+test-parallel-and-checktype: test-parallel typecheck typecheck-test
 
 #
 # Demo
