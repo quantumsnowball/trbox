@@ -30,12 +30,21 @@ def test_binance():
         exinfo = client.get_exchange_info()
         logging.info(pp(exinfo))
 
-    run_sync()
+    # run_sync()
 
     async def run_async():
         client = await AsyncClient().create(API_KEY, API_SECRET)
-        exinfo = await client.get_exchange_info()
-        logging.info(pp(exinfo))
+
+        async def print_exchange_info():
+            exinfo = await client.get_exchange_info()
+            logging.info(pp(exinfo))
+        # await print_exchange_info()
+
+        async def print_tick(symbol: str):
+            tick = await client.get_symbol_ticker(symbol=symbol)
+            logging.info(pp(tick))
+        await print_tick('BTCUSDT')
+
         await client.close_connection()
 
     asyncio.run(run_async())
