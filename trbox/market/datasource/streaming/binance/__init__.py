@@ -5,7 +5,9 @@ from trbox.market.datasource.onrequest import OnRequestSource
 
 
 class BinanceRestful(OnRequestSource):
-    def __init__(self, api_key: str, api_secret: str) -> None:
+    def __init__(self, *,
+                 api_key: str = '',
+                 api_secret: str = '') -> None:
         super().__init__()
         self._client = Spot(api_key=api_key,
                             api_secret=api_secret)
