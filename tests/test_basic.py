@@ -5,8 +5,8 @@ from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
 from trbox.event.market import OhlcvWindow, Candlestick
 from trbox.market import Market
-from trbox.market.historical import YahooOHLCV
-from trbox.market.simulated import DummyPrice
+from trbox.market.datasource.onrequest.localcsv import YahooOHLCV
+from trbox.market.datasource.streaming.dummy import DummyPrice
 
 
 def test_dummy():
