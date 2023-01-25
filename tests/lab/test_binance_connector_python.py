@@ -6,6 +6,7 @@ from pprint import pformat as pp
 from binance.spot import Spot
 from binance.websocket.spot.websocket_client \
     import SpotWebsocketClient
+from pandas import Series
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
@@ -46,21 +47,30 @@ def test_websocket():
     Yes this is totally working
     Receiving websocket live quote every second tick
     '''
-    SYMBOL = 'bnbusdt'
+    SYMBOL = 'btcusdt'
 
-    def message_handler(msg):
-        logging.info(pp(msg))
+    def print_streaming_ticks(fn: str):
+        def message_handler(msg_dict):
+            logging.info('\n' + pp(msg_dict))
 
-    ws = SpotWebsocketClient()
-    ws.start()
-    try:
-        ws.mini_ticker(symbol=SYMBOL,
-                       id=1,
-                       callback=message_handler)
-        ws.join()
-    except KeyboardInterrupt:
-        ws.stop()
-    except Exception as e:
-        logging.exception(e)
-    finally:
-        ws.close()
+        ws = SpotWebsocketClient()
+        ws.start()
+        try:
+            match fn:
+                case 'mini_ticker':
+                    ws.mini_ticker(1, message_handler, symbol=SYMBOL)
+                case 'trade':
+                    ws.trade(SYMBOL, 2, message_handler)
+                case 'kline':
+                    ws.kline(SYMBOL, 3, '1m', message_handler)
+                case _:
+                    pass
+            ws.join()
+        except KeyboardInterrupt:
+            logging.warning('User stopped execution by KeyboardInterrupt')
+        except Exception as e:
+            raise e
+        finally:
+            ws.stop()
+            ws.close()
+    print_streaming_ticks('kline')
