@@ -15,19 +15,6 @@ class EventHandler(ABC):
     def __init__(self) -> None:
         self._event_queue: Queue[Event] = Queue()
 
-    # EventHandler must attach to a Runner to function properly
-    def attach(self, runner: Runner) -> Self:
-        self._runner = runner
-        return self
-
-    @property
-    def runner(self) -> Runner:
-        return self._runner
-
-    @property
-    def attached(self) -> bool:
-        return isinstance(self._runner, Runner)
-
     # event queue operations
     def put(self, e: Event) -> None:
         self._event_queue.put(e)
@@ -57,3 +44,21 @@ class EventHandler(ABC):
     @abstractmethod
     def handle(self, e: Event) -> None:
         pass
+
+
+class CounterParty(EventHandler, ABC):
+    def __init__(self) -> None:
+        super().__init__()
+
+    # EventHandler must attach to a Runner to function properly
+    def attach(self, runner: Runner) -> Self:
+        self._runner = runner
+        return self
+
+    @property
+    def runner(self) -> Runner:
+        return self._runner
+
+    @property
+    def attached(self) -> bool:
+        return isinstance(self._runner, Runner)

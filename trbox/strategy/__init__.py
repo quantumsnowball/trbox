@@ -1,11 +1,11 @@
 from collections.abc import Callable
 from trbox.event import Event
-from trbox.event.handler import EventHandler
+from trbox.event.handler import CounterParty
 from trbox.event.market import OhlcvWindow, OhlcvWindowRequest, Candlestick
 from trbox.event.system import Start
 
 
-class Strategy(EventHandler):
+class Strategy(CounterParty):
     def __init__(
         self, *,
         on_tick: Callable[['Strategy', Candlestick], None] | None = None,

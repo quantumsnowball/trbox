@@ -1,7 +1,7 @@
 from logging import debug
 from typing import Self
 from trbox.event import Event
-from trbox.event.handler import EventHandler
+from trbox.event.handler import CounterParty
 from trbox.event.market import MarketDataRequest
 from trbox.event.system import Start
 from trbox.runner import Runner
@@ -10,7 +10,7 @@ from trbox.market.datasource.streaming import StreamingSource
 from trbox.market.datasource.onrequest import OnRequestSource
 
 
-class Market(EventHandler):
+class Market(CounterParty):
     def __init__(self, *,
                  source: DataSource) -> None:
         super().__init__()
