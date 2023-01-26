@@ -9,15 +9,18 @@ from trbox.market.datasource.onrequest.localcsv import YahooOHLCV
 from trbox.market.datasource.streaming.dummy import DummyPrice
 
 
-def test_dummy():
+@pytest.mark.parametrize('live', [True, False])
+def test_dummy(live):
     SYMBOL = 'BTC'
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
+        assert live == (not self.trader.backtesting)
         info(f'St: price={e.price}')
-        self.runner.broker.trade(SYMBOL, +10)
+        self.trader.trade(SYMBOL, +10)
 
     Trader(
+        live=live,
         strategy=Strategy(
             on_tick=dummy_action),
         market=Market(
@@ -37,7 +40,7 @@ def test_historical_data(start: Timestamp | str | None,
     # on_window
     def dummy_action(self: Strategy, e: OhlcvWindow):
         assert e.win.shape == (length, 10)
-        self.runner.broker.trade(SYMBOLS[0], +10)
+        self.trader.trade(SYMBOLS[0], +10)
         info(f'St: date={e.datetime} last={e.last.shape}, close={e.close}')
 
     Trader(

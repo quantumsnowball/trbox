@@ -2,8 +2,9 @@ from abc import ABC, abstractmethod
 from queue import Queue
 from typing import Self
 from trbox.event import Event
+from trbox.event.distributor import Distributor
 from trbox.event.system import Exit
-from trbox.runner import Runner
+from trbox.trader import Trader
 from logging import debug
 
 
@@ -14,19 +15,6 @@ class EventHandler(ABC):
 
     def __init__(self) -> None:
         self._event_queue: Queue[Event] = Queue()
-
-    # EventHandler must attach to a Runner to function properly
-    def attach(self, runner: Runner) -> Self:
-        self._runner = runner
-        return self
-
-    @property
-    def runner(self) -> Runner:
-        return self._runner
-
-    @property
-    def attached(self) -> bool:
-        return isinstance(self._runner, Runner)
 
     # event queue operations
     def put(self, e: Event) -> None:
@@ -57,3 +45,30 @@ class EventHandler(ABC):
     @abstractmethod
     def handle(self, e: Event) -> None:
         pass
+
+
+class CounterParty(EventHandler, ABC):
+    '''
+    Middle class that is attached to a Trader
+    '''
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    # CounterParty must attach to a Trader to function properly
+    def attach(self,
+               trader: Trader) -> Self:
+        self._trader = trader
+        return self
+
+    @property
+    def trader(self) -> Trader:
+        return self._trader
+
+    @property
+    def send(self) -> Distributor:
+        return self._trader._distributor
+
+    @property
+    def attached(self) -> bool:
+        return isinstance(self._trader, Trader)

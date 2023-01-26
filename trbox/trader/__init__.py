@@ -1,11 +1,15 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
+
+from trbox.event.broker import Trade
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.market import Market
     from trbox.broker import Broker
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from trbox.event.system import Exit, Start
+from trbox.common.types import Symbol
+from trbox.event.distributor import Distributor
 from logging import info, exception
 
 
@@ -14,25 +18,10 @@ class Runner:
                  strategy: Strategy,
                  market: Market,
                  broker: Broker):
-        self._strategy: Strategy = strategy.attach(self)
-        self._market: Market = market.attach(self)
-        self._broker: Broker = broker.attach(self)
+        self._strategy: Strategy = strategy
+        self._market: Market = market
+        self._broker: Broker = broker
         self._handlers = [self._strategy, self._market, self._broker]
-        for handler in self._handlers:
-            assert handler.attached
-
-    # refs to major event handlers
-    @property
-    def strategy(self) -> Strategy:
-        return self._strategy
-
-    @property
-    def market(self) -> Market:
-        return self._market
-
-    @property
-    def broker(self) -> Broker:
-        return self._broker
 
     # system controls
     def start(self) -> None:
@@ -68,5 +57,29 @@ class Runner:
 
 
 class Trader(Runner):
-    def __init__(self, **kwargs: Any):
+    def __init__(self, *,
+                 live: bool = False,
+                 **kwargs: Any):
         super().__init__(**kwargs)
+        self._live = live
+        self._distributor = Distributor(self,
+                                        strategy=self._strategy,
+                                        market=self._market,
+                                        broker=self._broker)
+        for handler in self._handlers:
+            handler.attach(self)
+        for handler in self._handlers:
+            assert handler.attached
+
+    # mode
+    @property
+    def live(self) -> bool:
+        return self._live
+
+    @property
+    def backtesting(self) -> bool:
+        return not self._live
+
+    # investment decision
+    def trade(self, symbol: Symbol, quantity: float) -> None:
+        return self._broker.trade(Trade(symbol, quantity))

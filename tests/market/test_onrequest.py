@@ -5,7 +5,7 @@ from trbox.broker.simulated import PaperEX
 from trbox.market import Market
 from trbox.market.datasource.streaming.binance import BinanceRestful
 
-from trbox.runner import Trader
+from trbox.trader import Trader
 from trbox.strategy import Strategy
 
 load_dotenv()

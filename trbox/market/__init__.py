@@ -1,25 +1,26 @@
 from logging import debug
 from typing import Self
 from trbox.event import Event
-from trbox.event.handler import EventHandler
+from trbox.event.handler import CounterParty
 from trbox.event.market import MarketDataRequest
 from trbox.event.system import Start
-from trbox.runner import Runner
+from trbox.trader import Trader
 from trbox.market.datasource import DataSource
 from trbox.market.datasource.streaming import StreamingSource
 from trbox.market.datasource.onrequest import OnRequestSource
 
 
-class Market(EventHandler):
+class Market(CounterParty):
     def __init__(self, *,
                  source: DataSource) -> None:
         super().__init__()
         self._source = source
 
-    def attach(self, runner: Runner) -> Self:
+    def attach(self, trader: Trader
+               ) -> Self:
         # this will also attach DataSource in Market is init-ed
-        self._source.attach(runner)
-        return super().attach(runner)
+        self._source.attach(trader)
+        return super().attach(trader)
 
     def handle(self, e: Event) -> None:
         # listen to system Start event
