@@ -1,3 +1,4 @@
+import pytest
 import os
 from dotenv import load_dotenv
 from trbox.broker.simulated import PaperEX
@@ -12,6 +13,7 @@ API_KEY = os.getenv('API_KEY')
 API_SECRET = os.getenv('API_SECRET')
 
 
+@pytest.mark.lab()
 def test_binance():
     SYMBOL = 'BTCUSDT'
 

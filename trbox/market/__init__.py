@@ -1,4 +1,4 @@
-from logging import debug, critical
+from logging import debug
 from typing import Self
 from trbox.common.utils import cln
 from trbox.event import Event
@@ -28,17 +28,17 @@ class Market(CounterParty):
         if isinstance(e, Start):
             if isinstance(self._source, StreamingSource):
                 self._source.start()
-                debug((f'`{cln(self)}` '
-                       'started the `StreamingSource`.'))
+                debug((f'{cln(self)} '
+                       f'started {cln(self._source)}.'))
         # listen to MarketDataRequest from Strategy
         if isinstance(e, MarketDataRequest):
             if isinstance(self._source, OnRequestSource):
                 self._source.on_request(e)
-                debug((f'`{cln(self)}` '
-                       'requested the `OnRequestSource`.'))
+                debug((f'{cln(self)} '
+                       f'issued {cln(self._source)}.'))
         # listen to Exit event to also close any threaded DataSource
         if isinstance(e, Exit):
             if isinstance(self._source, StreamingSource):
                 self._source.stop()
-                debug((f'`{cln(self)}` '
-                       'requested the `StreamingSource` to stop and close.'))
+                debug((f'{cln(self)} '
+                       f'requested {cln(self._source)} to stop and close.'))

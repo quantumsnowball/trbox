@@ -27,13 +27,13 @@ class EventHandler(ABC):
         while True:
             # block by the get method until a event is retrieved
             e = self._event_queue.get()
-            debug((f'`{cln(self)}` received a '
-                   f'`{cln(e)}` event.'))
+            debug((f'{cln(self)} received a '
+                   f'{cln(e)} event.'))
 
             # pass the event to the subclass method for handling
             self.handle(e)
-            debug((f'`{cln(self)}` is handling '
-                   f'`{cln(e)}` event.'))
+            debug((f'{cln(self)} is handling '
+                   f'{cln(e)} event.'))
 
             # mark the task done and update event count
             self._event_queue.task_done()
