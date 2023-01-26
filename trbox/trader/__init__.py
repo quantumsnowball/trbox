@@ -1,14 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
-from trbox.common.types import Symbol
-
-from trbox.event.market import MarketData, MarketDataRequest
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.market import Market
     from trbox.broker import Broker
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from trbox.event.system import Exit, Start
+from trbox.common.types import Symbol
+from trbox.event.distributor import Distributor
 from logging import info, exception
 
 
@@ -21,13 +20,6 @@ class Runner:
         self._market: Market = market
         self._broker: Broker = broker
         self._handlers = [self._strategy, self._market, self._broker]
-
-    # event routing
-    def new_market_data(self, e: MarketData) -> None:
-        self._strategy.put(e)
-
-    def new_market_data_request(self, e: MarketDataRequest) -> None:
-        self._market.put(e)
 
     # system controls
     def start(self) -> None:
@@ -65,6 +57,10 @@ class Runner:
 class Trader(Runner):
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
+        self._distributor = Distributor(self,
+                                        strategy=self._strategy,
+                                        market=self._market,
+                                        broker=self._broker)
         for handler in self._handlers:
             handler.attach(self)
         for handler in self._handlers:

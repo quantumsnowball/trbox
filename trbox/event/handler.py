@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from queue import Queue
 from typing import Self
 from trbox.event import Event
+from trbox.event.distributor import Distributor
 from trbox.event.system import Exit
 from trbox.trader import Trader
 from logging import debug
@@ -55,13 +56,18 @@ class CounterParty(EventHandler, ABC):
         super().__init__()
 
     # CounterParty must attach to a Trader to function properly
-    def attach(self, trader: Trader) -> Self:
+    def attach(self,
+               trader: Trader) -> Self:
         self._trader = trader
         return self
 
     @property
     def trader(self) -> Trader:
         return self._trader
+
+    @property
+    def send(self) -> Distributor:
+        return self._trader._distributor
 
     @property
     def attached(self) -> bool:

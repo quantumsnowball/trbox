@@ -1,4 +1,5 @@
 from typing import Self
+from trbox.event.distributor import Distributor
 from trbox.trader import Trader
 
 
@@ -16,3 +17,7 @@ class DataSource:
     @property
     def trader(self) -> Trader:
         return self._trader
+
+    @property
+    def send(self) -> Distributor:
+        return self._trader._distributor
