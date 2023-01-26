@@ -30,10 +30,6 @@ class EventHandler(ABC):
             debug((f'`{cln(self)}` received a '
                    f'`{cln(e)}` event.'))
 
-            # break handler if received the Exit event
-            if isinstance(e, Exit):
-                break
-
             # pass the event to the subclass method for handling
             self.handle(e)
             debug((f'`{cln(self)}` is handling '
@@ -41,6 +37,10 @@ class EventHandler(ABC):
 
             # mark the task done and update event count
             self._event_queue.task_done()
+
+            # break handler if received the Exit event
+            if isinstance(e, Exit):
+                break
 
     # event handling implementation left to child
     @abstractmethod
