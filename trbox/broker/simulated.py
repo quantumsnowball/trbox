@@ -28,28 +28,34 @@ class TradingBook:
         self.price = price
 
         # transaction
-    def transact(self, e: Order) -> bool:
-        # make sure trading book is ready
-        if not (self.price and self.bid and self.ask):
-            return False
-        # assume MarketOrder always succeed
-        if isinstance(e, MarketOrder):
-            return True
-        # assume LimitOrder is a success if price can match
-        if isinstance(e, LimitOrder):
-            if e.quantity > 0 and e.price > self.ask:
-                return True
-            if e.quantity < 0 and e.price < self.bid:
-                return True
-        # default Failed
-        return False
+    def transact(self, e: Order) -> OrderResult:
+        def match_rules() -> tuple[bool, float | None]:
+            # make sure trading book is ready
+            if not (self.price and self.bid and self.ask):
+                return False, None
+            # assume MarketOrder always succeed
+            if isinstance(e, MarketOrder):
+                if e.quantity > 0:
+                    return True, self.ask
+                if e.quantity < 0:
+                    return True, self.bid
+            # assume LimitOrder is a success if price can match
+            if isinstance(e, LimitOrder):
+                if e.quantity > 0 and e.price > self.ask:
+                    return True, self.ask
+                if e.quantity < 0 and e.price < self.bid:
+                    return True, self.bid
+            # default Failed
+            return False, None
+        result, price = match_rules()
+        quantity = e.quantity if result else None
+        return OrderResult(e, result, price, quantity)
 
 
 class MatchingEngine(dict[Symbol, TradingBook]):
     # matching
     def match(self, e: Order) -> OrderResult:
-        result = self[e.symbol].transact(e)
-        e_result = OrderResult(e, result)
+        e_result = self[e.symbol].transact(e)
         info(f'{cln(self)}: {e_result}')
         return e_result
 

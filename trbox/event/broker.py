@@ -29,3 +29,5 @@ class LimitOrder(Order):
 class OrderResult(BrokerEvent):
     order: Order
     result: bool
+    price: float | None = None
+    quantity: float | None = None

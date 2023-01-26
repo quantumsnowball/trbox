@@ -17,7 +17,7 @@ def test_binance():
 
     def handle(self: Strategy, e: Candlestick):
         # dummy trade
-        self.trader.trade(SYMBOL, +99999)
+        self.trader.trade(SYMBOL, +9)
 
     Trader(
         strategy=Strategy(
