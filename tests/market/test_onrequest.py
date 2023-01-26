@@ -1,10 +1,9 @@
 import os
-from logging import info
 from dotenv import load_dotenv
 from trbox.broker.simulated import PaperEX
+from trbox.event.market import Candlestick
 from trbox.market import Market
-from trbox.market.datasource.streaming.binance import BinanceRestful
-
+from trbox.market.datasource.streaming.binance import BinanceWebsocket
 from trbox.trader import Trader
 from trbox.strategy import Strategy
 
@@ -16,12 +15,15 @@ API_SECRET = os.getenv('API_SECRET')
 def test_binance():
     SYMBOL = 'BTCUSDT'
 
-    def handle():
-        info('handling')
+    def handle(self: Strategy, e: Candlestick):
+        # dummy trade
+        self.trader.trade(SYMBOL, +99999)
 
     Trader(
-        strategy=Strategy(),
+        strategy=Strategy(
+            on_tick=handle),
         market=Market(
-            source=BinanceRestful()),
+            source=BinanceWebsocket(
+                symbol=SYMBOL)),
         broker=PaperEX(SYMBOL)
-    )
+    ).run()
