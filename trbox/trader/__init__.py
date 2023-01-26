@@ -55,8 +55,11 @@ class Runner:
 
 
 class Trader(Runner):
-    def __init__(self, **kwargs: Any):
+    def __init__(self, *,
+                 live: bool = False,
+                 **kwargs: Any):
         super().__init__(**kwargs)
+        self._live = live
         self._distributor = Distributor(self,
                                         strategy=self._strategy,
                                         market=self._market,
@@ -65,6 +68,15 @@ class Trader(Runner):
             handler.attach(self)
         for handler in self._handlers:
             assert handler.attached
+
+    # mode
+    @property
+    def live(self) -> bool:
+        return self._live
+
+    @property
+    def backtesting(self) -> bool:
+        return not self._live
 
     # investment decision
     def trade(self, symbol: Symbol, quantity: float) -> None:

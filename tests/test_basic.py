@@ -9,15 +9,18 @@ from trbox.market.datasource.onrequest.localcsv import YahooOHLCV
 from trbox.market.datasource.streaming.dummy import DummyPrice
 
 
-def test_dummy():
+@pytest.mark.parametrize('live', [True, False])
+def test_dummy(live):
     SYMBOL = 'BTC'
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
+        assert live == (not self.trader.backtesting)
         info(f'St: price={e.price}')
         self.trader.trade(SYMBOL, +10)
 
     Trader(
+        live=live,
         strategy=Strategy(
             on_tick=dummy_action),
         market=Market(
