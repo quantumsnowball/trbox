@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
+
+from trbox.event.broker import Trade
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.market import Market
@@ -80,4 +82,4 @@ class Trader(Runner):
 
     # investment decision
     def trade(self, symbol: Symbol, quantity: float) -> None:
-        return self._broker.trade(symbol, quantity)
+        return self._broker.trade(Trade(symbol, quantity))
