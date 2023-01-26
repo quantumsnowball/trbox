@@ -14,6 +14,8 @@ API_SECRET = os.getenv('API_SECRET')
 
 
 def test_binance():
+    SYMBOL = 'BTCUSDT'
+
     def handle():
         info('handling')
 
@@ -21,5 +23,5 @@ def test_binance():
         strategy=Strategy(),
         market=Market(
             source=BinanceRestful()),
-        broker=PaperEX()
+        broker=PaperEX(SYMBOL)
     )

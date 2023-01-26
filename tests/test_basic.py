@@ -25,7 +25,7 @@ def test_dummy(live):
             on_tick=dummy_action),
         market=Market(
             source=DummyPrice(SYMBOL, delay=0)),
-        broker=PaperEX()
+        broker=PaperEX(SYMBOL)
     ).run()
 
 
@@ -53,5 +53,5 @@ def test_historical_data(start: Timestamp | str | None,
                 start=start,
                 end=end,
                 length=length)),
-        broker=PaperEX()
+        broker=PaperEX(SYMBOLS[0])
     ).run()
