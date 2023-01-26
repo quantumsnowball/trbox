@@ -15,7 +15,7 @@ class BinanceWebsocket(StreamingSource):
 
     @override
     def start(self) -> None:
-        def on_trade(d: dict) -> None:
+        def on_trade(d: dict[str, str]) -> None:
             try:
                 price = float(d['p'])
                 self.send.new_market_data(Candlestick(self._symbol, price))

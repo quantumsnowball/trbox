@@ -29,3 +29,6 @@ class Distributor:
 
     def new_market_data_request(self, e: MarketDataRequest) -> None:
         self._market.put(e)
+
+    def end_of_market_data(self) -> None:
+        self._trader.stop()

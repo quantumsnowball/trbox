@@ -1,3 +1,5 @@
+from logging import debug
+import sys
 import time
 from typing_extensions import override
 from trbox.common.types import Symbol
@@ -20,6 +22,7 @@ class DummyPrice(StreamingSource):
         self._symbol = symbol
         self._n = n
         self._delay = delay
+        self._keep_alive = False
 
     @override
     def start(self) -> None:
@@ -28,8 +31,16 @@ class DummyPrice(StreamingSource):
             for i in range(self._n):
                 self.send.new_market_data(Candlestick(self._symbol, i))
                 time.sleep(self._delay)
+                if not self._keep_alive:
+                    debug(f'keep alive flag set to {self._keep_alive}, return')
+                    return
             # simulate the end of data
-            self.trader.stop()
+            self.send.end_of_market_data()
         # deamon thread will not block program from exiting
-        t = Thread(target=worker, daemon=True)
+        self._keep_alive = True
+        t = Thread(target=worker)
         t.start()
+
+    @override
+    def stop(self) -> None:
+        self._keep_alive = False
