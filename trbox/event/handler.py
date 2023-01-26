@@ -3,7 +3,7 @@ from queue import Queue
 from typing import Self
 from trbox.event import Event
 from trbox.event.system import Exit
-from trbox.runner import Trader
+from trbox.trader import Trader
 from logging import debug
 
 

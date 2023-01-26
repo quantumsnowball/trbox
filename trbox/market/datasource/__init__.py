@@ -1,5 +1,5 @@
 from typing import Self
-from trbox.runner import Trader
+from trbox.trader import Trader
 
 
 class DataSource:
