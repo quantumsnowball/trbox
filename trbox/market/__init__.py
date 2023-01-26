@@ -1,5 +1,6 @@
 from logging import debug
 from typing import Self
+from trbox.common.utils import cln
 from trbox.event import Event
 from trbox.event.handler import CounterParty
 from trbox.event.market import MarketDataRequest
@@ -27,7 +28,7 @@ class Market(CounterParty):
         if isinstance(e, Start):
             if isinstance(self._source, StreamingSource):
                 self._source.start()
-                debug((f'`{self.__class__.__name__}` '
+                debug((f'`{cln(self)}` '
                        'started the `StreamingSource`.'))
         # listen to MarketDataRequest from Strategy
         if isinstance(e, MarketDataRequest):

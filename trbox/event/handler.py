@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from queue import Queue
 from typing import Self
+from trbox.common.utils import cln
 from trbox.event import Event
 from trbox.event.distributor import Distributor
 from trbox.event.system import Exit
@@ -26,8 +27,8 @@ class EventHandler(ABC):
         while True:
             # block by the get method until a event is retrieved
             e = self._event_queue.get()
-            debug((f'`{self.__class__.__name__}` received a '
-                   f'`{e.__class__.__name__}` event.'))
+            debug((f'`{cln(self)}` received a '
+                   f'`{cln(e)}` event.'))
 
             # break handler if received the Exit event
             if isinstance(e, Exit):
@@ -35,8 +36,8 @@ class EventHandler(ABC):
 
             # pass the event to the subclass method for handling
             self.handle(e)
-            debug((f'`{self.__class__.__name__}` is handling '
-                   f'`{e.__class__.__name__}` event.'))
+            debug((f'`{cln(self)}` is handling '
+                   f'`{cln(e)}` event.'))
 
             # mark the task done and update event count
             self._event_queue.task_done()

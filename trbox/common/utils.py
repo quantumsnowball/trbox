@@ -1,3 +1,4 @@
+from typing import Any
 from pandas import DataFrame, Timestamp
 from trbox.common.constants import OHLCV_COLUMN_NAMES
 
@@ -32,3 +33,14 @@ def trim_ohlcv_by_range_length(
     # applyy trim and return df
     df = df.loc[trim_from:trim_to]
     return df
+
+
+def cln(obj: Any) -> str:
+    '''
+    print class name for any object
+    '''
+    name = obj.__class__.__name__
+    if isinstance(name, str):
+        return name
+    # guarantee to return a default str
+    return str(obj)

@@ -3,6 +3,7 @@ from logging import debug, info
 from typing_extensions import override
 from trbox.broker import Broker
 from trbox.common.types import Symbol
+from trbox.common.utils import cln
 from trbox.event import Event
 from trbox.event.broker import LimitOrder, MarketOrder, Order, OrderResult
 from trbox.event.market import Candlestick
@@ -49,7 +50,7 @@ class MatchingEngine(dict[Symbol, TradingBook]):
     def match(self, e: Order) -> OrderResult:
         result = self[e.symbol].transact(e)
         e_result = OrderResult(e, result)
-        info(f'{self.__class__.__name__}: {e_result}')
+        info(f'{cln(self)}: {e_result}')
         return e_result
 
 
