@@ -13,9 +13,6 @@ class BinanceWebsocket(StreamingSource):
         super().__init__()
         self._symbol = symbol
 
-    def on_server_time(self) -> None:
-        pass
-
     @override
     def start(self) -> None:
         def on_trade(d: dict) -> None:
@@ -31,17 +28,10 @@ class BinanceWebsocket(StreamingSource):
         ws = SpotWebsocketClient()
         ws.start()
         debug(f'{cln(self)}: {cln(ws)} started')
-        try:
-            ws.trade(self._symbol, 1, on_trade)
-            info(f'{cln(self)}: {cln(ws)} request trade stream')
-            ws.join()
-            info(f'{cln(self)}: joined {cln(ws)} thread')
-        except KeyboardInterrupt as kb:
-            warning(f'{cln(self)}: {cln(kb)}')
-        except Exception as e:
-            raise e
-        finally:
-            ws.stop()
-            debug(f'{cln(self)}: {cln(ws)} stopped')
-            ws.close()
-            debug(f'{cln(self)}: {cln(ws)} closed')
+        ws.trade(self._symbol, 1, on_trade)
+        info(f'{cln(self)}: {cln(ws)} request trade stream')
+        self._ws = ws
+
+    @override
+    def stop(self) -> None:
+        self._ws.stop()

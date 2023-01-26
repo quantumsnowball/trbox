@@ -44,8 +44,8 @@ class Runner:
                     future.result()
             # catch KeyboardInterrupt first to stop threads gracefully
             except KeyboardInterrupt:
-                info('KeyboardInterrupt: requested all handlers to quit.')
                 self.stop()
+                info('KeyboardInterrupt: requested all handlers to quit.')
             # if other Exception are catched, stop all threads gracefully and
             # then raise them again in main thread to fail any test cases
             except Exception as e:
