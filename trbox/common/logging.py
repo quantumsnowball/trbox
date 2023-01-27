@@ -6,6 +6,7 @@ LEVELS = ['debug', 'info', 'warning', 'error', 'critical']
 
 # raw parts
 DATETIME = '%(asctime)s'
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 MSECOND = '%(msecs)03d'
 LEVELNAME_RIGHT = '%(levelname)8s'
 MESSAGE = '%(message)s'
@@ -36,13 +37,14 @@ FORMAT_STRINGS = {lv: NORMAL if lv in ('info', 'warning') else DETAIL
                   for lv in LEVELS}
 
 
-def make_logging_function():
+def make_logging_function() -> tuple:
     '''
     Each level has its own logger with its specific formatter, representing
     different level of message detail.
     '''
     # formatters
-    fmts = {lv: Formatter(fs)
+    fmts = {lv: Formatter(fmt=fs,
+                          datefmt=DATE_FORMAT)
             for lv, fs in FORMAT_STRINGS.items()}
 
     # loggers
@@ -56,18 +58,19 @@ def make_logging_function():
         sh = StreamHandler()
         sh.setFormatter(fmt)
         logger.addHandler(sh)
-        # extra the matching logging function
+        # extract the matching logging function
         fn = getattr(logger, lv)
         return fn
 
     # only need the log function matching each level logger
     fns = tuple(make_logger(lv, fmt)
                 for lv, fmt in fmts.items())
-    return fns
+    exception = getLogger('error').exception
+    return *fns, exception
 
 
 # import these function directly in other source files
-debug, info, warning, error, critical = make_logging_function()
+debug, info, warning, error, critical, exception = make_logging_function()
 
 
 def eval_format_string():
