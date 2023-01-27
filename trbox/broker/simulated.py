@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from trbox.common.logger import debug, info
 from typing_extensions import override
 from trbox.broker import Broker
+from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
 from trbox.common.utils import cln
 from trbox.event import Event
@@ -78,5 +79,5 @@ class PaperEX(Broker):
         if self.trader.backtesting:
             if isinstance(e, Candlestick):
                 self._engine[e.symbol].update(e.price)
-                debug(
-                    f'Updated OrderBook status of {e.symbol} to price={e.price}')
+                debug(Log('updated OrderBook',
+                          e.symbol, price=e.price).by(self))

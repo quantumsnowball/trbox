@@ -53,6 +53,6 @@ def cln(obj: Any) -> str:
 
 def ppf(obj: Any) -> str:
     try:
-        return f'\n{pformat(obj)}\n'
+        return pformat(obj)
     except Exception:
-        return f'\n{str(obj)}\n'
+        return str(obj)
