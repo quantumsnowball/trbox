@@ -54,4 +54,17 @@ def test_ppf():
     [[1, 2], ['3', '4']] * 5
 ])
 def test_parser(obj):
-    info(Log(obj, 2, 3, 4).sep('\n').sparse())
+    class Base:
+        ...
+    base = Base()
+
+    class Foo(Base):
+        ...
+    foo = Foo()
+
+    info(Log('Most basic oneliner'))
+    info(Log('Normally I am just oneliner').by(Base).sparse())
+    info(Log('comment').by(base).sparse())
+    info(Log('my objects', obj, 2, 3, 4).by(foo))
+    info(Log(obj, 2, 3, 4).sep(' | ').by('God').sparse())
+    info(Log(obj, 2, 3, 4).sparse().by('Foo').tag('bar'))

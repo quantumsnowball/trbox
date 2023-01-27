@@ -1,6 +1,7 @@
 from pprint import pformat
 from typing import Any, Self
 from trbox.common.logger import info
+from trbox.common.utils import cln
 
 
 class Log:
@@ -15,16 +16,18 @@ class Log:
         self._kwargs = kwargs
         self._prefix = ''
         self._suffix = ''
-        self._sep = ' '
-        self._padding = ''
+        self._sep = ', '
+        self._pad = ''
 
     def _compile(self, fn) -> str:
+        header = self._pad if len(self._prefix) == 0 \
+            else f'{self._pad}{self._prefix}{self._pad}'
+        footer = self._pad if len(self._suffix) == 0 \
+            else f'{self._pad}{self._suffix}{self._pad}'
         return ''.join((
-            f'{self._padding}',
-            f'{self._prefix}',
-            f'{self._sep.join(map(fn, self._args))}',
-            f'{self._suffix}',
-            f'{self._padding}',
+            header,
+            self._sep.join(map(fn, self._args)),
+            footer,
         ))
 
     def __str__(self) -> str:
@@ -37,7 +40,8 @@ class Log:
     # chained modifier methods
     #
     def by(self, who: Any) -> Self:
-        self._prefix = f'{who}::'
+        who = who if isinstance(who, str) else cln(who)
+        self._prefix = f'{who} : '
         return self
 
     def tag(self, tags: str) -> Self:
@@ -50,5 +54,6 @@ class Log:
 
     # high-level modifier
     def sparse(self) -> Self:
-        self._padding = '\n'
+        self._sep = '\n'
+        self._pad = '\n'
         return self
