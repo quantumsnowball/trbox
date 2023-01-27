@@ -4,7 +4,7 @@ from typing_extensions import override
 from trbox.broker import Broker
 from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
-from trbox.common.utils import cln
+from trbox.common.utils import cln, ppf
 from trbox.event import Event
 from trbox.event.broker import LimitOrder, MarketOrder, Order, OrderResult
 from trbox.event.market import Candlestick
@@ -57,7 +57,8 @@ class MatchingEngine(dict[Symbol, TradingBook]):
     # matching
     def match(self, e: Order) -> OrderResult:
         e_result = self[e.symbol].transact(e)
-        info(f'{cln(self)}: {e_result}')
+        info(Log('order matching', ppf(e_result)).sparse()
+             .by(self).tag('match', 'order'))
         return e_result
 
 
