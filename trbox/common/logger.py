@@ -1,3 +1,4 @@
+import logging
 from logging import getLogger, Formatter, StreamHandler
 
 
@@ -8,7 +9,7 @@ LEVELS = ['debug', 'info', 'warning', 'error', 'critical']
 DATETIME = '%(asctime)s'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 MSECOND = '%(msecs)03d'
-LEVELNAME_RIGHT = '%(levelname)8s'
+LEVELNAME_RIGHT = '%(levelname)5s'
 MESSAGE = '%(message)s'
 PROCESS = '%(process)d'
 PROCESS_NAME = '%(processName)s'
@@ -24,7 +25,7 @@ LINENO = '%(lineno)s'
 TRACE_INFO = f'{MODULE} > {FILENAME}:{LINENO} > {FUNCTION_NAME}() #{NAME}'
 EXTRA_INFO = f'@{PROCESS_NAME}({PROCESS}) @{THREAD_NAME}({THREAD})'
 
-PREFIX = f'[ {DATETIME}.{MSECOND} | {LEVELNAME_RIGHT}]'
+PREFIX = f'[ {DATETIME}.{MSECOND} | {LEVELNAME_RIGHT} ]'
 SUFFIX = f'[ {TRACE_INFO} ]'
 SUFFIX_LONG = f'[ {TRACE_INFO} {EXTRA_INFO} ]'
 
@@ -48,7 +49,7 @@ def make_logging_function() -> tuple:
             for lv, fs in FORMAT_STRINGS.items()}
 
     # loggers
-    def make_logger(lv: str, fmt: Formatter):
+    def make_log_fn(lv: str, fmt: Formatter):
         # create logger with level name
         logger = getLogger(lv)
         # clear any existing handlers
@@ -58,14 +59,12 @@ def make_logging_function() -> tuple:
         sh = StreamHandler()
         sh.setFormatter(fmt)
         logger.addHandler(sh)
-        # stop propagating to the root logger to avoid duplicated logging
-        logger.propagate = False
         # extract the matching logging function
         fn = getattr(logger, lv)
         return fn
 
     # only need the log function matching each level logger
-    fns = tuple(make_logger(lv, fmt)
+    fns = tuple(make_log_fn(lv, fmt)
                 for lv, fmt in fmts.items())
     exception = getLogger('error').exception
     return *fns, exception
@@ -73,6 +72,13 @@ def make_logging_function() -> tuple:
 
 # import these function directly in other source files
 debug, info, warning, error, critical, exception = make_logging_function()
+
+
+def set_log_level(lv: str):
+    loggers = [logging.getLogger(name)
+               for name in logging.root.manager.loggerDict]
+    for logger in loggers:
+        logger.setLevel(lv.upper())
 
 
 def eval_format_string():
