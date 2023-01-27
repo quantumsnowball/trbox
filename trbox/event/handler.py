@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from queue import Queue
-from typing import Self
+from typing import TypeVar
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 from trbox.event import Event
@@ -47,6 +47,9 @@ class EventHandler(ABC):
         pass
 
 
+Self = TypeVar('Self', bound='CounterParty')
+
+
 class CounterParty(EventHandler, ABC):
     '''
     Middle class that is attached to a Trader
@@ -56,7 +59,7 @@ class CounterParty(EventHandler, ABC):
         super().__init__()
 
     # CounterParty must attach to a Trader to function properly
-    def attach(self,
+    def attach(self: Self,
                trader: Trader) -> Self:
         self._trader = trader
         return self

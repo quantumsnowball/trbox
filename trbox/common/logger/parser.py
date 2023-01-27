@@ -1,5 +1,8 @@
-from typing import Any, Callable, Self
+from typing import Any, Callable, TypeVar
 from trbox.common.utils import cln
+
+
+Self = TypeVar('Self', bound='Log')
 
 
 class Log:
@@ -45,23 +48,23 @@ class Log:
     #
     # chained modifier methods
     #
-    def by(self, *who: Any) -> Self:
+    def by(self: Self, *who: Any) -> Self:
         who = tuple(map(
             lambda w: w if isinstance(w, str) else cln(w), who))
         # who = who if isinstance(who, str) else cln(who)
         self._prefix = f'{", ".join(who)} : '
         return self
 
-    def tag(self, *tags: str) -> Self:
+    def tag(self: Self, *tags: str) -> Self:
         self._suffix = ' '.join([f'#{t}' for t in tags])
         return self
 
-    def sep(self, sep: str) -> Self:
+    def sep(self: Self, sep: str) -> Self:
         self._sep = sep
         return self
 
     # high-level modifier
-    def sparse(self) -> Self:
+    def sparse(self: Self) -> Self:
         self._sep = '\n'
         self._pad = '\n'
         return self

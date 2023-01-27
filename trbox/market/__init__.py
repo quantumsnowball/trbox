@@ -1,5 +1,5 @@
 from trbox.common.logger import debug
-from typing import Self
+from typing import TypeVar
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 from trbox.event import Event
@@ -12,14 +12,16 @@ from trbox.market.datasource.streaming import StreamingSource
 from trbox.market.datasource.onrequest import OnRequestSource
 
 
+Self = TypeVar('Self', bound='Market')
+
+
 class Market(CounterParty):
     def __init__(self, *,
                  source: DataSource) -> None:
         super().__init__()
         self._source = source
 
-    def attach(self, trader: Trader
-               ) -> Self:
+    def attach(self: Self, trader: Trader) -> Self:
         # this will also attach DataSource in Market is init-ed
         self._source.attach(trader)
         return super().attach(trader)
