@@ -1,4 +1,4 @@
-from typing import Any, Self
+from typing import Any, Callable, Self
 from trbox.common.utils import cln
 
 
@@ -20,7 +20,7 @@ class Log:
     #
     # make string based on the finaly state of the class
     #
-    def _compile(self, fn) -> str:
+    def _compile(self, fn: Callable[[Any], str]) -> str:
         header = self._pad if len(self._prefix) == 0 \
             else f'{self._pad}{self._prefix}{self._pad}'
         args = self._sep.join(map(fn, self._args))

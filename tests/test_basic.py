@@ -3,6 +3,7 @@ import pytest
 from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
 from trbox.common.logger import info
+from trbox.common.logger.parser import Log
 from trbox.event.market import OhlcvWindow, Candlestick
 from trbox.market import Market
 from trbox.market.datasource.onrequest.localcsv import YahooOHLCV
@@ -16,7 +17,7 @@ def test_dummy(live):
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
         assert live == (not self.trader.backtesting)
-        info(f'price={e.price}', who=self)
+        info(Log(price=e.price).by(self))
         self.trader.trade(SYMBOL, +10)
 
     Trader(
