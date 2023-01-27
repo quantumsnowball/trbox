@@ -58,8 +58,10 @@ typecheck-everything: typecheck typecheck-test
 # All
 #
 # test and check everything possible
-test-and-checktype: test typecheck typecheck-test
-test-parallel-and-checktype: test-parallel typecheck typecheck-test
+test-and-typecheck: test typecheck typecheck-test
+test-parallel-and-typecheck: test-parallel typecheck typecheck-test
+typecheck-and-test: typecheck typecheck-test test
+typecheck-and-test-parallel: typecheck typecheck-test test-parallel
 
 #
 # Logging
