@@ -1,4 +1,5 @@
-from logging import debug
+# from logging import debug
+from trbox.common.logging import debug
 from typing import Self
 from trbox.common.utils import cln
 from trbox.event import Event

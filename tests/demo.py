@@ -3,7 +3,7 @@ Ignored by pytest
 '''
 from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
-from trbox.common.log import info
+from trbox.common.logging import info
 from trbox.event.market import Candlestick
 from trbox.market import Market
 from trbox.market.datasource.streaming.dummy import DummyPrice
