@@ -45,9 +45,11 @@ class Log:
     #
     # chained modifier methods
     #
-    def by(self, who: Any) -> Self:
-        who = who if isinstance(who, str) else cln(who)
-        self._prefix = f'{who} : '
+    def by(self, *who: Any) -> Self:
+        who = tuple(map(
+            lambda w: w if isinstance(w, str) else cln(w), who))
+        # who = who if isinstance(who, str) else cln(who)
+        self._prefix = f'{", ".join(who)} : '
         return self
 
     def tag(self, *tags: str) -> Self:

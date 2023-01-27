@@ -64,13 +64,21 @@ def test_parser(obj):
 
     info(Log('Case1> Most basic oneliner'))
     info(Log('Normally I am just oneliner',
-             a=999).by('Case2').sparse())
-    info(Log('comment',
-             handle=Exception('nothing')).by('Case3'))
+             a=999)
+         .by('Case2', Base))
+    info(Log('comment', 1, 'comment2',
+             handle=Exception('nothing'))
+         .by('Case3', base))
     info(Log('my objects', obj, 2, 3, 4,
-             last=10).sep('||').by(foo).tag('oneline', 'only'))
+             last=10) .sep('||')
+         .by('Case4', foo)
+         .tag('oneline', 'only'))
     info(Log(obj, 5, 6, 7,
-             extra=obj).by('God').tag('alert', 'warning').sparse())
+             extra=obj)
+         .by('Case5', 'God')
+         .tag('alert', 'warning').sparse())
     info(Log(obj, 8, 9, 10,
              age=5, height=10, money=999
-             ).sparse().by('Foo').tag('foo', 'bar', 'haha'))
+             ).sparse()
+         .by('Foo')
+         .tag('foo', 'bar', 'haha'))
