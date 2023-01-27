@@ -3,7 +3,7 @@ from typing_extensions import override
 from binance.websocket.spot.websocket_client import SpotWebsocketClient
 from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
-from trbox.common.utils import cln
+from trbox.common.utils import cln, ppf
 from trbox.event.market import Candlestick
 from trbox.market.datasource.streaming import StreamingSource
 
@@ -23,8 +23,9 @@ class BinanceWebsocket(StreamingSource):
                 debug(Log('Trade',
                           symbol=d['s'], price=d['p'], quantity=d['q'])
                       .by(self).tag('trade', 'binance'))
-            except KeyError:
-                warning(f'{cln(self)}: `p` field not available yet')
+            except KeyError as e:
+                warning(Log(repr(e), 'check fields', d=ppf(d)).sparse()
+                        .by(self))
             except Exception as e:
                 exception(e)
 

@@ -6,6 +6,9 @@ from pprint import pformat as pp
 from binance.spot import Spot
 from binance.websocket.spot.websocket_client \
     import SpotWebsocketClient
+from trbox.common.logger.parser import Log
+
+from trbox.common.utils import cln
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
@@ -64,8 +67,9 @@ def test_websocket():
                 case _:
                     pass
             ws.join()
-        except KeyboardInterrupt:
-            warning('User stopped execution by KeyboardInterrupt')
+        except KeyboardInterrupt as e:
+            warning(Log(cln(e), 'user stopped execution')
+                    .tag('interrupt', 'ctrl-c'))
         except Exception as e:
             raise e
         finally:
