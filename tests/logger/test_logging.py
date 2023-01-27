@@ -1,7 +1,7 @@
 import pytest
 from trbox.common.logger import \
     debug, info, warning, error, critical, exception
-from trbox.common.utils import cln
+from trbox.common.utils import cln, ppf
 
 
 @pytest.mark.parametrize('obj', [
@@ -35,3 +35,11 @@ def test_logging_function(log):
         print(1 / 0)
     except Exception as e:
         log(e, who=e)
+
+
+def test_ppf():
+    obj = dict(a=1, b=2)
+    info(obj)
+    info(ppf(obj))
+    info(dir(obj))
+    info(ppf(dir(obj)), who=obj)

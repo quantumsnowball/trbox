@@ -1,6 +1,7 @@
 from typing import Any
 from pandas import DataFrame, Timestamp
 from trbox.common.constants import OHLCV_COLUMN_NAMES
+from pprint import pformat
 
 
 def verify_ohlcv(ohlcv: DataFrame) -> DataFrame:
@@ -48,3 +49,10 @@ def cln(obj: Any) -> str:
     except Exception:
         # return a default str
         return str(obj)
+
+
+def ppf(obj: Any) -> str:
+    try:
+        return f'\n{pformat(obj)}\n'
+    except Exception:
+        return f'\n{str(obj)}\n'
