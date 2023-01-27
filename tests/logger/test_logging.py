@@ -1,6 +1,18 @@
 import pytest
 from trbox.common.logger import \
     debug, info, warning, error, critical, exception
+from trbox.common.utils import cln
+
+
+@pytest.mark.parametrize('obj', [
+    1, 1.0, True, 'str',
+    Exception(), None, ...,
+    [1, 'a', ], (1, 'a', ), {1, 'b'}, {1: 'a', }
+])
+def test_cln(obj):
+    name = cln(obj)
+    assert isinstance(name, str)
+    info(name)
 
 
 @pytest.mark.parametrize(

@@ -39,8 +39,12 @@ def cln(obj: Any) -> str:
     '''
     print class name for any object
     '''
-    name = obj.__class__.__name__
-    if isinstance(name, str):
-        return name
-    # guarantee to return a default str
-    return str(obj)
+    try:
+        name = obj.__class__.__name__
+        if isinstance(name, str):
+            return name
+        # try the best to resolve a name
+        return str(obj)
+    except Exception:
+        # return a default str
+        return str(obj)
