@@ -69,6 +69,7 @@ def make_logging_function() -> tuple[WrappedLoggerFunction, ...]:
         @wraps(fn)
         def wrapped_logger_fn(msg: Any, *args: Any,
                               who: Any | None = None, **kwargs: Any) -> None:
+            # TODO wrapper become the caller and masking all module/file/function info
             if who is not None:
                 msg = f'{cln(who)} :: {msg}'
             return fn(msg, *args, **kwargs)
