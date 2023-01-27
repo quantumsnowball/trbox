@@ -1,5 +1,5 @@
 """
-from logging import info
+from trbox.common.logger import info
 from pprint import pformat as pp
 from dotenv import load_dotenv
 import os

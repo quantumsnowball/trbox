@@ -1,5 +1,4 @@
-from logging import debug
-import sys
+from trbox.common.logger import debug
 import time
 from typing_extensions import override
 from trbox.common.types import Symbol

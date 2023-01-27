@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
-
-from trbox.event.broker import MarketOrder, Trade
+from trbox.event.broker import MarketOrder
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.market import Market
@@ -10,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from trbox.event.system import Exit, Start
 from trbox.common.types import Symbol
 from trbox.event.distributor import Distributor
-from logging import info, exception
+from trbox.common.logger import info, exception
 
 
 class Runner:

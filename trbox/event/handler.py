@@ -6,7 +6,7 @@ from trbox.event import Event
 from trbox.event.distributor import Distributor
 from trbox.event.system import Exit
 from trbox.trader import Trader
-from logging import debug
+from trbox.common.logger import debug
 
 
 class EventHandler(ABC):

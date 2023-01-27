@@ -2,7 +2,7 @@ from pandas import Timestamp
 import pytest
 from trbox import Strategy, Trader
 from trbox.broker.simulated import PaperEX
-from trbox.common.logging import info
+from trbox.common.logger import info
 from trbox.event.market import OhlcvWindow, Candlestick
 from trbox.market import Market
 from trbox.market.datasource.onrequest.localcsv import YahooOHLCV

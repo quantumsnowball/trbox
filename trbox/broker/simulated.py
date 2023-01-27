@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from logging import debug, info
+from trbox.common.logger import debug, info
 from typing_extensions import override
 from trbox.broker import Broker
 from trbox.common.types import Symbol

@@ -1,4 +1,4 @@
-from logging import info, warning
+from trbox.common.logger import info, warning
 import pytest
 from dotenv import load_dotenv
 import os
