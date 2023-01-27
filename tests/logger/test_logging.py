@@ -1,5 +1,6 @@
 import pytest
 from trbox.common.logger import debug, info, warning, error, critical, exception
+from trbox.common.logger.parser import Log
 from trbox.common.utils import cln, ppf
 
 
@@ -19,7 +20,7 @@ def test_cln(obj):
 def test_logging_function(log):
     class Foo:
         ...
-    foo = Foo()
+    # foo = Foo()
     log('hello world')
     log('hello %s', 'world')
     # log('hello %s', 'world', who=foo)
@@ -44,3 +45,13 @@ def test_ppf():
     info(dir(obj))
     # info(ppf(dir(obj)), who=obj)
     # info(Log('something', by=self))
+
+
+@pytest.mark.parametrize('obj', [
+    1, 1.0, True, 'str', str, type,
+    Exception(), None, ...,
+    [1, 'a', ], (1, 'a', ), {1, 'b'}, {1: 'a', },
+    [[1, 2], ['3', '4']] * 5
+])
+def test_parser(obj):
+    info(Log(obj, 2, 3, 4).sep('\n').sparse())
