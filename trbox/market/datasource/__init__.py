@@ -1,6 +1,8 @@
-from typing import Self
+from typing import TypeVar
 from trbox.event.distributor import Distributor
 from trbox.trader import Trader
+
+Self = TypeVar('Self', bound='DataSource')
 
 
 class DataSource:
@@ -10,7 +12,7 @@ class DataSource:
     to other handlers.
     '''
 
-    def attach(self, trader: Trader) -> Self:
+    def attach(self: Self, trader: Trader) -> Self:
         self._trader = trader
         return self
 

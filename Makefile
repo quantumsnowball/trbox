@@ -7,6 +7,8 @@ DEV_FILE=market/test_onrequest.py
 DEV_FUNCTION=test_binance
 # DEV_FILE=test_basic.py
 # DEV_FUNCTION=test_dummy
+# DEV_FILE=logger/test_logging.py
+# DEV_FUNCTION=test_parser
 dev:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 
 dev-info:
@@ -58,10 +60,18 @@ typecheck-everything: typecheck typecheck-test
 # All
 #
 # test and check everything possible
-test-and-checktype: test typecheck typecheck-test
-test-parallel-and-checktype: test-parallel typecheck typecheck-test
+test-and-typecheck: test typecheck typecheck-test
+test-parallel-and-typecheck: test-parallel typecheck typecheck-test
+typecheck-and-test: typecheck typecheck-test test
+typecheck-and-test-parallel: typecheck typecheck-test test-parallel
 
 #
+# Logging
+#
+# generate pytest custom logger format string
+#
+log-formatter:
+	@python trbox/common/logger.py
 # Demo
 #
 # not test case but can be testing anything

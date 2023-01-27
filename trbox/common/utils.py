@@ -1,6 +1,7 @@
 from typing import Any
 from pandas import DataFrame, Timestamp
 from trbox.common.constants import OHLCV_COLUMN_NAMES
+from pprint import pformat
 
 
 def verify_ohlcv(ohlcv: DataFrame) -> DataFrame:
@@ -39,8 +40,19 @@ def cln(obj: Any) -> str:
     '''
     print class name for any object
     '''
-    name = obj.__class__.__name__
-    if isinstance(name, str):
-        return name
-    # guarantee to return a default str
-    return str(obj)
+    try:
+        name = obj.__class__.__name__
+        if isinstance(name, str):
+            return name
+        # try the best to resolve a name
+        return str(obj)
+    except Exception:
+        # return a default str
+        return str(obj)
+
+
+def ppf(obj: Any) -> str:
+    try:
+        return pformat(obj)
+    except Exception:
+        return str(obj)

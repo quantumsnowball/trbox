@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
-
-from trbox.event.broker import MarketOrder, Trade
+from trbox.common.logger.parser import Log
+from trbox.common.utils import cln
+from trbox.event.broker import MarketOrder
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.market import Market
@@ -10,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from trbox.event.system import Exit, Start
 from trbox.common.types import Symbol
 from trbox.event.distributor import Distributor
-from logging import info, exception
+from trbox.common.logger import info, exception
 
 
 class Runner:
@@ -43,9 +44,10 @@ class Runner:
                 for future in as_completed(futures):
                     future.result()
             # catch KeyboardInterrupt first to stop threads gracefully
-            except KeyboardInterrupt:
+            except KeyboardInterrupt as e:
                 self.stop()
-                info('KeyboardInterrupt: requested all handlers to quit.')
+                info(Log(cln(e), 'requested all handlers to quit')
+                     .by(self).tag('interrupt', 'ctrl-c'))
             # if other Exception are catched, stop all threads gracefully and
             # then raise them again in main thread to fail any test cases
             except Exception as e:
@@ -53,7 +55,7 @@ class Runner:
                 self.stop()
                 raise e
 
-        info('Runner has completed.')
+        info(Log('Runner has completed').by(self))
 
 
 class Trader(Runner):
@@ -72,11 +74,11 @@ class Trader(Runner):
             assert handler.attached
 
     # mode
-    @property
+    @ property
     def live(self) -> bool:
         return self._live
 
-    @property
+    @ property
     def backtesting(self) -> bool:
         return not self._live
 

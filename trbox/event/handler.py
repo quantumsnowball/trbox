@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from queue import Queue
-from typing import Self
+from typing import TypeVar
+from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 from trbox.event import Event
 from trbox.event.distributor import Distributor
 from trbox.event.system import Exit
 from trbox.trader import Trader
-from logging import debug
+from trbox.common.logger import debug
 
 
 class EventHandler(ABC):
@@ -27,13 +28,11 @@ class EventHandler(ABC):
         while True:
             # block by the get method until a event is retrieved
             e = self._event_queue.get()
-            debug((f'{cln(self)} received a '
-                   f'{cln(e)} event.'))
+            debug(Log('receiving', event=cln(e)).by(self))
 
             # pass the event to the subclass method for handling
             self.handle(e)
-            debug((f'{cln(self)} is handling '
-                   f'{cln(e)} event.'))
+            debug(Log('handling', event=cln(e)).by(self))
 
             # mark the task done and update event count
             self._event_queue.task_done()
@@ -43,9 +42,12 @@ class EventHandler(ABC):
                 break
 
     # event handling implementation left to child
-    @abstractmethod
+    @ abstractmethod
     def handle(self, e: Event) -> None:
         pass
+
+
+Self = TypeVar('Self', bound='CounterParty')
 
 
 class CounterParty(EventHandler, ABC):
@@ -57,19 +59,19 @@ class CounterParty(EventHandler, ABC):
         super().__init__()
 
     # CounterParty must attach to a Trader to function properly
-    def attach(self,
+    def attach(self: Self,
                trader: Trader) -> Self:
         self._trader = trader
         return self
 
-    @property
+    @ property
     def trader(self) -> Trader:
         return self._trader
 
-    @property
+    @ property
     def send(self) -> Distributor:
         return self._trader._distributor
 
-    @property
+    @ property
     def attached(self) -> bool:
         return isinstance(self._trader, Trader)
