@@ -1,6 +1,4 @@
-from pprint import pformat
 from typing import Any, Self
-from trbox.common.logger import info
 from trbox.common.utils import cln
 
 
@@ -14,21 +12,23 @@ class Log:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._args = args
         self._kwargs = kwargs
-        self._prefix = ''
-        self._suffix = ''
         self._sep = ', '
         self._pad = ''
+        self._prefix = ''
+        self._suffix = ''
 
     def _compile(self, fn) -> str:
         header = self._pad if len(self._prefix) == 0 \
             else f'{self._pad}{self._prefix}{self._pad}'
+        args = self._sep.join(map(fn, self._args))
+        kwargs = self._sep.join([f'{k}={fn(v)}'
+                                 for k, v in self._kwargs.items()])
+        body = (f'{args}'
+                f'{self._sep if len(args)>0 and len(kwargs) >0 else ""}'
+                f'{kwargs}')
         footer = self._pad if len(self._suffix) == 0 \
             else f'{self._pad}{self._suffix}{self._pad}'
-        return ''.join((
-            header,
-            self._sep.join(map(fn, self._args)),
-            footer,
-        ))
+        return f'{header}{body}{footer}'
 
     def __str__(self) -> str:
         return self._compile(str)
