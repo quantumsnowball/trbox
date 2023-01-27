@@ -5,8 +5,8 @@
 # put assert 0 (or breakpoint() inside a worker thread) for a handy breakpoint
 DEV_FILE=market/test_onrequest.py
 DEV_FUNCTION=test_binance
-# DEV_FILE=test_basic.py
-# DEV_FUNCTION=test_dummy
+DEV_FILE=test_basic.py
+DEV_FUNCTION=test_dummy
 dev:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 
 dev-info:
@@ -62,6 +62,12 @@ test-and-checktype: test typecheck typecheck-test
 test-parallel-and-checktype: test-parallel typecheck typecheck-test
 
 #
+# Logging
+#
+# generate pytest custom logger format string
+#
+log-formatter:
+	@python trbox/common/log.py
 # Demo
 #
 # not test case but can be testing anything
