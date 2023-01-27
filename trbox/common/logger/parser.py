@@ -17,6 +17,9 @@ class Log:
         self._prefix = ''
         self._suffix = ''
 
+    #
+    # make string based on the finaly state of the class
+    #
     def _compile(self, fn) -> str:
         header = self._pad if len(self._prefix) == 0 \
             else f'{self._pad}{self._prefix}{self._pad}'
@@ -28,7 +31,10 @@ class Log:
                 f'{kwargs}')
         footer = self._pad if len(self._suffix) == 0 \
             else f'{self._pad}{self._suffix}{self._pad}'
-        return f'{header}{body}{footer}'
+        return (f'{header}'
+                f'{body}'
+                f'{" " if len(self._pad.strip()) == 0 else ""}'
+                f'{footer}')
 
     def __str__(self) -> str:
         return self._compile(str)
@@ -44,8 +50,8 @@ class Log:
         self._prefix = f'{who} : '
         return self
 
-    def tag(self, tags: str) -> Self:
-        self._suffix = f'#{tags}'
+    def tag(self, *tags: str) -> Self:
+        self._suffix = ' '.join([f'#{t}' for t in tags])
         return self
 
     def sep(self, sep: str) -> Self:
