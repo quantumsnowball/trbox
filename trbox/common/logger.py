@@ -1,21 +1,11 @@
 from collections.abc import Callable
-from functools import wraps
 import logging
 from logging import getLogger, Formatter, StreamHandler
-from typing import Any, Protocol
-from trbox.common.utils import cln
+from typing import Any
 
 
 # types
 LoggerFunction = Callable[[Any, ], None]
-
-
-class WrappedLoggerFunction(Protocol):
-    # to specific any custom arguments
-    def __call__(self,
-                 msg: Any, *args: Any,
-                 who: Any | None = None, **kwargs: Any) -> None:
-        ...
 
 
 # level names
@@ -54,7 +44,7 @@ FORMAT_STRINGS = {lv: NORMAL if lv in ('info', 'warning') else DETAIL
                   for lv in LEVELS}
 
 
-def make_logging_function() -> tuple[WrappedLoggerFunction, ...]:
+def make_logging_function() -> tuple[LoggerFunction, ...]:
     '''
     Each level has its own logger with its specific formatter, representing
     different level of message detail.
@@ -64,19 +54,8 @@ def make_logging_function() -> tuple[WrappedLoggerFunction, ...]:
                           datefmt=DATE_FORMAT)
             for lv, fs in FORMAT_STRINGS.items()}
 
-    # decorator
-    def add_caller(fn: LoggerFunction) -> WrappedLoggerFunction:
-        @wraps(fn)
-        def wrapped_logger_fn(msg: Any, *args: Any,
-                              who: Any | None = None, **kwargs: Any) -> None:
-            # TODO wrapper become the caller and masking all module/file/function info
-            if who is not None:
-                msg = f'{cln(who)} :: {msg}'
-            return fn(msg, *args, **kwargs)
-        return wrapped_logger_fn
-
     # loggers
-    def make_log_fn(lv: str, fmt: Formatter) -> WrappedLoggerFunction:
+    def make_log_fn(lv: str, fmt: Formatter) -> LoggerFunction:
         # create logger with level name
         logger = getLogger(lv)
         # clear any existing handlers
@@ -88,13 +67,12 @@ def make_logging_function() -> tuple[WrappedLoggerFunction, ...]:
         logger.addHandler(sh)
         # extract the matching logging function
         fn: LoggerFunction = getattr(logger, lv)
-        fn = add_caller(fn)
         return fn
 
     # only need the log function matching each level logger
     fns = tuple(make_log_fn(lv, fmt)
                 for lv, fmt in fmts.items())
-    exception = add_caller(getLogger('error').exception)
+    exception = getLogger('error').exception
     return *fns, exception
 
 

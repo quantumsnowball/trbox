@@ -1,6 +1,5 @@
 import pytest
-from trbox.common.logger import \
-    debug, info, warning, error, critical, exception
+from trbox.common.logger import debug, info, warning, error, critical, exception
 from trbox.common.utils import cln, ppf
 
 
@@ -23,7 +22,7 @@ def test_logging_function(log):
     foo = Foo()
     log('hello world')
     log('hello %s', 'world')
-    log('hello %s', 'world', who=foo)
+    # log('hello %s', 'world', who=foo)
     log(Foo)
     # these should print traceback
     try:
@@ -34,7 +33,8 @@ def test_logging_function(log):
     try:
         print(1 / 0)
     except Exception as e:
-        log(e, who=e)
+        # log(e, who=e)
+        log(e)
 
 
 def test_ppf():
@@ -42,4 +42,5 @@ def test_ppf():
     info(obj)
     info(ppf(obj))
     info(dir(obj))
-    info(ppf(dir(obj)), who=obj)
+    # info(ppf(dir(obj)), who=obj)
+    # info(Log('something', by=self))

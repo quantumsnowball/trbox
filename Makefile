@@ -7,8 +7,8 @@ DEV_FILE=market/test_onrequest.py
 DEV_FUNCTION=test_binance
 DEV_FILE=test_basic.py
 DEV_FUNCTION=test_dummy
-# DEV_FILE=logger/test_logging.py
-# DEV_FUNCTION=test_ppf
+DEV_FILE=logger/test_logging.py
+DEV_FUNCTION=test_logging_function
 dev:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 
 dev-info:
