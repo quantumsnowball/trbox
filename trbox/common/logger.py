@@ -1,5 +1,10 @@
+from collections.abc import Callable
 import logging
 from logging import getLogger, Formatter, StreamHandler
+from typing import Any
+
+# types
+LoggerFunction = Callable[[Any, ], None]
 
 
 # level names
@@ -38,7 +43,7 @@ FORMAT_STRINGS = {lv: NORMAL if lv in ('info', 'warning') else DETAIL
                   for lv in LEVELS}
 
 
-def make_logging_function() -> tuple:
+def make_logging_function() -> tuple[LoggerFunction, ...]:
     '''
     Each level has its own logger with its specific formatter, representing
     different level of message detail.
@@ -49,7 +54,7 @@ def make_logging_function() -> tuple:
             for lv, fs in FORMAT_STRINGS.items()}
 
     # loggers
-    def make_log_fn(lv: str, fmt: Formatter):
+    def make_log_fn(lv: str, fmt: Formatter) -> LoggerFunction:
         # create logger with level name
         logger = getLogger(lv)
         # clear any existing handlers
@@ -60,7 +65,7 @@ def make_logging_function() -> tuple:
         sh.setFormatter(fmt)
         logger.addHandler(sh)
         # extract the matching logging function
-        fn = getattr(logger, lv)
+        fn: LoggerFunction = getattr(logger, lv)
         return fn
 
     # only need the log function matching each level logger
@@ -74,14 +79,14 @@ def make_logging_function() -> tuple:
 debug, info, warning, error, critical, exception = make_logging_function()
 
 
-def set_log_level(lv: str):
+def set_log_level(lv: str) -> None:
     loggers = [logging.getLogger(name)
                for name in logging.root.manager.loggerDict]
     for logger in loggers:
         logger.setLevel(lv.upper())
 
 
-def eval_format_string():
+def eval_format_string() -> None:
     '''
     Pytest seems to override the formatter with its own, therefore when using
     pytest, need to set them manually by copy and pasting the string into
