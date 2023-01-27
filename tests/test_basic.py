@@ -16,7 +16,7 @@ def test_dummy(live):
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
         assert live == (not self.trader.backtesting)
-        info(f'St: price={e.price}')
+        info(f'price={e.price}', who=self)
         self.trader.trade(SYMBOL, +10)
 
     Trader(
