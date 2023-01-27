@@ -67,7 +67,7 @@ test-parallel-and-checktype: test-parallel typecheck typecheck-test
 # generate pytest custom logger format string
 #
 log-formatter:
-	@python trbox/common/log.py
+	@python trbox/common/logger.py
 # Demo
 #
 # not test case but can be testing anything

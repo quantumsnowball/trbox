@@ -24,7 +24,7 @@ LINENO = '%(lineno)s'
 TRACE_INFO = f'{MODULE} > {FILENAME}:{LINENO} > {FUNCTION_NAME}() #{NAME}'
 EXTRA_INFO = f'@{PROCESS_NAME}({PROCESS}) @{THREAD_NAME}({THREAD})'
 
-PREFIX = f'[{DATETIME}.{MSECOND}]{LEVELNAME_RIGHT}'
+PREFIX = f'[ {DATETIME}.{MSECOND} | {LEVELNAME_RIGHT}]'
 SUFFIX = f'[ {TRACE_INFO} ]'
 SUFFIX_LONG = f'[ {TRACE_INFO} {EXTRA_INFO} ]'
 
@@ -52,12 +52,14 @@ def make_logging_function() -> tuple:
         # create logger with level name
         logger = getLogger(lv)
         # clear any existing handlers
-        for h in logger.handlers:
-            logger.removeHandler(h)
+        if logger.hasHandlers():
+            logger.handlers.clear()
         # add handler(s)
         sh = StreamHandler()
         sh.setFormatter(fmt)
         logger.addHandler(sh)
+        # stop propagating to the root logger to avoid duplicated logging
+        logger.propagate = False
         # extract the matching logging function
         fn = getattr(logger, lv)
         return fn
