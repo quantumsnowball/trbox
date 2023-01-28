@@ -28,8 +28,13 @@ class PaperEX(Broker):
 
     @override
     def trade(self, e: Order) -> None:
-        # TODO adjust Account position and cash balance
-        self._engine.match(e)
+        r = self._engine.match(e)
+        # on valid trading result, settlement
+        if r.quantity and r.net_proceeds:
+            # adjust cash
+            self._account.cash += r.net_proceeds
+            # adjust position
+            self._account.positions[r.order.symbol] += r.quantity
 
     @override
     def handle(self, e: Event) -> None:
