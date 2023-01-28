@@ -25,20 +25,39 @@ class Log:
     # make string based on the finaly state of the class
     #
     def _compile(self, fn: Callable[[Any], str]) -> str:
-        header = self._pad if len(self._prefix) == 0 \
-            else f'{self._pad}{self._prefix}{self._pad}'
-        args = self._sep.join(map(fn, self._args))
-        kwargs = self._sep.join([f'{k}={fn(v)}'
-                                 for k, v in self._kwargs.items()])
-        body = (f'{args}'
-                f'{self._sep if len(args)>0 and len(kwargs) >0 else ""}'
-                f'{kwargs}')
-        footer = self._pad if len(self._suffix) == 0 \
-            else f'{self._pad}{self._suffix}{self._pad}'
-        return (f'{self._mar}{header}'
-                f'{body}'
-                f'{" " if len(self._pad.strip()) == 0 else ""}'
-                f'{footer}{self._mar}')
+        def add_header(t: str) -> str:
+            header = self._pad if len(self._prefix) == 0 \
+                else f'{self._pad}{self._prefix}{self._pad}'
+            return t + header
+
+        def add_body(t: str) -> str:
+            args = self._sep.join(map(fn, self._args))
+            kwargs = self._sep.join([f'{k}={fn(v)}'
+                                     for k, v in self._kwargs.items()])
+            body = (f'{args}'
+                    f'{self._sep if len(args)>0 and len(kwargs) >0 else ""}'
+                    f'{kwargs}')
+            return t + body
+
+        def add_footer(t: str) -> str:
+            footer = self._pad if len(self._suffix) == 0 \
+                else f'{self._pad}{self._suffix}{self._pad}'
+            return t + footer
+
+        def add_margin_space(t):
+            if t[0] != ' ':
+                t = f' {t}'
+            if t[-1] not in (' ', '\n'):
+                t = f'{t} '
+            return t
+
+        # add parts in correct order
+        t = ''
+        t = add_header(t)
+        t = add_body(t)
+        t = add_footer(t)
+        t = add_margin_space(t)
+        return t
 
     def __str__(self) -> str:
         return self._compile(str)
