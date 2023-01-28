@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from trbox.broker.simulated.account import PaperAccount
 from trbox.broker.simulated.account.engine import MatchingEngine, TradingBook
 from trbox.common.logger import debug
@@ -15,12 +16,14 @@ DEFAULT_INITIAL_FUND = 1e6
 
 class PaperEX(Broker):
     def __init__(self,
-                 symbol: Symbol,
+                 symbols: Symbol | Iterable[Symbol],
                  initial_fund: float = DEFAULT_INITIAL_FUND) -> None:
         super().__init__()
         self._account: PaperAccount = PaperAccount(initial_fund)
+        if isinstance(symbols, Symbol):
+            symbols = (symbols, )
         self._engine = MatchingEngine(
-            **{symbol: TradingBook(symbol)})
+            **{symbol: TradingBook(symbol) for symbol in symbols})
 
     @property
     def account(self) -> PaperAccount:

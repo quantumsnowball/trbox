@@ -36,7 +36,7 @@ class OrderResult(BrokerEvent):
     gross_proceeds: float | None = field(init=False, default=None)
     net_proceeds: float | None = field(init=False, default=None)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.result and self.price and self.quantity and self.fee_rate:
             self.gross_proceeds = -self.quantity * self.price
             self.fee = abs(self.gross_proceeds) * self.fee_rate

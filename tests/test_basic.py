@@ -42,7 +42,7 @@ def test_historical_data(start: Timestamp | str | None,
     def dummy_action(self: Strategy, e: OhlcvWindow):
         assert e.win.shape == (length, 10)
         self.trader.trade(SYMBOLS[0], +10)
-        info(f'St: date={e.datetime} last={e.last.shape}, close={e.close}')
+        info(f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
 
     Trader(
         strategy=Strategy(
@@ -54,5 +54,5 @@ def test_historical_data(start: Timestamp | str | None,
                 start=start,
                 end=end,
                 length=length)),
-        broker=PaperEX(SYMBOLS[0])
+        broker=PaperEX(SYMBOLS)
     ).run()
