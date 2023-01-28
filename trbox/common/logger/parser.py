@@ -16,7 +16,7 @@ class Log:
         self._args = args
         self._kwargs = kwargs
         self._sep = ', '
-        self._pad = ''
+        self._pad = ' '
         self._mar = ' '
         self._prefix = ''
         self._suffix = ''
@@ -25,43 +25,28 @@ class Log:
     # make string based on the finaly state of the class
     #
     def _compile(self, fn: Callable[[Any], str]) -> str:
-        def add_header(t: str) -> str:
-            if len(self._prefix) == 0:
-                return t + self._pad
-            else:
-                return t + f'{self._pad}{self._prefix}{self._pad}'
+        '''
+        [mar]H1, H2 :[pad]1[sep]2[sep]x=3[sep]y=4[pad]#t1 #t2[mar]
+        '''
+        def header() -> str:
+            return self._prefix + ' :' if len(self._prefix) > 0 else ''
 
-        def add_body(t: str) -> str:
+        def body() -> str:
             args = self._sep.join(map(fn, self._args))
             kwargs = self._sep.join([f'{k}={fn(v)}'
                                      for k, v in self._kwargs.items()])
-            if len(args) == 0:
-                return t + kwargs
-            elif len(kwargs) == 0:
-                return t + args
-            else:
-                return t + f'{args}{self._sep}{kwargs}'
+            return self._sep.join([p for p in [args, kwargs] if len(p) > 0])
 
-        def add_footer(t: str) -> str:
-            if len(self._suffix) == 0:
-                return t + self._pad
-            else:
-                return t + f'{self._pad}{self._suffix}{self._pad}'
+        def footer() -> str:
+            return self._suffix
 
-        def add_margin_space(t):
-            if t[0] != ' ':
-                t = f' {t}'
-            if t[-1] not in (' ', '\n'):
-                t = f'{t} '
-            return t
+        def document(*parts: str) -> str:
+            doc = self._pad.join([p for p in parts if len(p) > 0])
+            return self._mar + doc + self._mar
 
-        # add parts in correct order
-        t = ''
-        t = add_header(t)
-        t = add_body(t)
-        t = add_footer(t)
-        t = add_margin_space(t)
-        return t
+        return document(header(),
+                        body(),
+                        footer())
 
     def __str__(self) -> str:
         return self._compile(str)
@@ -75,8 +60,7 @@ class Log:
     def by(self: Self, *who: Any) -> Self:
         who = tuple(map(
             lambda w: w if isinstance(w, str) else cln(w), who))
-        # who = who if isinstance(who, str) else cln(who)
-        self._prefix = f'{", ".join(who)} : '
+        self._prefix = ', '.join(who)
         return self
 
     def tag(self: Self, *tags: str) -> Self:
@@ -91,4 +75,5 @@ class Log:
     def sparse(self: Self) -> Self:
         self._sep = '\n'
         self._pad = '\n'
+        self._mar = '\n'
         return self

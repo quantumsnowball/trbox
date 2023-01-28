@@ -105,7 +105,7 @@ def eval_format_string() -> None:
 
 def apply_to_pytest_config(filename: str, *,
                            log_format: str,
-                           log_file_format: str):
+                           log_file_format: str) -> None:
     '''
     Use a ini parser to change the value directly by one command
     '''
