@@ -19,7 +19,7 @@ BASIC_COLLECTIONS = (
     (1, 'a', ),
     {1, 'b'},
     {1: 'a', },
-    [[1, 2], ['3', '4']] * 5
+    [[1, 2], ['3', '4']] * 2
 )
 
 
@@ -53,13 +53,9 @@ def test_logging_function(log):
         log(e)
 
 
-def test_ppf():
-    obj = dict(a=1, b=2)
-    info(obj)
-    info(ppf(obj))
-    info(dir(obj))
-    # info(ppf(dir(obj)), who=obj)
-    # info(Log('something', by=self))
+@pytest.mark.parametrize('obj', BASIC + BASIC_COLLECTIONS)
+def test_ppf(obj):
+    info(Log(ppf(obj)).by('test_ppf()'))
 
 
 @pytest.mark.parametrize('obj', BASIC + BASIC_COLLECTIONS)
