@@ -2,6 +2,7 @@ from collections.abc import Callable
 import logging
 from logging import getLogger, Formatter, StreamHandler
 from typing import Any
+import configparser
 
 
 # types
@@ -28,7 +29,7 @@ FUNCTION_NAME = '%(funcName)s'
 LINENO = '%(lineno)s'
 
 # combo parts
-TRACE_INFO = f'{MODULE} > {FILENAME}:{LINENO} > {FUNCTION_NAME}() #{NAME}'
+TRACE_INFO = f'{MODULE} - {FILENAME}:{LINENO} - {FUNCTION_NAME}() #{NAME}'
 EXTRA_INFO = f'@{PROCESS_NAME}({PROCESS}) @{THREAD_NAME}({THREAD})'
 
 PREFIX = f'[ {DATETIME}.{MSECOND} | {LEVELNAME_RIGHT} ]'
@@ -36,9 +37,9 @@ SUFFIX = f'[ {TRACE_INFO} ]'
 SUFFIX_LONG = f'[ {TRACE_INFO} {EXTRA_INFO} ]'
 
 # presets
-BASIC = f'{PREFIX} {MESSAGE}'
-NORMAL = f'{BASIC} {SUFFIX}'
-DETAIL = f'{BASIC} {SUFFIX_LONG}'
+BASIC = f'{PREFIX}{MESSAGE}'
+NORMAL = f'{BASIC}{SUFFIX}'
+DETAIL = f'{BASIC}{SUFFIX_LONG}'
 
 FORMAT_STRINGS = {lv: NORMAL if lv in ('info', 'warning') else DETAIL
                   for lv in LEVELS}
@@ -102,5 +103,27 @@ def eval_format_string() -> None:
     print(f'DETAIL = {DETAIL}')
 
 
+def apply_to_pytest_config(filename: str, *,
+                           log_format: str,
+                           log_file_format: str):
+    '''
+    Use a ini parser to change the value directly by one command
+    '''
+    # read
+    config = configparser.RawConfigParser()
+    config.read(filename)
+    # change
+    config['pytest']['log_format'] = log_format
+    config['pytest']['log_file_format'] = log_file_format
+    # write
+    print(f'\nOpening {filename}')
+    with open('pytest.ini', 'w') as f:
+        config.write(f)
+    print(f'\nSaved new settings to {filename}')
+
+
 if __name__ == '__main__':
     eval_format_string()
+    apply_to_pytest_config('pytest.ini',
+                           log_format=NORMAL,
+                           log_file_format=DETAIL)

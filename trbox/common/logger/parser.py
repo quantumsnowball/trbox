@@ -17,6 +17,7 @@ class Log:
         self._kwargs = kwargs
         self._sep = ', '
         self._pad = ''
+        self._mar = ' '
         self._prefix = ''
         self._suffix = ''
 
@@ -34,10 +35,10 @@ class Log:
                 f'{kwargs}')
         footer = self._pad if len(self._suffix) == 0 \
             else f'{self._pad}{self._suffix}{self._pad}'
-        return (f'{header}'
+        return (f'{self._mar}{header}'
                 f'{body}'
                 f'{" " if len(self._pad.strip()) == 0 else ""}'
-                f'{footer}')
+                f'{footer}{self._mar}')
 
     def __str__(self) -> str:
         return self._compile(str)

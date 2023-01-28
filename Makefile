@@ -8,7 +8,7 @@ DEV_FUNCTION=test_binance
 DEV_FILE=test_basic.py
 DEV_FUNCTION=test_dummy
 DEV_FILE=logger/test_logging.py
-DEV_FUNCTION=test_ppf
+DEV_FUNCTION=test_parser
 dev:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 
 dev-info:
@@ -70,8 +70,8 @@ typecheck-and-test-parallel: typecheck typecheck-test test-parallel
 #
 # generate pytest custom logger format string
 #
-log-formatter:
-	@python trbox/common/logger.py
+change-pytest-log-format:
+	@python trbox/common/logger/__init__.py
 # Demo
 #
 # not test case but can be testing anything
