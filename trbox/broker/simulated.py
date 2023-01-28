@@ -4,7 +4,7 @@ from typing_extensions import override
 from trbox.broker import Broker
 from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
-from trbox.common.utils import cln, ppf
+from trbox.common.utils import ppf
 from trbox.event import Event
 from trbox.event.broker import LimitOrder, MarketOrder, Order, OrderResult
 from trbox.event.market import Candlestick
