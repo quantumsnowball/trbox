@@ -8,6 +8,10 @@ from threading import Thread
 from trbox.market.datasource.streaming import StreamingSource
 
 
+DEFAULT_N = 30
+DEFAULT_DELAY = 1
+
+
 class DummyPrice(StreamingSource):
     '''
     This is a streaming price tick simulator.
@@ -16,8 +20,8 @@ class DummyPrice(StreamingSource):
 
     def __init__(self,
                  symbol: Symbol,
-                 n: int = 30,
-                 delay: int = 1) -> None:
+                 n: int = DEFAULT_N,
+                 delay: int = DEFAULT_DELAY) -> None:
         super().__init__()
         self._symbol = symbol
         self._n = n

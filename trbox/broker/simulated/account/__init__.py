@@ -1,13 +1,17 @@
 from collections import defaultdict
+from typing_extensions import override
+from trbox.broker import Account
 
 
-class Account:
-    def __init__(self) -> None:
-        self._cash: float = 0
+class PaperAccount(Account):
+    def __init__(self,
+                 initial_fund: float) -> None:
+        self._cash: float = initial_fund
         self._positions: dict[str, float] = defaultdict(float)
 
     # cash
     @property
+    @override
     def cash(self) -> float:
         return self._cash
 
@@ -17,5 +21,6 @@ class Account:
 
     # positions
     @property
+    @override
     def positions(self) -> dict[str, float]:
         return self._positions
