@@ -35,9 +35,9 @@ class OhlcvWindow(MarketData):
 
     def __post_init__(self) -> None:
         self.win = verify_ohlcv(self.win)
-        self.last = self.win.iloc[-1]
         self.datetime = self.win.index[-1]
-        self.close = self.last.loc[(slice(None), 'Close')]
+        self.ohlcv = self.win.iloc[-1]
+        self.close = self.ohlcv.loc[(slice(None), 'Close')]
 
 
 @dataclass

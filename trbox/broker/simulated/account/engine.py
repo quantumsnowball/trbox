@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from trbox.common.logger import info
+from trbox.common.logger import info, warning
 from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
 from trbox.common.utils import ppf
@@ -29,6 +29,9 @@ class TradingBook:
         def match_rules() -> tuple[bool, float | None]:
             # make sure trading book is ready
             if not (self.price and self.bid and self.ask):
+                warning(Log('trading book not ready',
+                            price=self.price, bid=self.bid, ask=self.ask)
+                        .by(self).tag('trading', 'book'))
                 return False, None
             # assume MarketOrder always succeed
             if isinstance(e, MarketOrder):

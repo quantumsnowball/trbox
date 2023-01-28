@@ -87,6 +87,10 @@ class Trader(Runner):
     def cash(self) -> float:
         return self._broker.account.cash
 
+    @property
+    def positions(self) -> dict[Symbol, float]:
+        return self._broker.account.positions
+
     # investment decision
     def trade(self, symbol: Symbol, quantity: float) -> None:
         return self._broker.trade(MarketOrder(symbol, quantity))
