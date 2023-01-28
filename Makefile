@@ -5,12 +5,10 @@
 # put assert 0 (or breakpoint() inside a worker thread) for a handy breakpoint
 DEV_FILE=market/test_onrequest.py
 DEV_FUNCTION=test_binance
-DEV_FILE=test_basic.py
-DEV_FUNCTION=test_dummy
-DEV_FILE=logger/test_logging.py
-DEV_FUNCTION=test_parser_results
-DEV_FILE=event/test_event.py
-DEV_FUNCTION=test_event_types
+# DEV_FILE=test_basic.py
+# DEV_FUNCTION=test_dummy
+# DEV_FILE=logger/test_logging.py
+# DEV_FUNCTION=test_parser_results
 dev:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 
 dev-info:

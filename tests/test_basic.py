@@ -25,7 +25,7 @@ def test_dummy(live):
         strategy=Strategy(
             on_tick=dummy_action),
         market=Market(
-            source=DummyPrice(SYMBOL, delay=1)),
+            source=DummyPrice(SYMBOL, delay=0)),
         broker=PaperEX(SYMBOL)
     ).run()
 
