@@ -26,23 +26,27 @@ class Log:
     #
     def _compile(self, fn: Callable[[Any], str]) -> str:
         def add_header(t: str) -> str:
-            header = self._pad if len(self._prefix) == 0 \
-                else f'{self._pad}{self._prefix}{self._pad}'
-            return t + header
+            if len(self._prefix) == 0:
+                return t + self._pad
+            else:
+                return t + f'{self._pad}{self._prefix}{self._pad}'
 
         def add_body(t: str) -> str:
             args = self._sep.join(map(fn, self._args))
             kwargs = self._sep.join([f'{k}={fn(v)}'
                                      for k, v in self._kwargs.items()])
-            body = (f'{args}'
-                    f'{self._sep if len(args)>0 and len(kwargs) >0 else ""}'
-                    f'{kwargs}')
-            return t + body
+            if len(args) == 0:
+                return t + kwargs
+            elif len(kwargs) == 0:
+                return t + args
+            else:
+                return t + f'{args}{self._sep}{kwargs}'
 
         def add_footer(t: str) -> str:
-            footer = self._pad if len(self._suffix) == 0 \
-                else f'{self._pad}{self._suffix}{self._pad}'
-            return t + footer
+            if len(self._suffix) == 0:
+                return t + self._pad
+            else:
+                return t + f'{self._pad}{self._suffix}{self._pad}'
 
         def add_margin_space(t):
             if t[0] != ' ':
