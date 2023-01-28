@@ -22,6 +22,10 @@ BASIC_COLLECTIONS = (
     [[1, 2], ['3', '4']] * 2
 )
 
+LOG_FUNCTIONS = (
+    debug, info, warning, error, critical, exception
+)
+
 
 @pytest.mark.parametrize('obj', BASIC + BASIC_COLLECTIONS)
 def test_cln(obj):
@@ -30,8 +34,7 @@ def test_cln(obj):
     info(name)
 
 
-@pytest.mark.parametrize(
-    'log', [debug, info, warning, error, critical, exception])
+@pytest.mark.parametrize('log', LOG_FUNCTIONS)
 def test_logging_function(log):
     class Foo:
         ...
