@@ -24,7 +24,7 @@ class TradingBook:
     def update(self, price: float) -> None:
         self.price = price
 
-        # transaction
+    # transaction
     def transact(self, e: Order) -> OrderResult:
         def match_rules() -> tuple[bool, float | None]:
             # make sure trading book is ready

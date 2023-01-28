@@ -15,7 +15,7 @@ class Log:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._args = args
         self._kwargs = kwargs
-        self._sep = ', '
+        self._sep = ' '
         self._pad = ' '
         self._mar = ' '
         self._prefix = ''
