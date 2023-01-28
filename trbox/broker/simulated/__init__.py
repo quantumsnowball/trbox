@@ -30,6 +30,7 @@ class PaperEX(Broker):
     def trade(self, e: Order) -> None:
         r = self._engine.match(e)
         # on valid trading result, settlement
+        self.send.new_order_result(r)
         if r.quantity and r.net_proceeds:
             # adjust cash
             self._account.cash += r.net_proceeds

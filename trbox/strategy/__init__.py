@@ -1,5 +1,9 @@
 from collections.abc import Callable
+from trbox.common.logger import info
+from trbox.common.logger.parser import Log
+from trbox.common.utils import cln, ppf
 from trbox.event import Event
+from trbox.event.broker import OrderResult
 from trbox.event.handler import CounterParty
 from trbox.event.market import OhlcvWindow, OhlcvWindowRequest, Candlestick
 from trbox.event.system import Start
@@ -34,3 +38,8 @@ class Strategy(CounterParty):
             if isinstance(e, OhlcvWindow):
                 self._on_window(self, e)
                 self.request_ohlcv_window()
+        # on order result
+        if isinstance(e, OrderResult):
+            # TODO may be a on_fill callback?
+            info(Log('order filled', ppf(e))
+                 .by(self).tag('order', 'confirmation').sparse())
