@@ -6,11 +6,16 @@ from trbox.common.utils import ppf
 from trbox.event.broker import LimitOrder, MarketOrder, Order, OrderResult
 
 
+SPREAD = 0.001  # spread 0.1%
+FEE_RATE = 0.001  # assume 0.1%
+
+
 @dataclass
 class TradingBook:
     symbol: Symbol
     price: float | None = None
-    spread: float = 0.001
+    spread: float = SPREAD
+    fee_rate: float = FEE_RATE
 
     @property
     def bid(self) -> float | None:
@@ -49,7 +54,7 @@ class TradingBook:
             return False, None
         result, price = match_rules()
         quantity = e.quantity if result else None
-        return OrderResult(e, result, price, quantity)
+        return OrderResult(e, result, price, quantity, self.fee_rate)
 
 
 class MatchingEngine(dict[Symbol, TradingBook]):

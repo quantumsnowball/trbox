@@ -31,8 +31,13 @@ class OrderResult(BrokerEvent):
     result: bool
     price: float | None = None
     quantity: float | None = None
+    fee_rate: float | None = None
+    fee: float | None = field(init=False, default=None)
+    gross_proceeds: float | None = field(init=False, default=None)
     net_proceeds: float | None = field(init=False, default=None)
 
     def __post_init__(self):
-        if self.price and self.quantity:
-            self.net_proceeds = -self.quantity * self.price
+        if self.result and self.price and self.quantity and self.fee_rate:
+            self.gross_proceeds = -self.quantity * self.price
+            self.fee = abs(self.gross_proceeds) * self.fee_rate
+            self.net_proceeds = self.gross_proceeds - self.fee
