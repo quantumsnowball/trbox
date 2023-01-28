@@ -3,12 +3,27 @@ from trbox.common.logger import debug, info, warning, error, critical, exception
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln, ppf
 
+BASIC = (
+    1,
+    1.0,
+    True,
+    'str',
+    str, type,
+    Exception(),
+    None,
+    ...,
+)
 
-@pytest.mark.parametrize('obj', [
-    1, 1.0, True, 'str',
-    Exception(), None, ...,
-    [1, 'a', ], (1, 'a', ), {1, 'b'}, {1: 'a', }
-])
+BASIC_COLLECTIONS = (
+    [1, 'a', ],
+    (1, 'a', ),
+    {1, 'b'},
+    {1: 'a', },
+    [[1, 2], ['3', '4']] * 5
+)
+
+
+@pytest.mark.parametrize('obj', BASIC + BASIC_COLLECTIONS)
 def test_cln(obj):
     name = cln(obj)
     assert isinstance(name, str)
@@ -47,12 +62,7 @@ def test_ppf():
     # info(Log('something', by=self))
 
 
-@pytest.mark.parametrize('obj', [
-    1, 1.0, True, 'str', str, type,
-    Exception(), None, ...,
-    [1, 'a', ], (1, 'a', ), {1, 'b'}, {1: 'a', },
-    [[1, 2], ['3', '4']] * 5
-])
+@pytest.mark.parametrize('obj', BASIC + BASIC_COLLECTIONS)
 def test_parser(obj):
     class Base:
         ...
