@@ -95,22 +95,22 @@ def test_parser_input_types(obj):
 
 @pytest.mark.parametrize('obj, text', [
     (Log(1), ' 1 '),
-    (Log(1, 2), ' 1, 2 '),
+    (Log(1, 2), ' 1 2 '),
     (Log('1'), ' 1 '),
     (repr(Log('1')), " '1' "),
-    (Log('1', 2), ' 1, 2 '),
+    (Log('1', 2), ' 1 2 '),
     (Log('1').sparse(), '\n1\n'),
     (Log('1', 2).sparse(), '\n1\n2\n'),
     (Log('1', 2).sep('\n'), ' 1\n2 '),
-    (Log('1', x=2), ' 1, x=2 '),
-    (Log('1', x='2'), ' 1, x=2 '),
-    (repr(Log('1', x='2')), " '1', x='2' "),
-    (Log('1', x=2.0, y='3'), ' 1, x=2.0, y=3 '),
-    (Log('1', x=2.0, y=True), ' 1, x=2.0, y=True '),
+    (Log('1', x=2), ' 1 x=2 '),
+    (Log('1', x='2'), ' 1 x=2 '),
+    (repr(Log('1', x='2')), " '1' x='2' "),
+    (Log('1', x=2.0, y='3'), ' 1 x=2.0 y=3 '),
+    (Log('1', x=2.0, y=True), ' 1 x=2.0 y=True '),
     (Log('1', x=2.0, y=True)
-     .by('Test'), ' Test : 1, x=2.0, y=True '),
+     .by('Test'), ' Test : 1 x=2.0 y=True '),
     (Log('1', x=2.0, y=True)
-     .by('Test').tag('test'), ' Test : 1, x=2.0, y=True #test '),
+     .by('Test').tag('test'), ' Test : 1 x=2.0 y=True #test '),
     (Log('1', x=2.0, y=True)
      .sparse(), '\n1\nx=2.0\ny=True\n'),
     (Log('1', x=2.0, y=True)
