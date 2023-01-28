@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from trbox.common.types import Symbol
 from trbox.event import BrokerEvent
 
@@ -31,3 +31,8 @@ class OrderResult(BrokerEvent):
     result: bool
     price: float | None = None
     quantity: float | None = None
+    net_proceeds: float | None = field(init=False, default=None)
+
+    def __post_init__(self):
+        if self.price and self.quantity:
+            self.net_proceeds = -self.quantity * self.price

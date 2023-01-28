@@ -17,7 +17,7 @@ def test_account_trade():
     LENGTH = 200
 
     def on_window(self: Strategy, _: OhlcvWindow):
-        self.trader.trade(SYMBOL, +0.1)
+        self.trader.trade(SYMBOL, +0.01)
         info(Log('trading',
                  cash=self.trader.cash,
                  position=self.trader.positions[SYMBOL])
