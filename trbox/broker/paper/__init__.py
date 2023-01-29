@@ -41,7 +41,7 @@ class PaperEX(Broker):
     @property
     @override
     def positions_worth(self) -> float | None:
-        worth = 0
+        worth = 0.0
         for s, pos in self._positions.items():
             price = self._engine.price(s)
             if not price:
@@ -52,8 +52,9 @@ class PaperEX(Broker):
     @property
     @override
     def equity(self) -> float | None:
-        if self.positions_worth:
-            return self.cash + self.positions_worth
+        if not self.positions_worth:
+            return None
+        return self.cash + self.positions_worth
 
     # operations
 

@@ -94,7 +94,7 @@ class Trader(Runner):
         return self._broker.positions
 
     @property
-    def equity(self) -> float:
+    def equity(self) -> float | None:
         return self._broker.equity
 
     # investment decision
