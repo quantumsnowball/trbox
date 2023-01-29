@@ -97,7 +97,16 @@ class Trader(Runner):
     def equity(self) -> float | None:
         return self._broker.equity
 
-    # investment decision
+    # account operations
 
     def trade(self, symbol: Symbol, quantity: float) -> None:
         return self._broker.trade(MarketOrder(symbol, quantity))
+
+    # helpers
+
+    def rebalance(self, symbol: Symbol, percentage: float) -> None:
+        # TODO
+        # should confirm there is no pending order first
+        # otherwise may issue multiple order causing wrong rebalance ratio
+        raise NotImplementedError
+        return
