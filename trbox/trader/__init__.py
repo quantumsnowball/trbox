@@ -85,11 +85,11 @@ class Trader(Runner):
     # account info
     @property
     def cash(self) -> float:
-        return self._broker.account.cash
+        return self._broker.cash
 
     @property
     def positions(self) -> dict[Symbol, float]:
-        return self._broker.account.positions
+        return self._broker.positions
 
     @property
     def equity(self) -> float:

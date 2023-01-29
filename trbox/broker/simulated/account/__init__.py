@@ -1,9 +1,8 @@
 from collections import defaultdict
 from typing_extensions import override
-from trbox.broker import Account
 
 
-class PaperAccount(Account):
+class PaperAccount:
     def __init__(self,
                  initial_fund: float) -> None:
         self._cash: float = initial_fund
