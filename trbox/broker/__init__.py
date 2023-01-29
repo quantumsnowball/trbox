@@ -5,16 +5,29 @@ from trbox.event.broker import Order
 from trbox.event.handler import CounterParty
 
 
-class Account(ABC):
+class Broker(CounterParty, ABC):
     '''
-    An Account should at least support querying the current cash and positions
-    info. Only the Broker class should have write access to their states
-    directly.
+    A broker provide some basic operation for the Trader to:
+        1) view the state of account, mainly is cash and positions
+        2) change the state of account, usually trade (or deposit/withdraw)
+    These props and methods should be as realistic as possible. E.g. trader
+    must not be able to write to the cash and positions props directly through
+    the Strateg class. Instead, cash and position are read only props. Also,
+    broker should provide basic trading methods for Trader to use.
+    '''
 
-    Because a live trading Account subclass is also sharing this interface,
-    only the read-only property is included. This allows a paper trading
-    Account to implement setters for them if necessary.
-    '''
+    def __init__(self) -> None:
+        super().__init__()
+        self._cash: float
+        self._positions: dict[Symbol, float]
+
+    def handle(self, e: Event) -> None:
+        if isinstance(e, Order):
+            self.trade(e)
+
+    #
+    # account status
+    #
     @property
     @abstractmethod
     def cash(self) -> float:
@@ -25,29 +38,9 @@ class Account(ABC):
     def positions(self) -> dict[Symbol, float]:
         pass
 
-
-class Broker(CounterParty, ABC):
-    '''
-    A broker provide some basic operation for the Trader. These props and
-    methods should be as realistic as possible. E.g. trader must not be able to
-    write to the cash and positions props directly through the Strateg class.
-    Instead, broker should provide some fund management and trading methods for
-    Trader to change their Account states.
-    '''
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._account: Account
-
-    def handle(self, e: Event) -> None:
-        if isinstance(e, Order):
-            self.trade(e)
-
-    @property
-    @abstractmethod
-    def account(self) -> Account:
-        pass
-
+    #
+    # trade operations
+    #
     @abstractmethod
     def trade(self, e: Order) -> None:
         pass
