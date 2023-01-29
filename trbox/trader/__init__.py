@@ -104,9 +104,12 @@ class Trader(Runner):
 
     # helpers
 
+    # TODO
+    # these helpers should confirm there is no pending order first
+    # otherwise may issue multiple order causing wrong rebalance ratio
+
     def rebalance(self, symbol: Symbol, percentage: float) -> None:
-        # TODO
-        # should confirm there is no pending order first
-        # otherwise may issue multiple order causing wrong rebalance ratio
         raise NotImplementedError
-        return
+
+    def clear(self, symbol: Symbol) -> None:
+        raise NotImplementedError
