@@ -1,5 +1,5 @@
 import pytest
-from trbox.broker.simulated import PaperEX
+from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
 from trbox.event.market import OhlcvWindow

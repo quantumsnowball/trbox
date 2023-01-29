@@ -2,7 +2,7 @@
 Ignored by pytest
 '''
 from trbox import Strategy, Trader
-from trbox.broker.simulated import PaperEX
+from trbox.broker.paper import PaperEX
 from trbox.common.logger import debug, info, warning, error, critical
 from trbox.common.logger import set_log_level
 from trbox.event.market import Candlestick
