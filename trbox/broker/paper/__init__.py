@@ -1,6 +1,6 @@
-from collections.abc import Iterable
-from trbox.broker.simulated.account import PaperAccount
-from trbox.broker.simulated.account.engine import MatchingEngine, TradingBook
+from typing import Iterable
+from collections import defaultdict
+from trbox.broker.paper.engine import MatchingEngine, TradingBook
 from trbox.common.logger import debug
 from typing_extensions import override
 from trbox.broker import Broker
@@ -19,15 +19,34 @@ class PaperEX(Broker):
                  symbols: Symbol | Iterable[Symbol],
                  initial_fund: float = DEFAULT_INITIAL_FUND) -> None:
         super().__init__()
-        self._account: PaperAccount = PaperAccount(initial_fund)
+        self._cash: float = initial_fund
+        self._positions: dict[str, float] = defaultdict(float)
         if isinstance(symbols, Symbol):
             symbols = (symbols, )
         self._engine = MatchingEngine(
             **{symbol: TradingBook(symbol) for symbol in symbols})
 
+    # account state
+
     @property
-    def account(self) -> PaperAccount:
-        return self._account
+    @override
+    def cash(self) -> float:
+        return self._cash
+
+    @property
+    @override
+    def positions(self) -> dict[str, float]:
+        return self._positions
+
+    @property
+    @override
+    def equity(self) -> float:
+        # TODO
+        # having cash and position and market data (from MatchingEngine)
+        # here I can easily calculate the current equity value
+        return 13579_24680
+
+    # operations
 
     @override
     def trade(self, e: Order) -> None:
@@ -36,9 +55,11 @@ class PaperEX(Broker):
         self.send.new_order_result(r)
         if r.quantity and r.net_proceeds:
             # adjust cash
-            self._account.cash += r.net_proceeds
+            self._cash += r.net_proceeds
             # adjust position
-            self._account.positions[r.order.symbol] += r.quantity
+            self._positions[r.order.symbol] += r.quantity
+
+    # handler
 
     @override
     def handle(self, e: Event) -> None:

@@ -1,7 +1,7 @@
 import pytest
 import os
 from dotenv import load_dotenv
-from trbox.broker.simulated import PaperEX
+from trbox.broker.paper import PaperEX
 from trbox.event.market import Candlestick
 from trbox.market import Market
 from trbox.market.datasource.streaming.binance import BinanceWebsocket

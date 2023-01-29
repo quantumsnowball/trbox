@@ -74,6 +74,7 @@ class Trader(Runner):
             assert handler.attached
 
     # mode
+
     @property
     def live(self) -> bool:
         return self._live
@@ -82,15 +83,21 @@ class Trader(Runner):
     def backtesting(self) -> bool:
         return not self._live
 
-    # account info
+    # account status
+
     @property
     def cash(self) -> float:
-        return self._broker.account.cash
+        return self._broker.cash
 
     @property
     def positions(self) -> dict[Symbol, float]:
-        return self._broker.account.positions
+        return self._broker.positions
+
+    @property
+    def equity(self) -> float:
+        return self._broker.equity
 
     # investment decision
+
     def trade(self, symbol: Symbol, quantity: float) -> None:
         return self._broker.trade(MarketOrder(symbol, quantity))
