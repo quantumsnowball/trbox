@@ -91,6 +91,13 @@ class Trader(Runner):
     def positions(self) -> dict[Symbol, float]:
         return self._broker.account.positions
 
+    @property
+    def equity(self) -> float:
+        # TODO
+        # calculate the latest equity value here
+        # or ask broker to calculatte?
+        return 0
     # investment decision
+
     def trade(self, symbol: Symbol, quantity: float) -> None:
         return self._broker.trade(MarketOrder(symbol, quantity))
