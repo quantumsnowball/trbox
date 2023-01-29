@@ -26,7 +26,7 @@ class PaperEX(Broker):
         self._engine = MatchingEngine(
             **{symbol: TradingBook(symbol) for symbol in symbols})
 
-    # state
+    # account state
 
     @property
     @override
@@ -39,11 +39,12 @@ class PaperEX(Broker):
         return self._positions
 
     @property
+    @override
     def equity(self) -> float:
         # TODO
         # having cash and position and market data (from MatchingEngine)
         # here I can easily calculate the current equity value
-        return 0
+        return 13579_24680
 
     # operations
 

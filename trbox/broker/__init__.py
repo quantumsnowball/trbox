@@ -38,6 +38,11 @@ class Broker(CounterParty, ABC):
     def positions(self) -> dict[Symbol, float]:
         pass
 
+    @property
+    @abstractmethod
+    def equity(self) -> float:
+        pass
+
     #
     # trade operations
     #

@@ -20,7 +20,8 @@ def test_account_trade():
         self.trader.trade(SYMBOL, +0.2)
         info(Log('trading',
                  cash=self.trader.cash,
-                 position=self.trader.positions[SYMBOL])
+                 position=self.trader.positions[SYMBOL],
+                 equity=self.trader.equity)
              .by(self).tag(SYMBOL).sparse())
 
     Trader(
