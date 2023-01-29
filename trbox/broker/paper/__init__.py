@@ -40,11 +40,20 @@ class PaperEX(Broker):
 
     @property
     @override
-    def equity(self) -> float:
-        # TODO
-        # having cash and position and market data (from MatchingEngine)
-        # here I can easily calculate the current equity value
-        return 13579_24680
+    def positions_worth(self) -> float | None:
+        worth = 0
+        for s, pos in self._positions.items():
+            price = self._engine.price(s)
+            if not price:
+                return None
+            worth += price * pos
+        return worth
+
+    @property
+    @override
+    def equity(self) -> float | None:
+        if self.positions_worth:
+            return self.cash + self.positions_worth
 
     # operations
 

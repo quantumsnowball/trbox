@@ -58,7 +58,11 @@ class TradingBook:
 
 
 class MatchingEngine(dict[Symbol, TradingBook]):
+    # book state
+    def price(self, symbol: Symbol) -> float | None:
+        return self[symbol].price
     # matching
+
     def match(self, e: Order) -> OrderResult:
         e_result = self[e.symbol].transact(e)
         info(Log('order matching', ppf(e_result)).sparse()
