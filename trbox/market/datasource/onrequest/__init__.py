@@ -5,7 +5,6 @@ from trbox.common.logger import debug
 from trbox.common.utils import cln
 from trbox.event import Event
 from trbox.market import Market
-from trbox.market.datasource import DataSource
 from trbox.event.market import MarketDataRequest
 
 
