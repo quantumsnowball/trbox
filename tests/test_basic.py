@@ -5,9 +5,8 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
 from trbox.event.market import OhlcvWindow, Candlestick
-from trbox.market import Market
-from trbox.market.datasource.onrequest.localcsv import YahooOHLCV
-from trbox.market.datasource.streaming.dummy import DummyPrice
+from trbox.market.onrequest.localcsv import YahooOHLCV
+from trbox.market.streaming.dummy import DummyPrice
 
 
 @pytest.mark.parametrize('live', [True, False])

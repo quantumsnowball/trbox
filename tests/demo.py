@@ -6,7 +6,7 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import debug, info, warning, error, critical
 from trbox.common.logger import set_log_level
 from trbox.event.market import Candlestick
-from trbox.market.datasource.streaming.dummy import DummyPrice
+from trbox.market.streaming.dummy import DummyPrice
 
 
 set_log_level('DEBUG')
