@@ -1,11 +1,19 @@
 from abc import ABC, abstractmethod
+from typing_extensions import override
+from trbox.common.logger.parser import Log
+from trbox.common.logger import debug
+from trbox.common.utils import cln
+from trbox.event import Event
+from trbox.market import Market
 from trbox.market.datasource import DataSource
 from trbox.event.market import MarketDataRequest
 
 
-class OnRequestSource(DataSource, ABC):
+class OnRequestSource(Market, ABC):
     '''
-    This object listens to price request from Strategy and give a single
+    This interface immplements the Market interface.
+
+    It listens to price request from Strategy and give a single
     response each time. Usually it could be a local generator yielding
     dataframes, or in real trading, it could be a REST API endpoints sending
     price data per request.
@@ -13,3 +21,11 @@ class OnRequestSource(DataSource, ABC):
     @abstractmethod
     def on_request(self, e: MarketDataRequest) -> None:
         pass
+
+    @override
+    def handle(self, e: Event) -> None:
+        # listen to MarketDataRequest from Strategy
+        if isinstance(e, MarketDataRequest):
+            self.on_request(e)
+            debug(Log('requested', cln(e))
+                  .by(self).tag('market-data-request'))
