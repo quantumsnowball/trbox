@@ -5,9 +5,8 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
 from trbox.event.market import OhlcvWindow, Candlestick
-from trbox.market import Market
-from trbox.market.datasource.onrequest.localcsv import YahooOHLCV
-from trbox.market.datasource.streaming.dummy import DummyPrice
+from trbox.market.onrequest.localcsv import YahooOHLCV
+from trbox.market.streaming.dummy import DummyPrice
 
 
 @pytest.mark.parametrize('live', [True, False])
@@ -24,8 +23,7 @@ def test_dummy(live):
         live=live,
         strategy=Strategy(
             on_tick=dummy_action),
-        market=Market(
-            source=DummyPrice(SYMBOL, delay=0)),
+        market=DummyPrice(SYMBOL, delay=0),
         broker=PaperEX(SYMBOL)
     ).run()
 
@@ -47,12 +45,11 @@ def test_historical_data(start: Timestamp | str | None,
     Trader(
         strategy=Strategy(
             on_window=dummy_action),
-        market=Market(
-            source=YahooOHLCV(
-                source={s: f'tests/_data_/{s}_bar1day.csv'
-                        for s in SYMBOLS},
-                start=start,
-                end=end,
-                length=length)),
+        market=YahooOHLCV(
+            source={s: f'tests/_data_/{s}_bar1day.csv'
+                    for s in SYMBOLS},
+            start=start,
+            end=end,
+            length=length),
         broker=PaperEX(SYMBOLS)
     ).run()

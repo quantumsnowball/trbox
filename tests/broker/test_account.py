@@ -3,11 +3,10 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
 from trbox.event.market import OhlcvWindow
-from trbox.market import Market
-from trbox.market.datasource.onrequest.localcsv import YahooOHLCV
+from trbox.market.onrequest.localcsv import YahooOHLCV
 from trbox.strategy import Strategy
 from trbox.trader import Trader
-from trbox.market.datasource.streaming.dummy import DummyPrice
+from trbox.market.streaming.dummy import DummyPrice
 
 
 def test_account_trade():
@@ -27,12 +26,11 @@ def test_account_trade():
     Trader(
         strategy=Strategy(
             on_window=on_window),
-        market=Market(
-            source=YahooOHLCV(
-                source={SYMBOL: f'tests/_data_/{SYMBOL}_bar1day.csv'},
-                start=START,
-                end=END,
-                length=LENGTH)),
+        market=YahooOHLCV(
+            source={SYMBOL: f'tests/_data_/{SYMBOL}_bar1day.csv'},
+            start=START,
+            end=END,
+            length=LENGTH),
         broker=PaperEX(SYMBOL)
     ).run()
 
@@ -50,8 +48,7 @@ def test_account_cash(cash: float):
     Trader(
         strategy=Strategy(
             on_tick=on_tick),
-        market=Market(
-            source=DummyPrice(SYMBOL, delay=0)),
+        market=DummyPrice(SYMBOL, delay=0),
         broker=PaperEX(SYMBOL,
                        initial_fund=cash)
     ).run()

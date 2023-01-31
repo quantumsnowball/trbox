@@ -5,7 +5,7 @@ from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
 from trbox.event.market import Candlestick
 from threading import Thread
-from trbox.market.datasource.streaming import StreamingSource
+from trbox.market.streaming import StreamingSource
 
 
 DEFAULT_N = 30
