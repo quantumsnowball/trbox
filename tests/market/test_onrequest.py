@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from trbox.broker.paper import PaperEX
 from trbox.event.market import Candlestick
-from trbox.market import Market
 from trbox.market.datasource.streaming.binance import BinanceWebsocket
 from trbox.trader import Trader
 from trbox.strategy import Strategy
@@ -24,8 +23,6 @@ def test_binance():
     Trader(
         strategy=Strategy(
             on_tick=handle),
-        market=Market(
-            source=BinanceWebsocket(
-                symbol=SYMBOL)),
+        market=BinanceWebsocket(symbol=SYMBOL),
         broker=PaperEX(SYMBOL)
     ).run()

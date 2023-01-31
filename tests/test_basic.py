@@ -46,12 +46,11 @@ def test_historical_data(start: Timestamp | str | None,
     Trader(
         strategy=Strategy(
             on_window=dummy_action),
-        market=Market(
-            source=YahooOHLCV(
-                source={s: f'tests/_data_/{s}_bar1day.csv'
-                        for s in SYMBOLS},
-                start=start,
-                end=end,
-                length=length)),
+        market=YahooOHLCV(
+            source={s: f'tests/_data_/{s}_bar1day.csv'
+                    for s in SYMBOLS},
+            start=start,
+            end=end,
+            length=length),
         broker=PaperEX(SYMBOLS)
     ).run()

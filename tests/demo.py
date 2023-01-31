@@ -6,7 +6,6 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import debug, info, warning, error, critical
 from trbox.common.logger import set_log_level
 from trbox.event.market import Candlestick
-from trbox.market import Market
 from trbox.market.datasource.streaming.dummy import DummyPrice
 
 
@@ -25,8 +24,7 @@ def test_dummy():
         live=False,
         strategy=Strategy(
             on_tick=dummy_action),
-        market=Market(
-            source=DummyPrice(SYMBOL, delay=0)),
+        market=DummyPrice(SYMBOL, delay=0),
         broker=PaperEX(SYMBOL)
     ).run()
 
