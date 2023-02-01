@@ -12,7 +12,8 @@ from trbox.market.streaming.dummy import DummyPrice
 
 @pytest.mark.parametrize('live', [False, ])
 @pytest.mark.parametrize('name', [None, 'DummySt'])
-def test_dummy(name, live):
+@pytest.mark.parametrize('parallel', [False, True])
+def test_dummy(name, live, parallel):
     SYMBOL = 'BTC'
 
     # on_tick
@@ -38,7 +39,7 @@ def test_dummy(name, live):
             market=DummyPrice(SYMBOL, delay=0),
             broker=PaperEX(SYMBOL)
         )
-    ).run_parallel()
+    ).run(parallel=parallel)
 
 
 @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2020-01-01', None])

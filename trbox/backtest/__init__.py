@@ -4,7 +4,7 @@ from typing import Iterable
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 from trbox.trader import Runner, Trader
-from trbox.common.logger import info, warning
+from trbox.common.logger import info
 
 
 class BatchRunner(ABC):
@@ -16,7 +16,7 @@ class BatchRunner(ABC):
     def __init__(self) -> None:
         self._runners: Iterable[Runner]
 
-    def run(self) -> None:
+    def _run_sync(self) -> None:
         for id, runner in enumerate(self._runners):
             info(Log('started', cln(runner), id=id)
                  .by(self).tag('runner', 'started'))
@@ -26,15 +26,18 @@ class BatchRunner(ABC):
         info(Log('finished', cln(self))
              .by(self).tag('batch', 'finished'))
 
-    def run_parallel(self) -> None:
+    def _run_async(self) -> None:
         with ThreadPoolExecutor() as executor:
-            warning(Log('started', cln(executor))
-                    .by(self).tag('pool', 'started'))
+            info(Log('started', cln(executor))
+                 .by(self).tag('pool', 'started'))
             futures = [executor.submit(r.run) for r in self._runners]
             for future in futures:
                 future.result()
-            warning(Log('finished', cln(executor))
-                    .by(self).tag('pool', 'finished'))
+            info(Log('finished', cln(executor))
+                 .by(self).tag('pool', 'finished'))
+
+    def run(self, *, parallel=False) -> None:
+        return self._run_async() if parallel else self._run_sync()
 
 
 class Backtest(BatchRunner):
