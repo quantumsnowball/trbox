@@ -15,6 +15,7 @@ from trbox.market.streaming.dummy import DummyPrice
 @pytest.mark.parametrize('name', [None, 'DummySt'])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
+    DELAY = 0
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
@@ -27,7 +28,7 @@ def test_dummy(name, live):
         strategy=Strategy(
             name=name,
             on_tick=dummy_action),
-        market=DummyPrice(SYMBOL, delay=0),
+        market=DummyPrice(SYMBOL, delay=DELAY),
         broker=PaperEX(SYMBOL)
     ).run()
 
@@ -36,6 +37,7 @@ def test_dummy(name, live):
 @pytest.mark.parametrize('parallel', [True, ])
 def test_dummy_batch(name, parallel):
     SYMBOL = 'BTC'
+    DELAY = 0
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
@@ -47,20 +49,20 @@ def test_dummy_batch(name, parallel):
             strategy=Strategy(
                 name='Benchmark',
                 on_tick=dummy_action),
-            market=DummyPrice(SYMBOL, delay=0),
-            broker=PaperEX(SYMBOL)
-        ),
+            market=DummyPrice(SYMBOL, delay=DELAY),
+            broker=PaperEX(SYMBOL)),
         Trader(
             strategy=Strategy(
                 name=name,
                 on_tick=dummy_action),
             market=DummyPrice(SYMBOL, delay=0),
-            broker=PaperEX(SYMBOL)
-        )
+            broker=PaperEX(SYMBOL))
     )
     result = bt.run(parallel=parallel)
     info(Log(cln(bt), result=result))
     # TODO result should contain all the backtest info for review
+    # TODO but what about live trading? how to get some report without
+    # terminating the Trader?
 
 
 @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2020-01-01', None])

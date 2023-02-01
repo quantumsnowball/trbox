@@ -36,7 +36,7 @@ class BatchRunner(ABC):
             info(Log('finished', cln(executor))
                  .by(self).tag('pool', 'finished'))
 
-    def run(self, *, parallel=False) -> None:
+    def run(self, *, parallel: bool = False) -> None:
         return self._run_async() if parallel else self._run_sync()
 
 

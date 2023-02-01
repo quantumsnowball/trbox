@@ -32,6 +32,9 @@ class Distributor:
         # if backtesting, broker also receive MarketData to simulate quote
         if self._trader.backtesting:
             self._broker.put(e)
+        # TODO in live trading these market data all comes in random times
+        # maybe I can monitor the market event timestamp here, calc the time
+        # diff, if equal or exceed user arg input, then log a new value.
 
     def new_market_data_request(self, e: MarketDataRequest) -> None:
         self._market.put(e)

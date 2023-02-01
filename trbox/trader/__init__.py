@@ -56,6 +56,10 @@ class Runner:
                 raise e
 
         info(Log('Runner has completed').by(self))
+        # TODO may be run() should return a Result object
+        # containing all info for review purpose
+        # TODO but what about live trading? how to get some report without
+        # terminating the Trader?
 
 
 class Trader(Runner):
@@ -72,6 +76,10 @@ class Trader(Runner):
             handler.attach(self)
         for handler in self._handlers:
             assert handler.attached
+        # TODO I think should do account audit here where the run() method
+        # can use for generating a Result object
+        # TODO How do you control when to log the equity value? should I pass
+        # in a user arg and determine from it?
 
     # mode
 

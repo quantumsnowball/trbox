@@ -38,6 +38,8 @@ class Strategy(CounterParty):
         if self._on_tick:
             if isinstance(e, Candlestick):
                 self._on_tick(self, e)
+                # TODO also Strategy need to know the number of Tick event
+                # so maybe inc a counter state var here
         # for request and response data
         if self._on_window:
             # need to make the first request manually
@@ -47,6 +49,9 @@ class Strategy(CounterParty):
             if isinstance(e, OhlcvWindow):
                 self._on_window(self, e)
                 self.request_ohlcv_window()
+                # TODO this pattern assume the ohlcv always comes in time
+                # which is not very realistic, so may be should make ohlcv slow
+                # datasource to be just a very slow `Tick` source
         # on order result
         if isinstance(e, OrderResult):
             # TODO may be a on_fill callback?
