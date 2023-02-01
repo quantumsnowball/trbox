@@ -1,4 +1,5 @@
 from abc import ABC
+
 from trbox.event.handler import CounterParty
 
 

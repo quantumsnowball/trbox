@@ -1,11 +1,15 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 from trbox.event.broker import OrderResult
+
 if TYPE_CHECKING:
     from trbox.broker import Broker
     from trbox.market import Market
     from trbox.strategy import Strategy
     from trbox.trader import Trader
+
 from trbox.event.market import MarketData, MarketDataRequest
 
 

@@ -1,12 +1,13 @@
-from pandas import Timestamp
 import pytest
+from pandas import Timestamp
+
 from trbox import Strategy, Trader
 from trbox.backtest import Backtest
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
-from trbox.event.market import OhlcvWindow, Candlestick
+from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.onrequest.localcsv import YahooOHLCV
 from trbox.market.streaming.dummy import DummyPrice
 

@@ -1,11 +1,12 @@
 from collections.abc import Callable
+
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln, ppf
 from trbox.event import Event
 from trbox.event.broker import OrderResult
 from trbox.event.handler import CounterParty
-from trbox.event.market import OhlcvWindow, OhlcvWindowRequest, Candlestick
+from trbox.event.market import Candlestick, OhlcvWindow, OhlcvWindowRequest
 from trbox.event.system import Start
 
 

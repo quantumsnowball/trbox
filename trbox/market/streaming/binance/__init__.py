@@ -1,6 +1,7 @@
-from trbox.common.logger import debug, exception, info, warning
-from typing_extensions import override
 from binance.websocket.spot.websocket_client import SpotWebsocketClient
+from typing_extensions import override
+
+from trbox.common.logger import debug, exception, info, warning
 from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
 from trbox.common.utils import cln, ppf

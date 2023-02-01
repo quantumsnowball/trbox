@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+
+from pandas import DataFrame
+
 from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import verify_ohlcv
 from trbox.event import MarketEvent
-from pandas import DataFrame
-
 
 #
 # Requests

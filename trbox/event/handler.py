@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from queue import Queue
 from typing import TypeVar
+
+from trbox.common.logger import debug
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 from trbox.event import Event
 from trbox.event.distributor import Distributor
 from trbox.event.system import Exit
 from trbox.trader import Trader
-from trbox.common.logger import debug
 
 
 class EventHandler(ABC):

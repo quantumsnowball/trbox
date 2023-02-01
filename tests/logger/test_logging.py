@@ -1,5 +1,7 @@
 import pytest
-from trbox.common.logger import debug, info, warning, error, critical, exception
+
+from trbox.common.logger import (critical, debug, error, exception, info,
+                                 warning)
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln, ppf
 

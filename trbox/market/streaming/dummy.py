@@ -1,12 +1,13 @@
-from trbox.common.logger import debug
 import time
+from threading import Thread
+
 from typing_extensions import override
+
+from trbox.common.logger import debug
 from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
 from trbox.event.market import Candlestick
-from threading import Thread
 from trbox.market.streaming import StreamingSource
-
 
 DEFAULT_N = 30
 DEFAULT_DELAY = 1

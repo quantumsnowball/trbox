@@ -1,6 +1,6 @@
 from typing import Any, Callable, TypeVar
-from trbox.common.utils import cln
 
+from trbox.common.utils import cln
 
 Self = TypeVar('Self', bound='Log')
 

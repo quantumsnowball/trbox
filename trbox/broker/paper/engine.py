@@ -1,10 +1,10 @@
 from dataclasses import dataclass
+
 from trbox.common.logger import info, warning
 from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
 from trbox.common.utils import ppf
 from trbox.event.broker import LimitOrder, MarketOrder, Order, OrderResult
-
 
 SPREAD = 0.001  # spread 0.1%
 FEE_RATE = 0.001  # assume 0.1%

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from trbox.common.types import Symbol
 from trbox.event import Event
 from trbox.event.broker import Order

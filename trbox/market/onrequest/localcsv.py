@@ -1,11 +1,12 @@
-from typing_extensions import override
 from pandas import Timestamp, to_datetime
+from typing_extensions import override
+
 from trbox.common.types import Symbol
 from trbox.common.utils import trim_ohlcv_by_range_length
-from trbox.event.market import \
-    MarketDataRequest, OhlcvWindow, OhlcvWindowRequest
+from trbox.event.market import (MarketDataRequest, OhlcvWindow,
+                                OhlcvWindowRequest)
 from trbox.market.onrequest import OnRequestSource
-from trbox.market.utils import import_yahoo_csv, concat_dfs_by_columns
+from trbox.market.utils import concat_dfs_by_columns, import_yahoo_csv
 
 
 class YahooOHLCV(OnRequestSource):

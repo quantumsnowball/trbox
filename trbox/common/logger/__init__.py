@@ -1,9 +1,8 @@
-from collections.abc import Callable
-import logging
-from logging import getLogger, Formatter, StreamHandler
-from typing import Any
 import configparser
-
+import logging
+from collections.abc import Callable
+from logging import Formatter, StreamHandler, getLogger
+from typing import Any
 
 # types
 LoggerFunction = Callable[[Any, ], None]

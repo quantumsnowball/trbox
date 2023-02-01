@@ -1,13 +1,13 @@
-from trbox.common.logger import info, warning
-import pytest
-from dotenv import load_dotenv
 import os
 from pprint import pformat as pp
-from binance.spot import Spot
-from binance.websocket.spot.websocket_client \
-    import SpotWebsocketClient
-from trbox.common.logger.parser import Log
 
+import pytest
+from binance.spot import Spot
+from binance.websocket.spot.websocket_client import SpotWebsocketClient
+from dotenv import load_dotenv
+
+from trbox.common.logger import info, warning
+from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 
 load_dotenv()

@@ -1,15 +1,16 @@
-from typing import Iterable
 from collections import defaultdict
+from typing import Iterable
+
+from typing_extensions import override
+
+from trbox.broker import Broker
 from trbox.broker.paper.engine import MatchingEngine, TradingBook
 from trbox.common.logger import debug
-from typing_extensions import override
-from trbox.broker import Broker
 from trbox.common.logger.parser import Log
 from trbox.common.types import Symbol
 from trbox.event import Event
 from trbox.event.broker import Order
 from trbox.event.market import Candlestick, OhlcvWindow
-
 
 DEFAULT_INITIAL_FUND = 1e6
 

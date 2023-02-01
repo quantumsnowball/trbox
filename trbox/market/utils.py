@@ -1,4 +1,5 @@
 from pandas import DataFrame, concat, read_csv
+
 from trbox.common.constants import OHLCV_COLUMN_NAMES, OHLCV_INDEX_NAME
 from trbox.common.types import Symbol
 

@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
+
 from typing_extensions import override
-from trbox.common.logger.parser import Log
+
 from trbox.common.logger import debug
+from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 from trbox.event import Event
-from trbox.market import Market
 from trbox.event.market import MarketDataRequest
+from trbox.market import Market
 
 
 class OnRequestSource(Market, ABC):

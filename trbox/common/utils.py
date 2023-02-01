@@ -1,7 +1,9 @@
-from typing import Any
-from pandas import DataFrame, Timestamp
-from trbox.common.constants import OHLCV_COLUMN_NAMES
 from pprint import pformat
+from typing import Any
+
+from pandas import DataFrame, Timestamp
+
+from trbox.common.constants import OHLCV_COLUMN_NAMES
 
 
 def verify_ohlcv(ohlcv: DataFrame) -> DataFrame:

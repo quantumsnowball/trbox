@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from typing import Iterable
+
+from trbox.common.logger import info
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 from trbox.trader import Runner, Trader
-from trbox.common.logger import info
 
 
 class BatchRunner(ABC):

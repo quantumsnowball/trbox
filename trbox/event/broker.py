@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+
 from trbox.common.types import Symbol
 from trbox.event import BrokerEvent
 

@@ -1,10 +1,11 @@
-from trbox.common.logger import info
-from pprint import pformat as pp
-import ccxt
-from dotenv import load_dotenv
 import os
-import pytest
+from pprint import pformat as pp
 
+import ccxt
+import pytest
+from dotenv import load_dotenv
+
+from trbox.common.logger import info
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
