@@ -1,6 +1,7 @@
 import pytest
 
-from trbox.common.logger import critical, debug, error, exception, info, warning
+from trbox.common.logger import (critical, debug, error, exception, info,
+                                 warning)
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln, ppf
 
@@ -17,17 +18,11 @@ BASIC = (
 )
 
 BASIC_COLLECTIONS = (
-    [
-        1,
-        "a",
-    ],
-    (
-        1,
-        "a",
-    ),
+    [1, "a"],
+    (1, "a"),
     {1, "b"},
     {
-        1: "a",
+        1: "a"
     },
     [[1, 2], ["3", "4"]] * 2,
 )
@@ -44,6 +39,7 @@ def test_cln(obj):
 
 @pytest.mark.parametrize("log", LOG_FUNCTIONS)
 def test_logging_function(log):
+
     class Foo:
         ...
 
@@ -72,6 +68,7 @@ def test_ppf(obj):
 
 @pytest.mark.parametrize("obj", BASIC + BASIC_COLLECTIONS)
 def test_parser_input_types(obj):
+
     class Base:
         ...
 
@@ -84,22 +81,18 @@ def test_parser_input_types(obj):
 
     info(Log("Case1> Most basic oneliner"))
     info(Log("Normally I am just oneliner", a=999).by("Case2", Base))
-    info(Log("comment", 1, "comment2", handle=Exception("nothing")).by("Case3", base))
     info(
-        Log("my objects", obj, 2, 3, 4, last=10)
-        .sep("||")
-        .by("Case4", foo)
-        .tag("oneline", "only")
-    )
+        Log("comment", 1, "comment2",
+            handle=Exception("nothing")).by("Case3", base))
     info(
-        Log(obj, 5, 6, 7, extra=obj).by("Case5", "God").tag("alert", "warning").sparse()
-    )
+        Log("my objects", obj, 2, 3, 4,
+            last=10).sep("||").by("Case4", foo).tag("oneline", "only"))
     info(
-        Log(obj, 8, 9, 10, age=5, height=10, money=999)
-        .sparse()
-        .by("Foo")
-        .tag("foo", "bar", "haha")
-    )
+        Log(obj, 5, 6, 7,
+            extra=obj).by("Case5", "God").tag("alert", "warning").sparse())
+    info(
+        Log(obj, 8, 9, 10, age=5, height=10,
+            money=999).sparse().by("Foo").tag("foo", "bar", "haha"))
 
 
 @pytest.mark.parametrize(

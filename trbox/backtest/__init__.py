@@ -19,9 +19,13 @@ class BatchRunner(ABC):
 
     def _run_sync(self) -> None:
         for id, runner in enumerate(self._runners):
-            info(Log("started", cln(runner), id=id).by(self).tag("runner", "started"))
+            info(
+                Log("started", cln(runner),
+                    id=id).by(self).tag("runner", "started"))
             runner.run()
-            info(Log("finished", cln(runner), id=id).by(self).tag("runner", "finished"))
+            info(
+                Log("finished", cln(runner),
+                    id=id).by(self).tag("runner", "finished"))
         info(Log("finished", cln(self)).by(self).tag("batch", "finished"))
 
     def _run_async(self) -> None:
@@ -30,7 +34,9 @@ class BatchRunner(ABC):
             futures = [executor.submit(r.run) for r in self._runners]
             for future in futures:
                 future.result()
-            info(Log("finished", cln(executor)).by(self).tag("pool", "finished"))
+            info(
+                Log("finished",
+                    cln(executor)).by(self).tag("pool", "finished"))
 
     def run(self, *, parallel: bool = False) -> None:
         return self._run_async() if parallel else self._run_sync()

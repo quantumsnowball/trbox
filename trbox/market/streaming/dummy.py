@@ -20,7 +20,10 @@ class DummyPrice(StreamingSource):
     """
 
     def __init__(
-        self, symbol: Symbol, n: int = DEFAULT_N, delay: int = DEFAULT_DELAY
+        self,
+        symbol: Symbol,
+        n: int = DEFAULT_N,
+        delay: int = DEFAULT_DELAY,
     ) -> None:
         super().__init__()
         self._symbol = symbol
@@ -30,6 +33,7 @@ class DummyPrice(StreamingSource):
 
     @override
     def start(self) -> None:
+
         def worker() -> None:
             # gen random price to simulate live market
             for i in range(self._n):
@@ -37,8 +41,8 @@ class DummyPrice(StreamingSource):
                 time.sleep(self._delay)
                 if not self._keep_alive:
                     debug(
-                        Log("set flag and return", keep_alive=self._keep_alive).by(self)
-                    )
+                        Log("set flag and return",
+                            keep_alive=self._keep_alive).by(self))
                     return
             # simulate the end of data
             self.send.end_of_market_data()

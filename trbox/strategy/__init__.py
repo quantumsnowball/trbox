@@ -11,6 +11,7 @@ from trbox.event.system import Start
 
 
 class Strategy(CounterParty):
+
     def __init__(
         self,
         *,
@@ -58,8 +59,5 @@ class Strategy(CounterParty):
         if isinstance(e, OrderResult):
             # TODO may be a on_fill callback?
             info(
-                Log("order filled", ppf(e))
-                .by(self)
-                .tag("order", "confirmation")
-                .sparse()
-            )
+                Log("order filled",
+                    ppf(e)).by(self).tag("order", "confirmation").sparse())

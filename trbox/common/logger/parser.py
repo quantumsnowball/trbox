@@ -34,7 +34,8 @@ class Log:
 
         def body() -> str:
             args = self._sep.join(map(fn, self._args))
-            kwargs = self._sep.join([f"{k}={fn(v)}" for k, v in self._kwargs.items()])
+            kwargs = self._sep.join(
+                [f"{k}={fn(v)}" for k, v in self._kwargs.items()])
             return self._sep.join([p for p in [args, kwargs] if len(p) > 0])
 
         def footer() -> str:

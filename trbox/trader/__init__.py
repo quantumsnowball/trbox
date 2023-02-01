@@ -20,7 +20,14 @@ from trbox.event.system import Exit, Start
 
 
 class Runner:
-    def __init__(self, *, strategy: Strategy, market: Market, broker: Broker):
+
+    def __init__(
+        self,
+        *,
+        strategy: Strategy,
+        market: Market,
+        broker: Broker,
+    ):
         self._strategy: Strategy = strategy
         self._market: Market = market
         self._broker: Broker = broker
@@ -49,10 +56,8 @@ class Runner:
             except KeyboardInterrupt as e:
                 self.stop()
                 info(
-                    Log(cln(e), "requested all handlers to quit")
-                    .by(self)
-                    .tag("interrupt", "ctrl-c")
-                )
+                    Log(cln(e), "requested all handlers to quit").by(self).tag(
+                        "interrupt", "ctrl-c"))
             # if other Exception are catched, stop all threads gracefully and
             # then raise them again in main thread to fail any test cases
             except Exception as e:
@@ -68,12 +73,19 @@ class Runner:
 
 
 class Trader(Runner):
-    def __init__(self, *, live: bool = False, **kwargs: Any):
+
+    def __init__(
+        self,
+        *,
+        live: bool = False,
+        **kwargs: Any,
+    ):
         super().__init__(**kwargs)
         self._live = live
-        self._distributor = Distributor(
-            self, strategy=self._strategy, market=self._market, broker=self._broker
-        )
+        self._distributor = Distributor(self,
+                                        strategy=self._strategy,
+                                        market=self._market,
+                                        broker=self._broker)
         for handler in self._handlers:
             handler.attach(self)
         for handler in self._handlers:

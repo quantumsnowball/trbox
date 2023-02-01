@@ -5,13 +5,7 @@ from logging import Formatter, StreamHandler, getLogger
 from typing import Any
 
 # types
-LoggerFunction = Callable[
-    [
-        Any,
-    ],
-    None,
-]
-
+LoggerFunction = Callable[[Any], None]
 
 # level names
 LEVELS = ["debug", "info", "warning", "error", "critical"]
@@ -45,7 +39,10 @@ BASIC = f"{PREFIX}{MESSAGE}"
 NORMAL = f"{BASIC}{SUFFIX}"
 DETAIL = f"{BASIC}{SUFFIX_LONG}"
 
-FORMAT_STRINGS = {lv: NORMAL if lv in ("info", "warning") else DETAIL for lv in LEVELS}
+FORMAT_STRINGS = {
+    lv: NORMAL if lv in ("info", "warning") else DETAIL
+    for lv in LEVELS
+}
 
 
 def make_logging_function() -> tuple[LoggerFunction, ...]:
@@ -55,7 +52,8 @@ def make_logging_function() -> tuple[LoggerFunction, ...]:
     """
     # formatters
     fmts = {
-        lv: Formatter(fmt=fs, datefmt=DATE_FORMAT) for lv, fs in FORMAT_STRINGS.items()
+        lv: Formatter(fmt=fs, datefmt=DATE_FORMAT)
+        for lv, fs in FORMAT_STRINGS.items()
     }
 
     # loggers
@@ -84,7 +82,9 @@ debug, info, warning, error, critical, exception = make_logging_function()
 
 
 def set_log_level(lv: str) -> None:
-    loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+    loggers = [
+        logging.getLogger(name) for name in logging.root.manager.loggerDict
+    ]
     for logger in loggers:
         logger.setLevel(lv.upper())
 
@@ -104,9 +104,8 @@ def eval_format_string() -> None:
     print(f"DETAIL = {DETAIL}")
 
 
-def apply_to_pytest_config(
-    filename: str, *, log_format: str, log_file_format: str
-) -> None:
+def apply_to_pytest_config(filename: str, *, log_format: str,
+                           log_file_format: str) -> None:
     """
     Use a ini parser to change the value directly by one command
     """
@@ -125,4 +124,6 @@ def apply_to_pytest_config(
 
 if __name__ == "__main__":
     eval_format_string()
-    apply_to_pytest_config("pytest.ini", log_format=NORMAL, log_file_format=DETAIL)
+    apply_to_pytest_config("pytest.ini",
+                           log_format=NORMAL,
+                           log_file_format=DETAIL)

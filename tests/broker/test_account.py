@@ -24,11 +24,7 @@ def test_account_trade():
                 cash=self.trader.cash,
                 position=self.trader.positions[SYMBOL],
                 equity=self.trader.equity,
-            )
-            .by(self)
-            .tag(SYMBOL)
-            .sparse()
-        )
+            ).by(self).tag(SYMBOL).sparse())
 
     Trader(
         strategy=Strategy(on_window=on_window),

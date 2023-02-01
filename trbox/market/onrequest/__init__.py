@@ -29,4 +29,5 @@ class OnRequestSource(Market, ABC):
         # listen to MarketDataRequest from Strategy
         if isinstance(e, MarketDataRequest):
             self.on_request(e)
-            debug(Log("requested", cln(e)).by(self).tag("market-data-request"))
+            debug(
+                Log("requested", cln(e)).by(self).tag("market-data-request"), )

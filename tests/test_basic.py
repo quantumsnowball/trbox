@@ -32,19 +32,8 @@ def test_dummy(name, live):
     ).run()
 
 
-@pytest.mark.parametrize(
-    "name",
-    [
-        None,
-        "DummySt",
-    ],
-)
-@pytest.mark.parametrize(
-    "parallel",
-    [
-        True,
-    ],
-)
+@pytest.mark.parametrize("name", [None, "DummySt"])
+@pytest.mark.parametrize("parallel", [True])
 def test_dummy_batch(name, parallel):
     SYMBOL = "BTC"
     DELAY = 0
@@ -76,9 +65,8 @@ def test_dummy_batch(name, parallel):
 @pytest.mark.parametrize("start", [Timestamp(2021, 1, 1), "2020-01-01", None])
 @pytest.mark.parametrize("end", [Timestamp(2021, 3, 31), "2021-3-31", None])
 @pytest.mark.parametrize("length", [100, 200, 500])
-def test_historical_data(
-    start: Timestamp | str | None, end: Timestamp | str | None, length: int
-):
+def test_historical_data(start: Timestamp | str | None,
+                         end: Timestamp | str | None, length: int):
     SYMBOLS = ["BTC", "ETH"]
 
     # on_window
@@ -90,7 +78,8 @@ def test_historical_data(
     Trader(
         strategy=Strategy(on_window=dummy_action),
         market=YahooOHLCV(
-            source={s: f"tests/_data_/{s}_bar1day.csv" for s in SYMBOLS},
+            source={s: f"tests/_data_/{s}_bar1day.csv"
+                    for s in SYMBOLS},
             start=start,
             end=end,
             length=length,
