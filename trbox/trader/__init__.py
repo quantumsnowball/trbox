@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 from trbox.event.broker import MarketOrder
+from trbox.trader.dashboard import Dashboard
 
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
@@ -81,8 +82,6 @@ class Trader(Runner):
             handler.attach(self)
         for handler in self._handlers:
             assert handler.attached
-        # TODO I think should do account audit here where the run() method
-        # can use for generating a Result object
         # TODO How do you control when to log the equity value? should I pass
         # in a user arg and determine from it?
 
@@ -109,6 +108,14 @@ class Trader(Runner):
     @property
     def equity(self) -> float | None:
         return self._broker.equity
+
+    # dashboard
+    @property
+    def dashboard(self) -> Dashboard:
+        return Dashboard()
+        # TODO I think user should be able to request the dashboard as long as
+        # the Trader is still running. It should contain the lastest trading
+        # result regardless live trading or backtesting.
 
     # account operations
 

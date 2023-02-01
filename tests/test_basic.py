@@ -10,6 +10,7 @@ from trbox.common.utils import cln
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.onrequest.localcsv import YahooOHLCV
 from trbox.market.streaming.dummy import DummyPrice
+from trbox.trader.dashboard import Dashboard
 
 
 @pytest.mark.parametrize('live', [False, True])
@@ -23,15 +24,26 @@ def test_dummy(name, live):
         assert live == (not self.trader.backtesting)
         info(Log(st=self, price=e.price).by(self))
         self.trader.trade(SYMBOL, +10)
+        # can also access dashboard when still trading
+        assert isinstance(trader.dashboard, Dashboard)
+        info(Log('anytime get', dashboard=self.trader.dashboard)
+             .by(self).tag('dashboard'))
 
-    Trader(
+    trader = Trader(
         live=live,
         strategy=Strategy(
             name=name,
             on_tick=dummy_action),
         market=DummyPrice(SYMBOL, delay=DELAY),
         broker=PaperEX(SYMBOL)
-    ).run()
+    )
+    trader.run()
+
+    # up to here the market data terminated, simular to user termination
+    # info(Log(cln(bt), result=result))
+    dashboard = trader.dashboard
+    info(Log(str(dashboard)))
+    assert isinstance(trader.dashboard, Dashboard)
 
 
 @pytest.mark.parametrize('name', [None, 'DummySt', ])
@@ -58,9 +70,7 @@ def test_dummy_batch(name, parallel):
                 on_tick=dummy_action),
             market=DummyPrice(SYMBOL, delay=0),
             broker=PaperEX(SYMBOL))
-    )
-    result = bt.run(parallel=parallel)
-    info(Log(cln(bt), result=result))
+    ).run(parallel=parallel)
     # TODO result should contain all the backtest info for review
     # TODO but what about live trading? how to get some report without
     # terminating the Trader?
