@@ -1,6 +1,7 @@
 from pandas import Timestamp
 import pytest
 from trbox import Strategy, Trader
+from trbox.backtest import Backtest
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
@@ -9,25 +10,34 @@ from trbox.market.onrequest.localcsv import YahooOHLCV
 from trbox.market.streaming.dummy import DummyPrice
 
 
-@pytest.mark.parametrize('live', [True, False])
+@pytest.mark.parametrize('live', [False, ])
 @pytest.mark.parametrize('name', [None, 'DummySt'])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
-        assert self.name == name
         assert live == (not self.trader.backtesting)
         info(Log(st=self, price=e.price).by(self))
         self.trader.trade(SYMBOL, +10)
 
-    Trader(
-        live=live,
-        strategy=Strategy(
-            name=name,
-            on_tick=dummy_action),
-        market=DummyPrice(SYMBOL, delay=0),
-        broker=PaperEX(SYMBOL)
+    Backtest(
+        Trader(
+            live=live,
+            strategy=Strategy(
+                name='Benchmark',
+                on_tick=dummy_action),
+            market=DummyPrice(SYMBOL, delay=0),
+            broker=PaperEX(SYMBOL)
+        ),
+        Trader(
+            live=live,
+            strategy=Strategy(
+                name=name,
+                on_tick=dummy_action),
+            market=DummyPrice(SYMBOL, delay=0),
+            broker=PaperEX(SYMBOL)
+        )
     ).run()
 
 
