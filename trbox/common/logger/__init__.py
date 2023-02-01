@@ -5,8 +5,9 @@ from logging import Formatter, StreamHandler, getLogger
 from typing import Any
 
 # types
-LoggerFunction = Callable[[Any, ], None]
-
+LoggerFunction = Callable[[
+    Any,
+], None]
 
 # level names
 LEVELS = ['debug', 'info', 'warning', 'error', 'critical']
@@ -40,8 +41,10 @@ BASIC = f'{PREFIX}{MESSAGE}'
 NORMAL = f'{BASIC}{SUFFIX}'
 DETAIL = f'{BASIC}{SUFFIX_LONG}'
 
-FORMAT_STRINGS = {lv: NORMAL if lv in ('info', 'warning') else DETAIL
-                  for lv in LEVELS}
+FORMAT_STRINGS = {
+    lv: NORMAL if lv in ('info', 'warning') else DETAIL
+    for lv in LEVELS
+}
 
 
 def make_logging_function() -> tuple[LoggerFunction, ...]:
@@ -50,9 +53,10 @@ def make_logging_function() -> tuple[LoggerFunction, ...]:
     different level of message detail.
     '''
     # formatters
-    fmts = {lv: Formatter(fmt=fs,
-                          datefmt=DATE_FORMAT)
-            for lv, fs in FORMAT_STRINGS.items()}
+    fmts = {
+        lv: Formatter(fmt=fs, datefmt=DATE_FORMAT)
+        for lv, fs in FORMAT_STRINGS.items()
+    }
 
     # loggers
     def make_log_fn(lv: str, fmt: Formatter) -> LoggerFunction:
@@ -70,8 +74,7 @@ def make_logging_function() -> tuple[LoggerFunction, ...]:
         return fn
 
     # only need the log function matching each level logger
-    fns = tuple(make_log_fn(lv, fmt)
-                for lv, fmt in fmts.items())
+    fns = tuple(make_log_fn(lv, fmt) for lv, fmt in fmts.items())
     exception = getLogger('error').exception
     return *fns, exception
 
@@ -81,8 +84,9 @@ debug, info, warning, error, critical, exception = make_logging_function()
 
 
 def set_log_level(lv: str) -> None:
-    loggers = [logging.getLogger(name)
-               for name in logging.root.manager.loggerDict]
+    loggers = [
+        logging.getLogger(name) for name in logging.root.manager.loggerDict
+    ]
     for logger in loggers:
         logger.setLevel(lv.upper())
 
@@ -102,8 +106,7 @@ def eval_format_string() -> None:
     print(f'DETAIL = {DETAIL}')
 
 
-def apply_to_pytest_config(filename: str, *,
-                           log_format: str,
+def apply_to_pytest_config(filename: str, *, log_format: str,
                            log_file_format: str) -> None:
     '''
     Use a ini parser to change the value directly by one command

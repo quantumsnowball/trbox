@@ -10,6 +10,7 @@ from trbox.event import MarketEvent
 # Requests
 #
 
+
 @dataclass
 class MarketDataRequest(MarketEvent):
     pass
@@ -23,6 +24,7 @@ class OhlcvWindowRequest(MarketDataRequest):
 #
 # Response
 #
+
 
 @dataclass
 class MarketData(MarketEvent):

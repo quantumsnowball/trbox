@@ -16,11 +16,9 @@ def verify_ohlcv(ohlcv: DataFrame) -> DataFrame:
     return ohlcv
 
 
-def trim_ohlcv_by_range_length(
-        df: DataFrame,
-        start: Timestamp | None,
-        end: Timestamp | None,
-        length: int) -> DataFrame:
+def trim_ohlcv_by_range_length(df: DataFrame, start: Timestamp | None,
+                               end: Timestamp | None,
+                               length: int) -> DataFrame:
     '''
     given a dataframe, start, end and length, check the validity of all
     inputs, trim the dataframe correctly to be used in datasource generator,

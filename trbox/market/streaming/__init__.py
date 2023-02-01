@@ -18,6 +18,7 @@ class StreamingSource(Market, ABC):
     It could be a random generator running on a new thread, or in real
     trading, it could also be a websocket connection pushing new tick data.
     '''
+
     @abstractmethod
     def start(self) -> None:
         pass
@@ -31,10 +32,8 @@ class StreamingSource(Market, ABC):
         # listen to system Start event
         if isinstance(e, Start):
             self.start()
-            debug(Log('requested', cln(e))
-                  .by(self).tag('start-streaming'))
+            debug(Log('requested', cln(e)).by(self).tag('start-streaming'))
         # listen to Exit event to also close any threaded DataSource
         if isinstance(e, Exit):
             self.stop()
-            debug(Log('requested', cln(e))
-                  .by(self).tag('exit'))
+            debug(Log('requested', cln(e)).by(self).tag('exit'))

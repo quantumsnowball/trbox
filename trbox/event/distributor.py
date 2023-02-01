@@ -19,11 +19,7 @@ class Distributor:
     appropriate parties.
     '''
 
-    def __init__(self,
-                 trader: Trader,
-                 *,
-                 strategy: Strategy,
-                 market: Market,
+    def __init__(self, trader: Trader, *, strategy: Strategy, market: Market,
                  broker: Broker) -> None:
         self._trader = trader
         self._strategy = strategy

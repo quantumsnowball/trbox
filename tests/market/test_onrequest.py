@@ -22,9 +22,6 @@ def test_binance():
         # dummy trade
         self.trader.trade(SYMBOL, +9)
 
-    Trader(
-        strategy=Strategy(
-            on_tick=handle),
-        market=BinanceWebsocket(symbol=SYMBOL),
-        broker=PaperEX(SYMBOL)
-    ).run()
+    Trader(strategy=Strategy(on_tick=handle),
+           market=BinanceWebsocket(symbol=SYMBOL),
+           broker=PaperEX(SYMBOL)).run()

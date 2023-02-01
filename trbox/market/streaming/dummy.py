@@ -31,17 +31,20 @@ class DummyPrice(StreamingSource):
 
     @override
     def start(self) -> None:
+
         def worker() -> None:
             # gen random price to simulate live market
             for i in range(self._n):
                 self.send.new_market_data(Candlestick(self._symbol, i))
                 time.sleep(self._delay)
                 if not self._keep_alive:
-                    debug(Log('set flag and return',
-                              keep_alive=self._keep_alive).by(self))
+                    debug(
+                        Log('set flag and return',
+                            keep_alive=self._keep_alive).by(self))
                     return
             # simulate the end of data
             self.send.end_of_market_data()
+
         # deamon thread will not block program from exiting
         self._keep_alive = True
         t = Thread(target=worker)

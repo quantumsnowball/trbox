@@ -15,7 +15,8 @@ class YahooOHLCV(OnRequestSource):
     It simulates market data fetch using http request/response.
     '''
 
-    def __init__(self, *,
+    def __init__(self,
+                 *,
                  source: dict[Symbol, str],
                  start: Timestamp | str | None = None,
                  end: Timestamp | str | None = None,
@@ -30,11 +31,10 @@ class YahooOHLCV(OnRequestSource):
         dfs = {s: import_yahoo_csv(p) for s, p in self._source.items()}
         self._df = concat_dfs_by_columns(dfs)
         # data validation
-        self._df = trim_ohlcv_by_range_length(
-            self._df, self._start, self._end, self._length)
+        self._df = trim_ohlcv_by_range_length(self._df, self._start, self._end,
+                                              self._length)
         # data ready
-        self._window_generator = (win
-                                  for win in self._df.rolling(self._length)
+        self._window_generator = (win for win in self._df.rolling(self._length)
                                   if len(win) >= self._length)
 
     @override

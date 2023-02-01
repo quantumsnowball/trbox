@@ -43,7 +43,7 @@ class EventHandler(ABC):
                 break
 
     # event handling implementation left to child
-    @ abstractmethod
+    @abstractmethod
     def handle(self, e: Event) -> None:
         pass
 
@@ -60,19 +60,18 @@ class CounterParty(EventHandler, ABC):
         super().__init__()
 
     # CounterParty must attach to a Trader to function properly
-    def attach(self: Self,
-               trader: Trader) -> Self:
+    def attach(self: Self, trader: Trader) -> Self:
         self._trader = trader
         return self
 
-    @ property
+    @property
     def trader(self) -> Trader:
         return self._trader
 
-    @ property
+    @property
     def send(self) -> Distributor:
         return self._trader._distributor
 
-    @ property
+    @property
     def attached(self) -> bool:
         return isinstance(self._trader, Trader)

@@ -28,13 +28,14 @@ class Log:
         '''
         [mar]H1, H2 :[pad]1[sep]2[sep]x=3[sep]y=4[pad]#t1 #t2[mar]
         '''
+
         def header() -> str:
             return self._prefix + ' :' if len(self._prefix) > 0 else ''
 
         def body() -> str:
             args = self._sep.join(map(fn, self._args))
-            kwargs = self._sep.join([f'{k}={fn(v)}'
-                                     for k, v in self._kwargs.items()])
+            kwargs = self._sep.join(
+                [f'{k}={fn(v)}' for k, v in self._kwargs.items()])
             return self._sep.join([p for p in [args, kwargs] if len(p) > 0])
 
         def footer() -> str:
@@ -44,9 +45,7 @@ class Log:
             doc = self._pad.join([p for p in parts if len(p) > 0])
             return self._mar + doc + self._mar
 
-        return document(header(),
-                        body(),
-                        footer())
+        return document(header(), body(), footer())
 
     def __str__(self) -> str:
         return self._compile(str)
@@ -58,8 +57,7 @@ class Log:
     # chained modifier methods
     #
     def by(self: Self, *who: Any) -> Self:
-        who = tuple(map(
-            lambda w: w if isinstance(w, str) else cln(w), who))
+        who = tuple(map(lambda w: w if isinstance(w, str) else cln(w), who))
         self._prefix = ', '.join(who)
         return self
 

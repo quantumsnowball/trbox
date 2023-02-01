@@ -24,18 +24,19 @@ def test_dummy(name, live):
         info(Log(st=self, price=e.price).by(self))
         self.trader.trade(SYMBOL, +10)
 
-    Trader(
-        live=live,
-        strategy=Strategy(
-            name=name,
-            on_tick=dummy_action),
-        market=DummyPrice(SYMBOL, delay=DELAY),
-        broker=PaperEX(SYMBOL)
-    ).run()
+    Trader(live=live,
+           strategy=Strategy(name=name, on_tick=dummy_action),
+           market=DummyPrice(SYMBOL, delay=DELAY),
+           broker=PaperEX(SYMBOL)).run()
 
 
-@pytest.mark.parametrize('name', [None, 'DummySt', ])
-@pytest.mark.parametrize('parallel', [True, ])
+@pytest.mark.parametrize('name', [
+    None,
+    'DummySt',
+])
+@pytest.mark.parametrize('parallel', [
+    True,
+])
 def test_dummy_batch(name, parallel):
     SYMBOL = 'BTC'
     DELAY = 0
@@ -46,19 +47,12 @@ def test_dummy_batch(name, parallel):
         self.trader.trade(SYMBOL, +10)
 
     bt = Backtest(
-        Trader(
-            strategy=Strategy(
-                name='Benchmark',
-                on_tick=dummy_action),
-            market=DummyPrice(SYMBOL, delay=DELAY),
-            broker=PaperEX(SYMBOL)),
-        Trader(
-            strategy=Strategy(
-                name=name,
-                on_tick=dummy_action),
-            market=DummyPrice(SYMBOL, delay=0),
-            broker=PaperEX(SYMBOL))
-    )
+        Trader(strategy=Strategy(name='Benchmark', on_tick=dummy_action),
+               market=DummyPrice(SYMBOL, delay=DELAY),
+               broker=PaperEX(SYMBOL)),
+        Trader(strategy=Strategy(name=name, on_tick=dummy_action),
+               market=DummyPrice(SYMBOL, delay=0),
+               broker=PaperEX(SYMBOL)))
     result = bt.run(parallel=parallel)
     info(Log(cln(bt), result=result))
     # TODO result should contain all the backtest info for review
@@ -70,8 +64,7 @@ def test_dummy_batch(name, parallel):
 @pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
 @pytest.mark.parametrize('length', [100, 200, 500])
 def test_historical_data(start: Timestamp | str | None,
-                         end: Timestamp | str | None,
-                         length: int):
+                         end: Timestamp | str | None, length: int):
     SYMBOLS = ['BTC', 'ETH']
 
     # on_window
@@ -80,14 +73,11 @@ def test_historical_data(start: Timestamp | str | None,
         self.trader.trade(SYMBOLS[0], +10)
         info(f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
 
-    Trader(
-        strategy=Strategy(
-            on_window=dummy_action),
-        market=YahooOHLCV(
-            source={s: f'tests/_data_/{s}_bar1day.csv'
-                    for s in SYMBOLS},
-            start=start,
-            end=end,
-            length=length),
-        broker=PaperEX(SYMBOLS)
-    ).run()
+    Trader(strategy=Strategy(on_window=dummy_action),
+           market=YahooOHLCV(
+               source={s: f'tests/_data_/{s}_bar1day.csv'
+                       for s in SYMBOLS},
+               start=start,
+               end=end,
+               length=length),
+           broker=PaperEX(SYMBOLS)).run()

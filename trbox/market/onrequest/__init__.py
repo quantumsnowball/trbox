@@ -19,6 +19,7 @@ class OnRequestSource(Market, ABC):
     dataframes, or in real trading, it could be a REST API endpoints sending
     price data per request.
     '''
+
     @abstractmethod
     def on_request(self, e: MarketDataRequest) -> None:
         pass
@@ -28,5 +29,4 @@ class OnRequestSource(Market, ABC):
         # listen to MarketDataRequest from Strategy
         if isinstance(e, MarketDataRequest):
             self.on_request(e)
-            debug(Log('requested', cln(e))
-                  .by(self).tag('market-data-request'))
+            debug(Log('requested', cln(e)).by(self).tag('market-data-request'))

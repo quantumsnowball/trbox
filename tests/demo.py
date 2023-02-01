@@ -19,13 +19,10 @@ def test_dummy():
         info(f'St: price={e.price}')
         self.trader.trade(SYMBOL, +10)
 
-    Trader(
-        live=False,
-        strategy=Strategy(
-            on_tick=dummy_action),
-        market=DummyPrice(SYMBOL, delay=0),
-        broker=PaperEX(SYMBOL)
-    ).run()
+    Trader(live=False,
+           strategy=Strategy(on_tick=dummy_action),
+           market=DummyPrice(SYMBOL, delay=0),
+           broker=PaperEX(SYMBOL)).run()
 
     debug('demo completed')
     warning('demo completed')
