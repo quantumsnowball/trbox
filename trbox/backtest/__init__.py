@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from typing import Iterable
 
+from trbox.backtest.result import Result
 from trbox.common.logger import info, warning
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
@@ -57,3 +58,7 @@ class Backtest(BatchRunner):
     @property
     def traders(self) -> tuple[Trader, ...]:
         return self._runners
+
+    @property
+    def result(self) -> Result:
+        return Result()

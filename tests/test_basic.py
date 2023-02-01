@@ -3,6 +3,7 @@ from pandas import Timestamp
 
 from trbox import Strategy, Trader
 from trbox.backtest import Backtest
+from trbox.backtest.result import Result
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
@@ -43,8 +44,8 @@ def test_dummy(name, live):
     assert isinstance(trader.dashboard, Dashboard)
 
 
-@pytest.mark.parametrize('name', ['DummySt', ])
-@pytest.mark.parametrize('parallel', [True, ])
+@pytest.mark.parametrize('name', [None, 'DummySt', ])
+@pytest.mark.parametrize('parallel', [True, False])
 def test_dummy_batch(name, parallel):
     SYMBOL = 'BTC'
     DELAY = 0
@@ -74,6 +75,8 @@ def test_dummy_batch(name, parallel):
         info(Log(str(trader.dashboard)).by(trader).tag('dashboard'))
         assert isinstance(trader.dashboard, Dashboard)
     # TODO result should contain all the backtest info for review
+    info(Log(str(bt.result)).by(bt).tag('result'))
+    assert isinstance(bt.result, Result)
     # TODO but what about live trading? how to get some report without
     # terminating the Trader?
 
