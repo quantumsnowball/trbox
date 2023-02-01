@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from typing import Iterable
 
-from trbox.common.logger import info
+from trbox.common.logger import info, warning
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 from trbox.trader import Runner, Trader
@@ -34,6 +34,7 @@ class BatchRunner(ABC):
             futures = [executor.submit(r.run) for r in self._runners]
             for future in futures:
                 future.result()
+            # block here until all future has resolved
             info(Log('finished', cln(executor))
                  .by(self).tag('pool', 'finished'))
 
@@ -51,4 +52,8 @@ class Backtest(BatchRunner):
         super().__init__()
         for trader in traders:
             assert trader.backtesting
-        self._runners = traders
+        self._runners: tuple[Trader, ...] = traders
+
+    @property
+    def traders(self) -> tuple[Trader, ...]:
+        return self._runners

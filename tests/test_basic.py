@@ -38,15 +38,12 @@ def test_dummy(name, live):
         broker=PaperEX(SYMBOL)
     )
     trader.run()
-
     # up to here the market data terminated, simular to user termination
-    # info(Log(cln(bt), result=result))
-    dashboard = trader.dashboard
-    info(Log(str(dashboard)))
+    info(Log(str(trader.dashboard)).by(trader).tag('dashboard'))
     assert isinstance(trader.dashboard, Dashboard)
 
 
-@pytest.mark.parametrize('name', [None, 'DummySt', ])
+@pytest.mark.parametrize('name', ['DummySt', ])
 @pytest.mark.parametrize('parallel', [True, ])
 def test_dummy_batch(name, parallel):
     SYMBOL = 'BTC'
@@ -70,7 +67,12 @@ def test_dummy_batch(name, parallel):
                 on_tick=dummy_action),
             market=DummyPrice(SYMBOL, delay=0),
             broker=PaperEX(SYMBOL))
-    ).run(parallel=parallel)
+    )
+    bt.run(parallel=parallel)
+    # for backtesting, up to here means market data finished, simular to user termination
+    for trader in bt.traders:
+        info(Log(str(trader.dashboard)).by(trader).tag('dashboard'))
+        assert isinstance(trader.dashboard, Dashboard)
     # TODO result should contain all the backtest info for review
     # TODO but what about live trading? how to get some report without
     # terminating the Trader?
