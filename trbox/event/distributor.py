@@ -14,17 +14,14 @@ from trbox.event.market import MarketData, MarketDataRequest
 
 
 class Distributor:
-    '''
+    """
     Distributor has a basket of helper function to route the event to
     appropriate parties.
-    '''
+    """
 
-    def __init__(self,
-                 trader: Trader,
-                 *,
-                 strategy: Strategy,
-                 market: Market,
-                 broker: Broker) -> None:
+    def __init__(
+        self, trader: Trader, *, strategy: Strategy, market: Market, broker: Broker
+    ) -> None:
         self._trader = trader
         self._strategy = strategy
         self._market = market

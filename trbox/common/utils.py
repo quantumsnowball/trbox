@@ -9,7 +9,7 @@ from trbox.common.constants import OHLCV_COLUMN_NAMES
 def verify_ohlcv(ohlcv: DataFrame) -> DataFrame:
     # ensure the window has valid values
     assert isinstance(ohlcv, DataFrame)
-    assert ohlcv.index.name == 'Date'
+    assert ohlcv.index.name == "Date"
     assert (ohlcv.columns.levels[1] == OHLCV_COLUMN_NAMES).all()
     assert not ohlcv.isnull().any().any()
     assert not ohlcv.isna().any().any()
@@ -17,14 +17,12 @@ def verify_ohlcv(ohlcv: DataFrame) -> DataFrame:
 
 
 def trim_ohlcv_by_range_length(
-        df: DataFrame,
-        start: Timestamp | None,
-        end: Timestamp | None,
-        length: int) -> DataFrame:
-    '''
+    df: DataFrame, start: Timestamp | None, end: Timestamp | None, length: int
+) -> DataFrame:
+    """
     given a dataframe, start, end and length, check the validity of all
     inputs, trim the dataframe correctly to be used in datasource generator,
-    '''
+    """
     # check if the config make sense
     assert len(df) > length
     if start and end:
@@ -39,9 +37,9 @@ def trim_ohlcv_by_range_length(
 
 
 def cln(obj: Any) -> str:
-    '''
+    """
     print class name for any object
-    '''
+    """
     try:
         name = obj.__class__.__name__
         if isinstance(name, str):

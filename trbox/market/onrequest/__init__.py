@@ -11,14 +11,15 @@ from trbox.market import Market
 
 
 class OnRequestSource(Market, ABC):
-    '''
+    """
     This interface immplements the Market interface.
 
     It listens to price request from Strategy and give a single
     response each time. Usually it could be a local generator yielding
     dataframes, or in real trading, it could be a REST API endpoints sending
     price data per request.
-    '''
+    """
+
     @abstractmethod
     def on_request(self, e: MarketDataRequest) -> None:
         pass
@@ -28,5 +29,4 @@ class OnRequestSource(Market, ABC):
         # listen to MarketDataRequest from Strategy
         if isinstance(e, MarketDataRequest):
             self.on_request(e)
-            debug(Log('requested', cln(e))
-                  .by(self).tag('market-data-request'))
+            debug(Log("requested", cln(e)).by(self).tag("market-data-request"))

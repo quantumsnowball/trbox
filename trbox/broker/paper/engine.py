@@ -34,9 +34,16 @@ class TradingBook:
         def match_rules() -> tuple[bool, float | None]:
             # make sure trading book is ready
             if not (self.price and self.bid and self.ask):
-                warning(Log('trading book not ready',
-                            price=self.price, bid=self.bid, ask=self.ask)
-                        .by(self).tag('trading', 'book'))
+                warning(
+                    Log(
+                        "trading book not ready",
+                        price=self.price,
+                        bid=self.bid,
+                        ask=self.ask,
+                    )
+                    .by(self)
+                    .tag("trading", "book")
+                )
                 return False, None
             # assume MarketOrder always succeed
             if isinstance(e, MarketOrder):
@@ -52,6 +59,7 @@ class TradingBook:
                     return True, self.bid
             # default Failed
             return False, None
+
         result, price = match_rules()
         quantity = e.quantity if result else None
         return OrderResult(e, result, price, quantity, self.fee_rate)
@@ -61,10 +69,12 @@ class MatchingEngine(dict[Symbol, TradingBook]):
     # book state
     def price(self, symbol: Symbol) -> float | None:
         return self[symbol].price
+
     # matching
 
     def match(self, e: Order) -> OrderResult:
         e_result = self[e.symbol].transact(e)
-        info(Log('order matching', ppf(e_result)).sparse()
-             .by(self).tag('match', 'order'))
+        info(
+            Log("order matching", ppf(e_result)).sparse().by(self).tag("match", "order")
+        )
         return e_result

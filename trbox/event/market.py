@@ -10,6 +10,7 @@ from trbox.event import MarketEvent
 # Requests
 #
 
+
 @dataclass
 class MarketDataRequest(MarketEvent):
     pass
@@ -23,6 +24,7 @@ class OhlcvWindowRequest(MarketDataRequest):
 #
 # Response
 #
+
 
 @dataclass
 class MarketData(MarketEvent):
@@ -38,7 +40,7 @@ class OhlcvWindow(MarketData):
         self.win = verify_ohlcv(self.win)
         self.datetime = self.win.index[-1]
         self.ohlcv = self.win.iloc[-1]
-        self.close = self.ohlcv.loc[(slice(None), 'Close')]
+        self.close = self.ohlcv.loc[(slice(None), "Close")]
 
 
 @dataclass

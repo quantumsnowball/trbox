@@ -10,8 +10,7 @@ from trbox.market.streaming import StreamingSource
 
 
 class BinanceWebsocket(StreamingSource):
-    def __init__(self, *,
-                 symbol: Symbol) -> None:
+    def __init__(self, *, symbol: Symbol) -> None:
         super().__init__()
         self._symbol = symbol
 
@@ -19,25 +18,29 @@ class BinanceWebsocket(StreamingSource):
     def start(self) -> None:
         def on_trade(d: dict[str, str]) -> None:
             try:
-                price = float(d['p'])
+                price = float(d["p"])
                 self.send.new_market_data(Candlestick(self._symbol, price))
-                debug(Log('Trade',
-                          symbol=d['s'], price=d['p'], quantity=d['q'])
-                      .by(self).tag('trade', 'binance'))
+                debug(
+                    Log("Trade", symbol=d["s"], price=d["p"], quantity=d["q"])
+                    .by(self)
+                    .tag("trade", "binance")
+                )
             except KeyError as e:
-                warning(Log(repr(e), 'check fields', d=ppf(d)).sparse()
-                        .by(self))
+                warning(Log(repr(e), "check fields", d=ppf(d)).sparse().by(self))
             except Exception as e:
                 exception(e)
 
         ws = SpotWebsocketClient()
         ws.start()
-        debug(Log('started', cln(ws)).by(self).tag('thread', 'socket'))
+        debug(Log("started", cln(ws)).by(self).tag("thread", "socket"))
         ws.trade(self._symbol, 1, on_trade)
-        info(Log(f'requested trade stream from {cln(ws)}')
-             .by(self).tag('stream', 'socket'))
+        info(
+            Log(f"requested trade stream from {cln(ws)}")
+            .by(self)
+            .tag("stream", "socket")
+        )
         self._ws = ws
 
-    @ override
+    @override
     def stop(self) -> None:
         self._ws.stop()

@@ -5,4 +5,4 @@ from trbox.trader import Trader
 
 
 def hello() -> None:
-    print('trbox: Hello world!')
+    print("trbox: Hello world!")

@@ -7,7 +7,7 @@ from trbox.event.handler import CounterParty
 
 
 class Broker(CounterParty, ABC):
-    '''
+    """
     A broker provide some basic operation for the Trader to:
         1) view the state of account, mainly is cash and positions
         2) change the state of account, usually trade (or deposit/withdraw)
@@ -15,7 +15,7 @@ class Broker(CounterParty, ABC):
     must not be able to write to the cash and positions props directly through
     the Strateg class. Instead, cash and position are read only props. Also,
     broker should provide basic trading methods for Trader to use.
-    '''
+    """
 
     def __init__(self) -> None:
         super().__init__()

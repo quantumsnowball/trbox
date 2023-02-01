@@ -10,7 +10,7 @@ class Exit(SystemEvent):
 
 
 class TimeLapse(SystemEvent):
-    '''
+    """
     Ideally, an event-driven Strategy should not act too much differently
     between backtesting and live trading. However, in live trading
     the data stream usually comes with irregular time interval, in contrast,
@@ -33,5 +33,6 @@ class TimeLapse(SystemEvent):
     time, and start simulation again on the next data point. It is simular to
     live trading with paper money but you have the ability to fast forward
     time.
-    '''
+    """
+
     # TODO it is time to implement TimeLapse

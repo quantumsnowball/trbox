@@ -12,10 +12,10 @@ from trbox.market.onrequest.localcsv import YahooOHLCV
 from trbox.market.streaming.dummy import DummyPrice
 
 
-@pytest.mark.parametrize('live', [False, True])
-@pytest.mark.parametrize('name', [None, 'DummySt'])
+@pytest.mark.parametrize("live", [False, True])
+@pytest.mark.parametrize("name", [None, "DummySt"])
 def test_dummy(name, live):
-    SYMBOL = 'BTC'
+    SYMBOL = "BTC"
     DELAY = 0
 
     # on_tick
@@ -26,18 +26,27 @@ def test_dummy(name, live):
 
     Trader(
         live=live,
-        strategy=Strategy(
-            name=name,
-            on_tick=dummy_action),
+        strategy=Strategy(name=name, on_tick=dummy_action),
         market=DummyPrice(SYMBOL, delay=DELAY),
-        broker=PaperEX(SYMBOL)
+        broker=PaperEX(SYMBOL),
     ).run()
 
 
-@pytest.mark.parametrize('name', [None, 'DummySt', ])
-@pytest.mark.parametrize('parallel', [True, ])
+@pytest.mark.parametrize(
+    "name",
+    [
+        None,
+        "DummySt",
+    ],
+)
+@pytest.mark.parametrize(
+    "parallel",
+    [
+        True,
+    ],
+)
 def test_dummy_batch(name, parallel):
-    SYMBOL = 'BTC'
+    SYMBOL = "BTC"
     DELAY = 0
 
     # on_tick
@@ -47,17 +56,15 @@ def test_dummy_batch(name, parallel):
 
     bt = Backtest(
         Trader(
-            strategy=Strategy(
-                name='Benchmark',
-                on_tick=dummy_action),
+            strategy=Strategy(name="Benchmark", on_tick=dummy_action),
             market=DummyPrice(SYMBOL, delay=DELAY),
-            broker=PaperEX(SYMBOL)),
+            broker=PaperEX(SYMBOL),
+        ),
         Trader(
-            strategy=Strategy(
-                name=name,
-                on_tick=dummy_action),
+            strategy=Strategy(name=name, on_tick=dummy_action),
             market=DummyPrice(SYMBOL, delay=0),
-            broker=PaperEX(SYMBOL))
+            broker=PaperEX(SYMBOL),
+        ),
     )
     result = bt.run(parallel=parallel)
     info(Log(cln(bt), result=result))
@@ -66,28 +73,27 @@ def test_dummy_batch(name, parallel):
     # terminating the Trader?
 
 
-@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2020-01-01', None])
-@pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
-@pytest.mark.parametrize('length', [100, 200, 500])
-def test_historical_data(start: Timestamp | str | None,
-                         end: Timestamp | str | None,
-                         length: int):
-    SYMBOLS = ['BTC', 'ETH']
+@pytest.mark.parametrize("start", [Timestamp(2021, 1, 1), "2020-01-01", None])
+@pytest.mark.parametrize("end", [Timestamp(2021, 3, 31), "2021-3-31", None])
+@pytest.mark.parametrize("length", [100, 200, 500])
+def test_historical_data(
+    start: Timestamp | str | None, end: Timestamp | str | None, length: int
+):
+    SYMBOLS = ["BTC", "ETH"]
 
     # on_window
     def dummy_action(self: Strategy, e: OhlcvWindow):
         assert e.win.shape == (length, 10)
         self.trader.trade(SYMBOLS[0], +10)
-        info(f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
+        info(f"St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}")
 
     Trader(
-        strategy=Strategy(
-            on_window=dummy_action),
+        strategy=Strategy(on_window=dummy_action),
         market=YahooOHLCV(
-            source={s: f'tests/_data_/{s}_bar1day.csv'
-                    for s in SYMBOLS},
+            source={s: f"tests/_data_/{s}_bar1day.csv" for s in SYMBOLS},
             start=start,
             end=end,
-            length=length),
-        broker=PaperEX(SYMBOLS)
+            length=length,
+        ),
+        broker=PaperEX(SYMBOLS),
     ).run()

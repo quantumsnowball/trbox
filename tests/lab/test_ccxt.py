@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 from trbox.common.logger import info
 
 load_dotenv()
-API_KEY = os.getenv('API_KEY')
-API_SECRET = os.getenv('API_SECRET')
+API_KEY = os.getenv("API_KEY")
+API_SECRET = os.getenv("API_SECRET")
 
 
 @pytest.mark.lab()
@@ -18,8 +18,8 @@ def test_ccxt():
     binance = ccxt.binance()
     cex_id = binance.id
     markets = binance.load_markets()
-    btcusdt = markets['BTC/USDT']
+    btcusdt = markets["BTC/USDT"]
     info(pp(cex_id))
     info(pp(btcusdt))
-    info(os.getenv('API_KEY'))
-    info(os.getenv('API_SECRET'))
+    info(os.getenv("API_KEY"))
+    info(os.getenv("API_SECRET"))

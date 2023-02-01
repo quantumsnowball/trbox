@@ -16,16 +16,19 @@ DEFAULT_INITIAL_FUND = 1e6
 
 
 class PaperEX(Broker):
-    def __init__(self,
-                 symbols: Symbol | Iterable[Symbol],
-                 initial_fund: float = DEFAULT_INITIAL_FUND) -> None:
+    def __init__(
+        self,
+        symbols: Symbol | Iterable[Symbol],
+        initial_fund: float = DEFAULT_INITIAL_FUND,
+    ) -> None:
         super().__init__()
         self._cash: float = initial_fund
         self._positions: dict[str, float] = defaultdict(float)
         if isinstance(symbols, Symbol):
-            symbols = (symbols, )
+            symbols = (symbols,)
         self._engine = MatchingEngine(
-            **{symbol: TradingBook(symbol) for symbol in symbols})
+            **{symbol: TradingBook(symbol) for symbol in symbols}
+        )
 
     # account state
 
@@ -79,13 +82,17 @@ class PaperEX(Broker):
         if self.trader.backtesting:
             if isinstance(e, Candlestick):
                 self._engine[e.symbol].update(e.price)
-                debug(Log('updated OrderBook',
-                          e.symbol, price=e.price)
-                      .by(self, e).tag('updated', 'book'))
+                debug(
+                    Log("updated OrderBook", e.symbol, price=e.price)
+                    .by(self, e)
+                    .tag("updated", "book")
+                )
             elif isinstance(e, OhlcvWindow):
                 for symbol in e.symbols:
                     price = e.close[symbol]
                     self._engine[symbol].update(price)
-                    debug(Log('updated OrderBook',
-                              symbol=symbol, price=price)
-                          .by(self, e).tag('updated', 'book'))
+                    debug(
+                        Log("updated OrderBook", symbol=symbol, price=price)
+                        .by(self, e)
+                        .tag("updated", "book")
+                    )

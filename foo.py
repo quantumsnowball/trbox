@@ -2,10 +2,10 @@ import os
 
 
 def foo():
-    '''
+    """
     docstring here
-    '''
-    os.getenv('')
+    """
+    os.getenv("")
 
 
 class Foo:
@@ -24,5 +24,5 @@ class Foo:
         return self
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(foo().attr1)

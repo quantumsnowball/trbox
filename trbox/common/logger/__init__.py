@@ -5,54 +5,58 @@ from logging import Formatter, StreamHandler, getLogger
 from typing import Any
 
 # types
-LoggerFunction = Callable[[Any, ], None]
+LoggerFunction = Callable[
+    [
+        Any,
+    ],
+    None,
+]
 
 
 # level names
-LEVELS = ['debug', 'info', 'warning', 'error', 'critical']
+LEVELS = ["debug", "info", "warning", "error", "critical"]
 
 # raw parts
-DATETIME = '%(asctime)s'
-DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
-MSECOND = '%(msecs)03d'
-LEVELNAME_RIGHT = '%(levelname)5s'
-MESSAGE = '%(message)s'
-PROCESS = '%(process)d'
-PROCESS_NAME = '%(processName)s'
-THREAD = '%(thread)s'
-THREAD_NAME = '%(threadName)s'
-NAME = '%(name)s'
-MODULE = '%(module)s'
-FILENAME = '%(filename)s'
-FUNCTION_NAME = '%(funcName)s'
-LINENO = '%(lineno)s'
+DATETIME = "%(asctime)s"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+MSECOND = "%(msecs)03d"
+LEVELNAME_RIGHT = "%(levelname)5s"
+MESSAGE = "%(message)s"
+PROCESS = "%(process)d"
+PROCESS_NAME = "%(processName)s"
+THREAD = "%(thread)s"
+THREAD_NAME = "%(threadName)s"
+NAME = "%(name)s"
+MODULE = "%(module)s"
+FILENAME = "%(filename)s"
+FUNCTION_NAME = "%(funcName)s"
+LINENO = "%(lineno)s"
 
 # combo parts
-TRACE_INFO = f'{MODULE} - {FILENAME}:{LINENO} - {FUNCTION_NAME}() #{NAME}'
-EXTRA_INFO = f'@{PROCESS_NAME}({PROCESS}) @{THREAD_NAME}({THREAD})'
+TRACE_INFO = f"{MODULE} - {FILENAME}:{LINENO} - {FUNCTION_NAME}() #{NAME}"
+EXTRA_INFO = f"@{PROCESS_NAME}({PROCESS}) @{THREAD_NAME}({THREAD})"
 
-PREFIX = f'[ {DATETIME}.{MSECOND} | {LEVELNAME_RIGHT} ]'
-SUFFIX = f'[ {TRACE_INFO} ]'
-SUFFIX_LONG = f'[ {TRACE_INFO} {EXTRA_INFO} ]'
+PREFIX = f"[ {DATETIME}.{MSECOND} | {LEVELNAME_RIGHT} ]"
+SUFFIX = f"[ {TRACE_INFO} ]"
+SUFFIX_LONG = f"[ {TRACE_INFO} {EXTRA_INFO} ]"
 
 # presets
-BASIC = f'{PREFIX}{MESSAGE}'
-NORMAL = f'{BASIC}{SUFFIX}'
-DETAIL = f'{BASIC}{SUFFIX_LONG}'
+BASIC = f"{PREFIX}{MESSAGE}"
+NORMAL = f"{BASIC}{SUFFIX}"
+DETAIL = f"{BASIC}{SUFFIX_LONG}"
 
-FORMAT_STRINGS = {lv: NORMAL if lv in ('info', 'warning') else DETAIL
-                  for lv in LEVELS}
+FORMAT_STRINGS = {lv: NORMAL if lv in ("info", "warning") else DETAIL for lv in LEVELS}
 
 
 def make_logging_function() -> tuple[LoggerFunction, ...]:
-    '''
+    """
     Each level has its own logger with its specific formatter, representing
     different level of message detail.
-    '''
+    """
     # formatters
-    fmts = {lv: Formatter(fmt=fs,
-                          datefmt=DATE_FORMAT)
-            for lv, fs in FORMAT_STRINGS.items()}
+    fmts = {
+        lv: Formatter(fmt=fs, datefmt=DATE_FORMAT) for lv, fs in FORMAT_STRINGS.items()
+    }
 
     # loggers
     def make_log_fn(lv: str, fmt: Formatter) -> LoggerFunction:
@@ -70,9 +74,8 @@ def make_logging_function() -> tuple[LoggerFunction, ...]:
         return fn
 
     # only need the log function matching each level logger
-    fns = tuple(make_log_fn(lv, fmt)
-                for lv, fmt in fmts.items())
-    exception = getLogger('error').exception
+    fns = tuple(make_log_fn(lv, fmt) for lv, fmt in fmts.items())
+    exception = getLogger("error").exception
     return *fns, exception
 
 
@@ -81,14 +84,13 @@ debug, info, warning, error, critical, exception = make_logging_function()
 
 
 def set_log_level(lv: str) -> None:
-    loggers = [logging.getLogger(name)
-               for name in logging.root.manager.loggerDict]
+    loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
     for logger in loggers:
         logger.setLevel(lv.upper())
 
 
 def eval_format_string() -> None:
-    '''
+    """
     Pytest seems to override the formatter with its own, therefore when using
     pytest, need to set them manually by copy and pasting the string into
     pytest.ini. Run this python script directly in the shell to get these
@@ -96,33 +98,31 @@ def eval_format_string() -> None:
 
     For shell stdout, use BASIC or NORMAL is more appropriate. For file log,
     use DETAIL to include much more information for debugging.
-    '''
-    print(f'BASIC = {BASIC}')
-    print(f'NORMAL = {NORMAL}')
-    print(f'DETAIL = {DETAIL}')
+    """
+    print(f"BASIC = {BASIC}")
+    print(f"NORMAL = {NORMAL}")
+    print(f"DETAIL = {DETAIL}")
 
 
-def apply_to_pytest_config(filename: str, *,
-                           log_format: str,
-                           log_file_format: str) -> None:
-    '''
+def apply_to_pytest_config(
+    filename: str, *, log_format: str, log_file_format: str
+) -> None:
+    """
     Use a ini parser to change the value directly by one command
-    '''
+    """
     # read
     config = configparser.RawConfigParser()
     config.read(filename)
     # change
-    config['pytest']['log_format'] = log_format
-    config['pytest']['log_file_format'] = log_file_format
+    config["pytest"]["log_format"] = log_format
+    config["pytest"]["log_file_format"] = log_file_format
     # write
-    print(f'\nOpening {filename}')
-    with open('pytest.ini', 'w') as f:
+    print(f"\nOpening {filename}")
+    with open("pytest.ini", "w") as f:
         config.write(f)
-    print(f'\nSaved new settings to {filename}')
+    print(f"\nSaved new settings to {filename}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     eval_format_string()
-    apply_to_pytest_config('pytest.ini',
-                           log_format=NORMAL,
-                           log_file_format=DETAIL)
+    apply_to_pytest_config("pytest.ini", log_format=NORMAL, log_file_format=DETAIL)
