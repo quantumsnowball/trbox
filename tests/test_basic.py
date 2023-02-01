@@ -5,15 +5,15 @@ from trbox.backtest import Backtest
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
+from trbox.common.utils import cln
 from trbox.event.market import OhlcvWindow, Candlestick
 from trbox.market.onrequest.localcsv import YahooOHLCV
 from trbox.market.streaming.dummy import DummyPrice
 
 
-@pytest.mark.parametrize('live', [False, ])
+@pytest.mark.parametrize('live', [False, True])
 @pytest.mark.parametrize('name', [None, 'DummySt'])
-@pytest.mark.parametrize('parallel', [False, True])
-def test_dummy(name, live, parallel):
+def test_dummy(name, live):
     SYMBOL = 'BTC'
 
     # on_tick
@@ -22,9 +22,28 @@ def test_dummy(name, live, parallel):
         info(Log(st=self, price=e.price).by(self))
         self.trader.trade(SYMBOL, +10)
 
-    Backtest(
+    Trader(
+        live=live,
+        strategy=Strategy(
+            name=name,
+            on_tick=dummy_action),
+        market=DummyPrice(SYMBOL, delay=0),
+        broker=PaperEX(SYMBOL)
+    ).run()
+
+
+@pytest.mark.parametrize('name', [None, 'DummySt', ])
+@pytest.mark.parametrize('parallel', [True, ])
+def test_dummy_batch(name, parallel):
+    SYMBOL = 'BTC'
+
+    # on_tick
+    def dummy_action(self: Strategy, e: Candlestick):
+        info(Log(st=self, price=e.price).by(self))
+        self.trader.trade(SYMBOL, +10)
+
+    bt = Backtest(
         Trader(
-            live=live,
             strategy=Strategy(
                 name='Benchmark',
                 on_tick=dummy_action),
@@ -32,14 +51,16 @@ def test_dummy(name, live, parallel):
             broker=PaperEX(SYMBOL)
         ),
         Trader(
-            live=live,
             strategy=Strategy(
                 name=name,
                 on_tick=dummy_action),
             market=DummyPrice(SYMBOL, delay=0),
             broker=PaperEX(SYMBOL)
         )
-    ).run(parallel=parallel)
+    )
+    result = bt.run(parallel=parallel)
+    info(Log(cln(bt), result=result))
+    # TODO result should contain all the backtest info for review
 
 
 @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2020-01-01', None])
