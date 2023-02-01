@@ -38,7 +38,7 @@ def test_dummy(name, live):
             market=DummyPrice(SYMBOL, delay=0),
             broker=PaperEX(SYMBOL)
         )
-    ).run()
+    ).run_parallel()
 
 
 @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2020-01-01', None])

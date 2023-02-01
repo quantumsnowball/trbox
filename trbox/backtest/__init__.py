@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any, Iterable
+from concurrent.futures import ThreadPoolExecutor
+from typing import Iterable
 from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
-from trbox.strategy import Strategy
 from trbox.trader import Runner, Trader
-from trbox.common.logger import info
+from trbox.common.logger import info, warning
 
 
 class BatchRunner(ABC):
@@ -27,8 +27,14 @@ class BatchRunner(ABC):
              .by(self).tag('batch', 'finished'))
 
     def run_parallel(self) -> None:
-        # TODO thread pool to execute all Runner
-        pass
+        with ThreadPoolExecutor() as executor:
+            warning(Log('started', cln(executor))
+                    .by(self).tag('pool', 'started'))
+            futures = [executor.submit(r.run) for r in self._runners]
+            for future in futures:
+                future.result()
+            warning(Log('finished', cln(executor))
+                    .by(self).tag('pool', 'finished'))
 
 
 class Backtest(BatchRunner):
