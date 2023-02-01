@@ -10,18 +10,21 @@ from trbox.market.streaming.dummy import DummyPrice
 
 
 @pytest.mark.parametrize('live', [True, False])
-def test_dummy(live):
+@pytest.mark.parametrize('name', [None, 'DummySt'])
+def test_dummy(name, live):
     SYMBOL = 'BTC'
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
+        assert self.name == name
         assert live == (not self.trader.backtesting)
-        info(Log(price=e.price).by(self))
+        info(Log(st=self, price=e.price).by(self))
         self.trader.trade(SYMBOL, +10)
 
     Trader(
         live=live,
         strategy=Strategy(
+            name=name,
             on_tick=dummy_action),
         market=DummyPrice(SYMBOL, delay=0),
         broker=PaperEX(SYMBOL)

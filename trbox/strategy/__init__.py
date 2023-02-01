@@ -12,13 +12,22 @@ from trbox.event.system import Start
 class Strategy(CounterParty):
     def __init__(
         self, *,
+        name: str | None = None,
         on_tick: Callable[['Strategy', Candlestick], None] | None = None,
         on_window: Callable[['Strategy', OhlcvWindow], None] | None = None
     ) -> None:
         super().__init__()
+        self._name = name
         # event action hook
         self._on_tick = on_tick
         self._on_window = on_window
+
+    def __str__(self) -> str:
+        return f'{cln(self)}(name={self.name})'
+
+    @property
+    def name(self) -> str | None:
+        return self._name
 
     # operations
     def request_ohlcv_window(self) -> None:
