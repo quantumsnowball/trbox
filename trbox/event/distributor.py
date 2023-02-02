@@ -48,7 +48,7 @@ class Distributor:
     def new_order_result(self, e: OrderResult) -> None:
         self._strategy.put(e)
 
-    def new_audit_result(self, nav: float | None):
+    def new_audit_result(self, nav: float | None) -> None:
         if nav:
             self._trader.dashboard.nav = nav
 

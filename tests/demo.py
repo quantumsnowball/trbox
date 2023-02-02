@@ -13,11 +13,12 @@ set_log_level('DEBUG')
 
 def test_dummy():
     SYMBOL = 'BTC'
+    QUANTITY = 0.2
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
         info(f'St: price={e.price}')
-        self.trader.trade(SYMBOL, +10)
+        self.trader.trade(SYMBOL, QUANTITY)
 
     Trader(
         live=False,
