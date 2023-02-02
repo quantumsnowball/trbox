@@ -36,7 +36,7 @@ class DummyPrice(StreamingSource):
             # gen random price to simulate live market
             for i in range(self._n):
                 self.send.new_market_data(Candlestick(
-                    Timestamp(2021, 1, i), self._symbol, i))
+                    Timestamp.now(), self._symbol, i))
                 time.sleep(self._delay)
                 if not self._keep_alive:
                     Log.debug(Memo('set flag and return',
