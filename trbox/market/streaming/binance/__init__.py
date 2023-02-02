@@ -1,4 +1,5 @@
 from binance.websocket.spot.websocket_client import SpotWebsocketClient
+from pandas import Timestamp
 from typing_extensions import override
 
 from trbox.common.logger import Log
@@ -20,7 +21,9 @@ class BinanceWebsocket(StreamingSource):
         def on_trade(d: dict[str, str]) -> None:
             try:
                 price = float(d['p'])
-                self.send.new_market_data(Candlestick(self._symbol, price))
+                # TODO extract timestamp info from response
+                self.send.new_market_data(Candlestick(
+                    Timestamp(1980, 1, 1), self._symbol, price))
                 Log.debug(Memo('Trade',
                                symbol=d['s'], price=d['p'], quantity=d['q'])
                           .by(self).tag('trade', 'binance'))

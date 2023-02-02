@@ -1,6 +1,13 @@
-from pandas import Series
+from dataclasses import dataclass
+from typing import Tuple
+
+from pandas import Series, Timestamp
 
 from trbox.common.utils import cln
+
+
+class TradeRecord:
+    ...
 
 
 class Dashboard:
@@ -16,23 +23,19 @@ class Dashboard:
     desc: str = 'A dashboard provides all info needed to analysis the Trader'
 
     def __init__(self) -> None:
-        self._nav: float | None = None
         self._navs: list[float] = []
-        # trade_log: DataFrame | None = None
-        # metrics: dict[str, float] | None = None
+        self._navs_index: list[Timestamp] = []
 
     def __str__(self) -> str:
         return f'{cln(self)}({self.desc})'
 
     @property
-    def nav(self) -> float | None:
-        return self._nav
+    def navs(self) -> Series:
+        return Series(self._navs, index=self._navs_index, dtype=float)
 
-    @nav.setter
-    def nav(self, val: float) -> None:
-        self._nav = val
+    def add_equity_record(self, timestamp: Timestamp, val: float) -> None:
+        self._navs_index.append(timestamp)
         self._navs.append(val)
 
-    @property
-    def navs(self) -> Series:
-        return Series(self._navs, dtype=float)
+    def add_trade_record(self) -> None:
+        ...

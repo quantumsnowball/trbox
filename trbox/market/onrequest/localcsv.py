@@ -1,4 +1,6 @@
-from pandas import Timestamp, to_datetime
+from collections.abc import Generator
+
+from pandas import DataFrame, Timestamp, to_datetime
 from typing_extensions import override
 
 from trbox.common.types import Symbol
@@ -33,9 +35,11 @@ class YahooOHLCV(OnRequestSource):
         self._df = trim_ohlcv_by_range_length(
             self._df, self._start, self._end, self._length)
         # data ready
-        self._window_generator = (win
-                                  for win in self._df.rolling(self._length)
-                                  if len(win) >= self._length)
+        self._window_generator: Generator[DataFrame, None, None] = (
+            win
+            for win in self._df.rolling(self._length)
+            if len(win) >= self._length
+        )
 
     @override
     def on_request(self, e: MarketDataRequest) -> None:
@@ -43,6 +47,7 @@ class YahooOHLCV(OnRequestSource):
         if isinstance(e, OhlcvWindowRequest):
             try:
                 df = next(self._window_generator)
-                self.send.new_market_data(OhlcvWindow(self._symbols, df))
+                self.send.new_market_data(
+                    OhlcvWindow(df.index[-1], self._symbols, df))
             except StopIteration:
                 self.trader.stop()

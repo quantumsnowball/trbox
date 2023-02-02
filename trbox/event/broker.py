@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+from pandas import Timestamp
+
 from trbox.common.types import Symbol
 from trbox.event import BrokerEvent
 
@@ -44,5 +46,6 @@ class OrderResult(BrokerEvent):
             self.net_proceeds = self.gross_proceeds - self.fee
 
 
+@dataclass
 class AuditRequest(BrokerEvent):
-    pass
+    timestamp: Timestamp

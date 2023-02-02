@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-from trbox.common.logger import warning
 from trbox.common.types import Symbol
 from trbox.event import Event
 from trbox.event.broker import AuditRequest, Order
@@ -27,7 +26,7 @@ class Broker(CounterParty, ABC):
         if isinstance(e, Order):
             self.trade(e)
         if isinstance(e, AuditRequest):
-            self.send.new_audit_result(self.equity)
+            self.send.new_audit_result(e.timestamp, self.equity)
 
     #
     # account status

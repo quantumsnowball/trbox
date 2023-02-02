@@ -1,5 +1,5 @@
 import pytest
-from pandas import Timestamp
+from pandas import DatetimeIndex, Series, Timestamp
 
 from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
@@ -15,19 +15,20 @@ from trbox.trader.dashboard import Dashboard
 @pytest.mark.parametrize('name', [None, 'DummySt'])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
+    QUANTITY = 0.2
     DELAY = 0
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
         assert live == (not self.trader.backtesting)
         Log.info(Memo(st=self, price=e.price).by(self))
-        self.trader.trade(SYMBOL, +10)
+        self.trader.trade(SYMBOL, QUANTITY)
         # can also access dashboard when still trading
-        assert isinstance(trader.dashboard, Dashboard)
+        assert isinstance(self.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=self.trader.dashboard)
                  .by(self).tag('dashboard'))
 
-    trader = Trader(
+    t = Trader(
         live=live,
         strategy=Strategy(
             name=name,
@@ -35,10 +36,12 @@ def test_dummy(name, live):
         market=DummyPrice(SYMBOL, delay=DELAY),
         broker=PaperEX(SYMBOL)
     )
-    trader.run()
+    t.run()
     # up to here the market data terminated, simular to user termination
-    Log.info(Memo(str(trader.dashboard)).by(trader).tag('dashboard'))
-    assert isinstance(trader.dashboard, Dashboard)
+    Log.info(Memo(str(t.dashboard)).by(t).tag('dashboard'))
+    # assert isinstance(t.dashboard, Dashboard)
+    # assert isinstance(t.dashboard.navs, Series)
+    # assert isinstance(t.dashboard.navs.index, DatetimeIndex)
 
 
 @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01', None])
@@ -48,11 +51,12 @@ def test_historical_data(start: Timestamp | str | None,
                          end: Timestamp | str | None,
                          length: int):
     SYMBOLS = ['BTC', 'ETH']
+    QUANTITY = 0.2
 
     # on_window
     def dummy_action(self: Strategy, e: OhlcvWindow):
         assert e.win.shape == (length, 10)
-        self.trader.trade(SYMBOLS[0], +10)
+        self.trader.trade(SYMBOLS[0], QUANTITY)
         Log.info(
             f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
 

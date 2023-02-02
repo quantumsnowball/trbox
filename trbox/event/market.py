@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from pandas import DataFrame
+from pandas import DataFrame, Timestamp
 
 from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import verify_ohlcv
@@ -27,7 +27,7 @@ class OhlcvWindowRequest(MarketDataRequest):
 
 @dataclass
 class MarketData(MarketEvent):
-    pass
+    timestamp: Timestamp
 
 
 @dataclass

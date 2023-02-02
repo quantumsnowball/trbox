@@ -17,12 +17,13 @@ from trbox.trader.dashboard import Dashboard
 @pytest.mark.parametrize('parallel', [True, False])
 def test_dummy(name, parallel):
     SYMBOL = 'BTC'
+    QUANTITY = 0.2
     DELAY = 0
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
         Log.info(Memo(st=self, price=e.price).by(self))
-        self.trader.trade(SYMBOL, +10)
+        self.trader.trade(SYMBOL, QUANTITY)
 
     bt = Backtest(
         Trader(
