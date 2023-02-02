@@ -62,8 +62,6 @@ class Runner:
                 raise e
 
         Log.info(Memo('Runner has completed').by(self))
-        # TODO may be run() should return a Result object
-        # containing all info for review purpose
         # TODO but what about live trading? how to get some report without
         # terminating the Trader?
 
