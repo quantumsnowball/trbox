@@ -1,7 +1,5 @@
 from collections.abc import Callable
 
-from trbox.common.logger import Log
-from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
 from trbox.event.market import OhlcvWindow
 from trbox.strategy import Strategy
