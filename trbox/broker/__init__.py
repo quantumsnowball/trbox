@@ -28,7 +28,6 @@ class Broker(CounterParty, ABC):
             self.trade(e)
         if isinstance(e, AuditRequest):
             self.send.new_audit_result(self.equity)
-            warning('handling AuditRequest')
 
     #
     # account status

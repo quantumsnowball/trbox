@@ -5,7 +5,7 @@ from trbox import Strategy, Trader
 from trbox.backtest import Backtest
 from trbox.backtest.result import Result
 from trbox.broker.paper import PaperEX
-from trbox.common.logger import info
+from trbox.common.logger import info, warning
 from trbox.common.logger.parser import Log
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.onrequest.localcsv import YahooOHLCV
@@ -59,11 +59,12 @@ def test_historical_data(start: Timestamp | str | None,
                          end: Timestamp | str | None,
                          length: int):
     SYMBOLS = ['BTC', 'ETH']
+    QUANTITY = 0.2
 
     # on_window
     def dummy_action(self: Strategy, e: OhlcvWindow):
         assert e.win.shape == (length, 10)
-        self.trader.trade(SYMBOLS[0], +10)
+        self.trader.trade(SYMBOLS[0], QUANTITY)
         info(f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
 
     def trader(name: str):
@@ -87,8 +88,8 @@ def test_historical_data(start: Timestamp | str | None,
     for t in bt.traders:
         assert isinstance(t.dashboard, Dashboard)
         assert isinstance(t.dashboard.navs, Series)
-        info(Log(t.dashboard.navs.tail(),
-                 shape=t.dashboard.navs.shape)
-             .by(t).tag('navs', 'tail'))
+        warning(Log(t.dashboard.navs.head(20),
+                    shape=t.dashboard.navs.shape)
+                .by(t).tag('navs', 'tail'))
     info(Log(str(bt.result)).by(bt).tag('result'))
     assert isinstance(bt.result, Result)

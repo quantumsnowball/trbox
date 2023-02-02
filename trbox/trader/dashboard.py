@@ -34,8 +34,6 @@ class Dashboard:
     def nav(self, val: float) -> None:
         self._nav = val
         self._navs.append(val)
-        warning(Log('appending navs', nav=self._nav, len=len(self._navs))
-                .by(self).tag('navs', 'append'))
 
     @property
     def navs(self) -> Series:

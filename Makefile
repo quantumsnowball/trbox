@@ -10,6 +10,10 @@ DEV_FUNCTION=test_historical_data
 
 dev:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 
+dev-warning:
+	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb --log-cli-level WARNING
+dev-warning-log:
+	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb --log-cli-level WARNING --log-file log/dev-warning.log
 dev-info:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb --log-cli-level INFO
 dev-info-log:

@@ -51,7 +51,6 @@ class Distributor:
     def new_audit_result(self, nav: float | None):
         if nav:
             self._trader.dashboard.nav = nav
-        error('updating nav')
 
     def end_of_market_data(self) -> None:
         self._trader.stop()
