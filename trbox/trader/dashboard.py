@@ -1,11 +1,10 @@
-from dataclasses import dataclass
+from pandas import Series
 
-from pandas import DataFrame, Series
-
+from trbox.common.logger import warning
+from trbox.common.logger.parser import Log
 from trbox.common.utils import cln
 
 
-@dataclass
 class Dashboard:
     '''
     In live trading, the run function is normally never return unless exceptions
@@ -17,9 +16,27 @@ class Dashboard:
     object.
     '''
     desc: str = 'A dashboard provides all info needed to analysis the Trader'
-    nav: Series | None = None
-    trade_log: DataFrame | None = None
-    metrics: dict[str, float] | None = None
+
+    def __init__(self) -> None:
+        self._nav: float | None = None
+        self._navs: list[float] = []
+        # trade_log: DataFrame | None = None
+        # metrics: dict[str, float] | None = None
 
     def __str__(self) -> str:
         return f'{cln(self)}({self.desc})'
+
+    @property
+    def nav(self) -> float | None:
+        return self._nav
+
+    @nav.setter
+    def nav(self, val: float) -> None:
+        self._nav = val
+        self._navs.append(val)
+        warning(Log('appending navs', nav=self._nav, len=len(self._navs))
+                .by(self).tag('navs', 'append'))
+
+    @property
+    def navs(self) -> Series:
+        return Series(self._navs, dtype=float)

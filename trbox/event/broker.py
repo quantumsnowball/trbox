@@ -42,3 +42,7 @@ class OrderResult(BrokerEvent):
             self.gross_proceeds = -self.quantity * self.price
             self.fee = abs(self.gross_proceeds) * self.fee_rate
             self.net_proceeds = self.gross_proceeds - self.fee
+
+
+class AuditRequest(BrokerEvent):
+    pass

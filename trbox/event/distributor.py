@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from trbox.event.broker import OrderResult
+from trbox.common.logger import error
+from trbox.event.broker import AuditRequest, OrderResult
 
 if TYPE_CHECKING:
     from trbox.broker import Broker
@@ -39,12 +40,18 @@ class Distributor:
         # TODO in live trading these market data all comes in random times
         # maybe I can monitor the market event timestamp here, calc the time
         # diff, if equal or exceed user arg input, then log a new value.
+        self._broker.put(AuditRequest())
 
     def new_market_data_request(self, e: MarketDataRequest) -> None:
         self._market.put(e)
 
     def new_order_result(self, e: OrderResult) -> None:
         self._strategy.put(e)
+
+    def new_audit_result(self, nav: float | None):
+        if nav:
+            self._trader.dashboard.nav = nav
+        error('updating nav')
 
     def end_of_market_data(self) -> None:
         self._trader.stop()

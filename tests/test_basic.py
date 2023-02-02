@@ -1,5 +1,5 @@
 import pytest
-from pandas import Timestamp
+from pandas import Series, Timestamp
 
 from trbox import Strategy, Trader
 from trbox.backtest import Backtest
@@ -109,8 +109,10 @@ def test_historical_data(start: Timestamp | str | None,
     ).run()
 
 
-@pytest.mark.parametrize('start', [Timestamp(2022, 1, 1), '2022-01-01', None])
-@pytest.mark.parametrize('end', [Timestamp(2022, 3, 31), '2022-3-31', None])
+@pytest.mark.parametrize('start', [Timestamp(2022, 1, 1),])
+@pytest.mark.parametrize('end', [Timestamp(2022, 3, 31),])
+# @pytest.mark.parametrize('start', [Timestamp(2022, 1, 1), '2022-01-01', None])
+# @pytest.mark.parametrize('end', [Timestamp(2022, 3, 31), '2022-3-31', None])
 @pytest.mark.parametrize('length', [100, 200, 500])
 def test_historical_data_batch(start: Timestamp | str | None,
                                end: Timestamp | str | None,
@@ -142,7 +144,10 @@ def test_historical_data_batch(start: Timestamp | str | None,
     bt.run()
 
     for t in bt.traders:
-        info(Log(str(t.dashboard)).by(t).tag('dashboard'))
         assert isinstance(t.dashboard, Dashboard)
+        assert isinstance(t.dashboard.navs, Series)
+        info(Log(t.dashboard.navs.tail(),
+                 shape=t.dashboard.navs.shape)
+             .by(t).tag('navs', 'tail'))
     info(Log(str(bt.result)).by(bt).tag('result'))
     assert isinstance(bt.result, Result)

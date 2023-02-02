@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 
+from trbox.common.logger import warning
 from trbox.common.types import Symbol
 from trbox.event import Event
-from trbox.event.broker import Order
+from trbox.event.broker import AuditRequest, Order
 from trbox.event.handler import CounterParty
 
 
@@ -25,10 +26,16 @@ class Broker(CounterParty, ABC):
     def handle(self, e: Event) -> None:
         if isinstance(e, Order):
             self.trade(e)
+        if isinstance(e, AuditRequest):
+            self.send.new_audit_result(self.equity)
+            warning('handling AuditRequest')
 
     #
     # account status
     #
+    # TODO in live trading these account status should all be Promise-like
+    # objects, and should be resolved in async fashion, need to refactor
+
     @property
     @abstractmethod
     def cash(self) -> float:
