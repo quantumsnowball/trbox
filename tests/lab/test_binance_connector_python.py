@@ -7,7 +7,7 @@ from binance.websocket.spot.websocket_client import SpotWebsocketClient
 from dotenv import load_dotenv
 
 from trbox.common.logger import info, warning
-from trbox.common.logger.parser import Log
+from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 
 load_dotenv()
@@ -68,7 +68,7 @@ def test_websocket():
                     pass
             ws.join()
         except KeyboardInterrupt as e:
-            warning(Log(cln(e), 'user stopped execution')
+            warning(Memo(cln(e), 'user stopped execution')
                     .tag('interrupt', 'ctrl-c'))
         except Exception as e:
             raise e

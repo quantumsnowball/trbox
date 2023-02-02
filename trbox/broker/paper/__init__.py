@@ -6,7 +6,7 @@ from typing_extensions import override
 from trbox.broker import Broker
 from trbox.broker.paper.engine import MatchingEngine, TradingBook
 from trbox.common.logger import debug
-from trbox.common.logger.parser import Log
+from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
 from trbox.event import Event
 from trbox.event.broker import Order
@@ -79,13 +79,13 @@ class PaperEX(Broker):
         if self.trader.backtesting:
             if isinstance(e, Candlestick):
                 self._engine[e.symbol].update(e.price)
-                debug(Log('updated OrderBook',
-                          e.symbol, price=e.price)
+                debug(Memo('updated OrderBook',
+                           e.symbol, price=e.price)
                       .by(self, e).tag('updated', 'book'))
             elif isinstance(e, OhlcvWindow):
                 for symbol in e.symbols:
                     price = e.close[symbol]
                     self._engine[symbol].update(price)
-                    debug(Log('updated OrderBook',
-                              symbol=symbol, price=price)
+                    debug(Memo('updated OrderBook',
+                               symbol=symbol, price=price)
                           .by(self, e).tag('updated', 'book'))

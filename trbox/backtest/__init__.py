@@ -3,8 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Iterable
 
 from trbox.backtest.result import Result
-from trbox.common.logger import info, warning
-from trbox.common.logger.parser import Log
+from trbox.common.logger import info
+from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.trader import Runner, Trader
 
@@ -20,23 +20,23 @@ class BatchRunner(ABC):
 
     def _run_sync(self) -> None:
         for id, runner in enumerate(self._runners):
-            info(Log('started', cln(runner), id=id)
+            info(Memo('started', cln(runner), id=id)
                  .by(self).tag('runner', 'started'))
             runner.run()
-            info(Log('finished', cln(runner), id=id)
+            info(Memo('finished', cln(runner), id=id)
                  .by(self).tag('runner', 'finished'))
-        info(Log('finished', cln(self))
+        info(Memo('finished', cln(self))
              .by(self).tag('batch', 'finished'))
 
     def _run_async(self) -> None:
         with ThreadPoolExecutor() as executor:
-            info(Log('started', cln(executor))
+            info(Memo('started', cln(executor))
                  .by(self).tag('pool', 'started'))
             futures = [executor.submit(r.run) for r in self._runners]
             for future in futures:
                 future.result()
             # block here until all future has resolved
-            info(Log('finished', cln(executor))
+            info(Memo('finished', cln(executor))
                  .by(self).tag('pool', 'finished'))
 
     def run(self, *, parallel: bool = False) -> None:

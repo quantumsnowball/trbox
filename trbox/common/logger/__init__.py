@@ -80,6 +80,15 @@ def make_logging_function() -> tuple[LoggerFunction, ...]:
 debug, info, warning, error, critical, exception = make_logging_function()
 
 
+class log:
+    debug = debug
+    info = info
+    warning = warning
+    error = error
+    critical = critical
+    exception = exception
+
+
 def set_log_level(lv: str) -> None:
     loggers = [logging.getLogger(name)
                for name in logging.root.manager.loggerDict]

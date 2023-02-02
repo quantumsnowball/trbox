@@ -2,10 +2,10 @@ from typing import Any, Callable, TypeVar
 
 from trbox.common.utils import cln
 
-Self = TypeVar('Self', bound='Log')
+Self = TypeVar('Self', bound='Memo')
 
 
-class Log:
+class Memo:
     '''
     This helper class is a string post processing class. It is mainly suppose
     to accept str as first argument. However, if non-str is provided, should

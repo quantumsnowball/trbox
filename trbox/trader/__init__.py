@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from trbox.common.logger.parser import Log
+from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event.broker import MarketOrder
 from trbox.trader.dashboard import Dashboard
@@ -53,7 +53,7 @@ class Runner:
             # catch KeyboardInterrupt first to stop threads gracefully
             except KeyboardInterrupt as e:
                 self.stop()
-                info(Log(cln(e), 'requested all handlers to quit')
+                info(Memo(cln(e), 'requested all handlers to quit')
                      .by(self).tag('interrupt', 'ctrl-c'))
             # if other Exception are catched, stop all threads gracefully and
             # then raise them again in main thread to fail any test cases
@@ -62,7 +62,7 @@ class Runner:
                 self.stop()
                 raise e
 
-        info(Log('Runner has completed').by(self))
+        info(Memo('Runner has completed').by(self))
         # TODO may be run() should return a Result object
         # containing all info for review purpose
         # TODO but what about live trading? how to get some report without

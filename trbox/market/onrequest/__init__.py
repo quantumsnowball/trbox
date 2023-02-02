@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing_extensions import override
 
 from trbox.common.logger import debug
-from trbox.common.logger.parser import Log
+from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event import Event
 from trbox.event.market import MarketDataRequest
@@ -28,5 +28,5 @@ class OnRequestSource(Market, ABC):
         # listen to MarketDataRequest from Strategy
         if isinstance(e, MarketDataRequest):
             self.on_request(e)
-            debug(Log('requested', cln(e))
+            debug(Memo('requested', cln(e))
                   .by(self).tag('market-data-request'))

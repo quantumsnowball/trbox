@@ -4,7 +4,7 @@ from pandas import Timestamp
 from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
-from trbox.common.logger.parser import Log
+from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.onrequest.localcsv import YahooOHLCV
 from trbox.market.streaming.dummy import DummyPrice
@@ -20,11 +20,11 @@ def test_dummy(name, live):
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
         assert live == (not self.trader.backtesting)
-        info(Log(st=self, price=e.price).by(self))
+        info(Memo(st=self, price=e.price).by(self))
         self.trader.trade(SYMBOL, +10)
         # can also access dashboard when still trading
         assert isinstance(trader.dashboard, Dashboard)
-        info(Log('anytime get', dashboard=self.trader.dashboard)
+        info(Memo('anytime get', dashboard=self.trader.dashboard)
              .by(self).tag('dashboard'))
 
     trader = Trader(
@@ -37,7 +37,7 @@ def test_dummy(name, live):
     )
     trader.run()
     # up to here the market data terminated, simular to user termination
-    info(Log(str(trader.dashboard)).by(trader).tag('dashboard'))
+    info(Memo(str(trader.dashboard)).by(trader).tag('dashboard'))
     assert isinstance(trader.dashboard, Dashboard)
 
 

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from trbox.common.logger import info, warning
-from trbox.common.logger.parser import Log
+from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
 from trbox.common.utils import ppf
 from trbox.event.broker import LimitOrder, MarketOrder, Order, OrderResult
@@ -34,8 +34,8 @@ class TradingBook:
         def match_rules() -> tuple[bool, float | None]:
             # make sure trading book is ready
             if not (self.price and self.bid and self.ask):
-                warning(Log('trading book not ready',
-                            price=self.price, bid=self.bid, ask=self.ask)
+                warning(Memo('trading book not ready',
+                             price=self.price, bid=self.bid, ask=self.ask)
                         .by(self).tag('trading', 'book'))
                 return False, None
             # assume MarketOrder always succeed
@@ -65,6 +65,6 @@ class MatchingEngine(dict[Symbol, TradingBook]):
 
     def match(self, e: Order) -> OrderResult:
         e_result = self[e.symbol].transact(e)
-        info(Log('order matching', ppf(e_result)).sparse()
+        info(Memo('order matching', ppf(e_result)).sparse()
              .by(self).tag('match', 'order'))
         return e_result

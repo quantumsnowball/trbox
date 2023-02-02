@@ -3,7 +3,7 @@ from queue import Queue
 from typing import TypeVar
 
 from trbox.common.logger import debug
-from trbox.common.logger.parser import Log
+from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event import Event
 from trbox.event.distributor import Distributor
@@ -29,11 +29,11 @@ class EventHandler(ABC):
         while True:
             # block by the get method until a event is retrieved
             e = self._event_queue.get()
-            debug(Log('receiving', event=cln(e)).by(self))
+            debug(Memo('receiving', event=cln(e)).by(self))
 
             # pass the event to the subclass method for handling
             self.handle(e)
-            debug(Log('handling', event=cln(e)).by(self))
+            debug(Memo('handling', event=cln(e)).by(self))
 
             # mark the task done and update event count
             self._event_queue.task_done()

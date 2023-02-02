@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
 from trbox.common.logger import info
-from trbox.common.logger.parser import Log
+from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln, ppf
 from trbox.event import Event
 from trbox.event.broker import OrderResult
@@ -56,5 +56,5 @@ class Strategy(CounterParty):
         # on order result
         if isinstance(e, OrderResult):
             # TODO may be a on_fill callback?
-            info(Log('order filled', ppf(e))
+            info(Memo('order filled', ppf(e))
                  .by(self).tag('order', 'confirmation').sparse())
