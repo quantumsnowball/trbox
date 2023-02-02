@@ -6,7 +6,7 @@ from binance.spot import Spot
 from binance.websocket.spot.websocket_client import SpotWebsocketClient
 from dotenv import load_dotenv
 
-from trbox.common.logger import info, warning
+from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 
@@ -25,12 +25,12 @@ def test_restful():
 
     def print_time():
         client = Spot()
-        info(client.time())
+        Log.info(client.time())
     print_time()
 
     def print_account_info():
         client = Spot(api_key=API_KEY, api_secret=API_SECRET)
-        info(client.account())
+        Log.info(client.account())
     print_account_info()
 
     def print_kline():
@@ -38,7 +38,7 @@ def test_restful():
         # response = client.new_order(**params)
         # info(response)
         klines = client.klines(SYMBOL, '1d')
-        info(klines)
+        Log.info(klines)
     print_kline()
 
 
@@ -52,7 +52,7 @@ def test_websocket():
 
     def print_streaming_ticks(fn: str):
         def message_handler(msg_dict):
-            info('\n' + pp(msg_dict))
+            Log.info('\n' + pp(msg_dict))
 
         ws = SpotWebsocketClient()
         ws.start()
@@ -68,8 +68,8 @@ def test_websocket():
                     pass
             ws.join()
         except KeyboardInterrupt as e:
-            warning(Memo(cln(e), 'user stopped execution')
-                    .tag('interrupt', 'ctrl-c'))
+            Log.warning(Memo(cln(e), 'user stopped execution')
+                        .tag('interrupt', 'ctrl-c'))
         except Exception as e:
             raise e
         finally:

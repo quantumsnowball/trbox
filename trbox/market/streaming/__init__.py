@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from typing_extensions import override
 
-from trbox.common.logger import debug
+from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event import Event
@@ -31,10 +31,10 @@ class StreamingSource(Market, ABC):
         # listen to system Start event
         if isinstance(e, Start):
             self.start()
-            debug(Memo('requested', cln(e))
-                  .by(self).tag('start-streaming'))
+            Log.debug(Memo('requested', cln(e))
+                      .by(self).tag('start-streaming'))
         # listen to Exit event to also close any threaded DataSource
         if isinstance(e, Exit):
             self.stop()
-            debug(Memo('requested', cln(e))
-                  .by(self).tag('exit'))
+            Log.debug(Memo('requested', cln(e))
+                      .by(self).tag('exit'))

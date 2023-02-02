@@ -5,7 +5,7 @@ import ccxt
 import pytest
 from dotenv import load_dotenv
 
-from trbox.common.logger import info
+from trbox.common.logger import Log
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
@@ -19,7 +19,7 @@ def test_ccxt():
     cex_id = binance.id
     markets = binance.load_markets()
     btcusdt = markets['BTC/USDT']
-    info(pp(cex_id))
-    info(pp(btcusdt))
-    info(os.getenv('API_KEY'))
-    info(os.getenv('API_SECRET'))
+    Log.info(pp(cex_id))
+    Log.info(pp(btcusdt))
+    Log.info(os.getenv('API_KEY'))
+    Log.info(os.getenv('API_SECRET'))

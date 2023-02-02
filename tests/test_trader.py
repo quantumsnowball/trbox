@@ -3,7 +3,7 @@ from pandas import Timestamp
 
 from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
-from trbox.common.logger import info
+from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.onrequest.localcsv import YahooOHLCV
@@ -20,12 +20,12 @@ def test_dummy(name, live):
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
         assert live == (not self.trader.backtesting)
-        info(Memo(st=self, price=e.price).by(self))
+        Log.info(Memo(st=self, price=e.price).by(self))
         self.trader.trade(SYMBOL, +10)
         # can also access dashboard when still trading
         assert isinstance(trader.dashboard, Dashboard)
-        info(Memo('anytime get', dashboard=self.trader.dashboard)
-             .by(self).tag('dashboard'))
+        Log.info(Memo('anytime get', dashboard=self.trader.dashboard)
+                 .by(self).tag('dashboard'))
 
     trader = Trader(
         live=live,
@@ -37,7 +37,7 @@ def test_dummy(name, live):
     )
     trader.run()
     # up to here the market data terminated, simular to user termination
-    info(Memo(str(trader.dashboard)).by(trader).tag('dashboard'))
+    Log.info(Memo(str(trader.dashboard)).by(trader).tag('dashboard'))
     assert isinstance(trader.dashboard, Dashboard)
 
 
@@ -53,7 +53,8 @@ def test_historical_data(start: Timestamp | str | None,
     def dummy_action(self: Strategy, e: OhlcvWindow):
         assert e.win.shape == (length, 10)
         self.trader.trade(SYMBOLS[0], +10)
-        info(f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
+        Log.info(
+            f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
 
     Trader(
         strategy=Strategy(

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from trbox.common.logger import error
 from trbox.event.broker import AuditRequest, OrderResult
 
 if TYPE_CHECKING:

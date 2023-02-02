@@ -1,7 +1,7 @@
 import pytest
 
 from trbox.broker.paper import PaperEX
-from trbox.common.logger import info
+from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import OhlcvWindow
 from trbox.market.onrequest.localcsv import YahooOHLCV
@@ -18,11 +18,11 @@ def test_account_trade():
 
     def on_window(self: Strategy, _: OhlcvWindow):
         self.trader.trade(SYMBOL, +0.2)
-        info(Memo('trading',
-                  cash=self.trader.cash,
-                  position=self.trader.positions[SYMBOL],
-                  equity=self.trader.equity)
-             .by(self).tag(SYMBOL).sparse())
+        Log.info(Memo('trading',
+                      cash=self.trader.cash,
+                      position=self.trader.positions[SYMBOL],
+                      equity=self.trader.equity)
+                 .by(self).tag(SYMBOL).sparse())
 
     Trader(
         strategy=Strategy(
@@ -43,8 +43,8 @@ def test_account_cash(cash: float):
 
     def on_tick(self: Strategy, _):
         assert self.trader.cash == cash
-        info(Memo(cash=self.trader.cash)
-             .by(self).tag('initial', 'cash'))
+        Log.info(Memo(cash=self.trader.cash)
+                 .by(self).tag('initial', 'cash'))
 
     Trader(
         strategy=Strategy(

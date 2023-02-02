@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event.broker import MarketOrder
@@ -14,8 +15,6 @@ if TYPE_CHECKING:
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# TODO group these function into a class namespace `log`
-from trbox.common.logger import exception, info
 from trbox.common.types import Symbol
 from trbox.event.distributor import Distributor
 from trbox.event.system import Exit, Start
@@ -53,16 +52,16 @@ class Runner:
             # catch KeyboardInterrupt first to stop threads gracefully
             except KeyboardInterrupt as e:
                 self.stop()
-                info(Memo(cln(e), 'requested all handlers to quit')
-                     .by(self).tag('interrupt', 'ctrl-c'))
+                Log.info(Memo(cln(e), 'requested all handlers to quit')
+                         .by(self).tag('interrupt', 'ctrl-c'))
             # if other Exception are catched, stop all threads gracefully and
             # then raise them again in main thread to fail any test cases
             except Exception as e:
-                exception(e.__class__)
+                Log.exception(e.__class__)
                 self.stop()
                 raise e
 
-        info(Memo('Runner has completed').by(self))
+        Log.info(Memo('Runner has completed').by(self))
         # TODO may be run() should return a Result object
         # containing all info for review purpose
         # TODO but what about live trading? how to get some report without

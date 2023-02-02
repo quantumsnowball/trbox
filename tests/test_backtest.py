@@ -5,7 +5,7 @@ from trbox import Strategy, Trader
 from trbox.backtest import Backtest
 from trbox.backtest.result import Result
 from trbox.broker.paper import PaperEX
-from trbox.common.logger import info, warning
+from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.onrequest.localcsv import YahooOHLCV
@@ -21,7 +21,7 @@ def test_dummy(name, parallel):
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
-        info(Memo(st=self, price=e.price).by(self))
+        Log.info(Memo(st=self, price=e.price).by(self))
         self.trader.trade(SYMBOL, +10)
 
     bt = Backtest(
@@ -41,10 +41,10 @@ def test_dummy(name, parallel):
     bt.run(parallel=parallel)
     # for backtesting, up to here means market data finished, simular to user termination
     for trader in bt.traders:
-        info(Memo(str(trader.dashboard)).by(trader).tag('dashboard'))
+        Log.info(Memo(str(trader.dashboard)).by(trader).tag('dashboard'))
         assert isinstance(trader.dashboard, Dashboard)
     # TODO result should contain all the backtest info for review
-    info(Memo(str(bt.result)).by(bt).tag('result'))
+    Log.info(Memo(str(bt.result)).by(bt).tag('result'))
     assert isinstance(bt.result, Result)
     # TODO but what about live trading? how to get some report without
     # terminating the Trader?
@@ -65,7 +65,8 @@ def test_historical_data(start: Timestamp | str | None,
     def dummy_action(self: Strategy, e: OhlcvWindow):
         assert e.win.shape == (length, 10)
         self.trader.trade(SYMBOLS[0], QUANTITY)
-        info(f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
+        Log.info(
+            f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
 
     def trader(name: str):
         return Trader(
@@ -88,8 +89,8 @@ def test_historical_data(start: Timestamp | str | None,
     for t in bt.traders:
         assert isinstance(t.dashboard, Dashboard)
         assert isinstance(t.dashboard.navs, Series)
-        warning(Memo(t.dashboard.navs.head(20),
-                     shape=t.dashboard.navs.shape)
-                .by(t).tag('navs', 'tail'))
-    info(Memo(str(bt.result)).by(bt).tag('result'))
+        Log.warning(Memo(t.dashboard.navs.head(20),
+                         shape=t.dashboard.navs.shape)
+                    .by(t).tag('navs', 'tail'))
+    Log.info(Memo(str(bt.result)).by(bt).tag('result'))
     assert isinstance(bt.result, Result)

@@ -3,7 +3,7 @@ from threading import Thread
 
 from typing_extensions import override
 
-from trbox.common.logger import debug
+from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
 from trbox.event.market import Candlestick
@@ -37,8 +37,8 @@ class DummyPrice(StreamingSource):
                 self.send.new_market_data(Candlestick(self._symbol, i))
                 time.sleep(self._delay)
                 if not self._keep_alive:
-                    debug(Memo('set flag and return',
-                               keep_alive=self._keep_alive).by(self))
+                    Log.debug(Memo('set flag and return',
+                                   keep_alive=self._keep_alive).by(self))
                     return
             # simulate the end of data
             self.send.end_of_market_data()

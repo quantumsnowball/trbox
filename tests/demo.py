@@ -3,8 +3,7 @@ Ignored by pytest
 '''
 from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
-from trbox.common.logger import (critical, debug, error, info, set_log_level,
-                                 warning)
+from trbox.common.logger import Log, set_log_level
 from trbox.event.market import Candlestick
 from trbox.market.streaming.dummy import DummyPrice
 
@@ -17,7 +16,7 @@ def test_dummy():
 
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
-        info(f'St: price={e.price}')
+        Log.info(f'St: price={e.price}')
         self.trader.trade(SYMBOL, QUANTITY)
 
     Trader(
@@ -28,10 +27,10 @@ def test_dummy():
         broker=PaperEX(SYMBOL)
     ).run()
 
-    debug('demo completed')
-    warning('demo completed')
-    error('demo completed')
-    critical('demo completed')
+    Log.debug('demo completed')
+    Log.warning('demo completed')
+    Log.error('demo completed')
+    Log.critical('demo completed')
 
 
 if __name__ == '__main__':

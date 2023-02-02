@@ -10,6 +10,7 @@ from trbox.event import MarketEvent
 # Requests
 #
 
+
 @dataclass
 class MarketDataRequest(MarketEvent):
     pass

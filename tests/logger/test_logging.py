@@ -1,7 +1,6 @@
 import pytest
 
-from trbox.common.logger import (critical, debug, error, exception, info,
-                                 warning)
+from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln, ppf
 
@@ -25,7 +24,7 @@ BASIC_COLLECTIONS = (
 )
 
 LOG_FUNCTIONS = (
-    debug, info, warning, error, critical, exception
+    Log.debug, Log.info, Log.warning, Log.error, Log.critical, Log.exception
 )
 
 
@@ -33,7 +32,7 @@ LOG_FUNCTIONS = (
 def test_cln(obj):
     name = cln(obj)
     assert isinstance(name, str)
-    info(name)
+    Log.info(name)
 
 
 @pytest.mark.parametrize('log', LOG_FUNCTIONS)
@@ -41,26 +40,26 @@ def test_logging_function(log):
     class Foo:
         ...
     # foo = Foo()
-    Memo('hello world')
-    Memo('hello %s', 'world')
+    log('hello world')
+    log('hello %s', 'world')
     # Memo('hello %s', 'world', who=foo)
-    Memo(Foo)
+    log(Foo)
     # these should print traceback
     try:
         {'a': 1}['b']
     except Exception as e:
-        Memo(e)
+        log(e)
 
     try:
         print(1 / 0)
     except Exception as e:
-        # Memo(e, who=e)
-        Memo(e)
+        # log(e, who=e)
+        log(e)
 
 
 @pytest.mark.parametrize('obj', BASIC + BASIC_COLLECTIONS)
 def test_ppf(obj):
-    info(Memo(ppf(obj)).by('test_ppf()'))
+    Log.info(Memo(ppf(obj)).by('test_ppf()'))
 
 
 @pytest.mark.parametrize('obj', BASIC + BASIC_COLLECTIONS)
@@ -73,26 +72,26 @@ def test_parser_input_types(obj):
         ...
     foo = Foo()
 
-    info(Memo('Case1> Most basic oneliner'))
-    info(Memo('Normally I am just oneliner',
-              a=999)
-         .by('Case2', Base))
-    info(Memo('comment', 1, 'comment2',
-              handle=Exception('nothing'))
-         .by('Case3', base))
-    info(Memo('my objects', obj, 2, 3, 4,
-              last=10) .sep('||')
-         .by('Case4', foo)
-         .tag('oneline', 'only'))
-    info(Memo(obj, 5, 6, 7,
-              extra=obj)
-         .by('Case5', 'God')
-         .tag('alert', 'warning').sparse())
-    info(Memo(obj, 8, 9, 10,
-              age=5, height=10, money=999
-              ).sparse()
-         .by('Foo')
-         .tag('foo', 'bar', 'haha'))
+    Log.info(Memo('Case1> Most basic oneliner'))
+    Log.info(Memo('Normally I am just oneliner',
+                  a=999)
+             .by('Case2', Base))
+    Log.info(Memo('comment', 1, 'comment2',
+                  handle=Exception('nothing'))
+             .by('Case3', base))
+    Log.info(Memo('my objects', obj, 2, 3, 4,
+                  last=10) .sep('||')
+             .by('Case4', foo)
+             .tag('oneline', 'only'))
+    Log.info(Memo(obj, 5, 6, 7,
+                  extra=obj)
+             .by('Case5', 'God')
+             .tag('alert', 'warning').sparse())
+    Log.info(Memo(obj, 8, 9, 10,
+                  age=5, height=10, money=999
+                  ).sparse()
+             .by('Foo')
+             .tag('foo', 'bar', 'haha'))
 
 
 @pytest.mark.parametrize('obj, text', [
