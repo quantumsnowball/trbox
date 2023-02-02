@@ -1,5 +1,7 @@
+from datetime import datetime
+
 import pytest
-from pandas import DatetimeIndex, Series, Timestamp
+from pandas import Series, Timestamp
 
 from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
@@ -39,9 +41,11 @@ def test_dummy(name, live):
     t.run()
     # up to here the market data terminated, simular to user termination
     Log.info(Memo(str(t.dashboard)).by(t).tag('dashboard'))
-    # assert isinstance(t.dashboard, Dashboard)
-    # assert isinstance(t.dashboard.navs, Series)
-    # assert isinstance(t.dashboard.navs.index, DatetimeIndex)
+    assert isinstance(t.dashboard, Dashboard)
+    assert isinstance(t.dashboard.navs, Series)
+    if not live:
+        assert len(t.dashboard.navs) > 0
+        assert isinstance(t.dashboard.navs.index[-1], datetime)
 
 
 @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01', None])
