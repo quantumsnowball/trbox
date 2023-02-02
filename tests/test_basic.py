@@ -7,6 +7,7 @@ from trbox.backtest.result import Result
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import info
 from trbox.common.logger.parser import Log
+from trbox.common.types import Symbols
 from trbox.common.utils import cln
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.onrequest.localcsv import YahooOHLCV
@@ -81,7 +82,7 @@ def test_dummy_batch(name, parallel):
     # terminating the Trader?
 
 
-@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2020-01-01', None])
+@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01', None])
 @pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
 @pytest.mark.parametrize('length', [100, 200, 500])
 def test_historical_data(start: Timestamp | str | None,
@@ -106,3 +107,42 @@ def test_historical_data(start: Timestamp | str | None,
             length=length),
         broker=PaperEX(SYMBOLS)
     ).run()
+
+
+@pytest.mark.parametrize('start', [Timestamp(2022, 1, 1), '2022-01-01', None])
+@pytest.mark.parametrize('end', [Timestamp(2022, 3, 31), '2022-3-31', None])
+@pytest.mark.parametrize('length', [100, 200, 500])
+def test_historical_data_batch(start: Timestamp | str | None,
+                               end: Timestamp | str | None,
+                               length: int):
+    SYMBOLS = ['BTC', 'ETH']
+
+    # on_window
+    def dummy_action(self: Strategy, e: OhlcvWindow):
+        assert e.win.shape == (length, 10)
+        self.trader.trade(SYMBOLS[0], +10)
+        info(f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
+
+    def trader(name: str):
+        return Trader(
+            strategy=Strategy(
+                name=name,
+                on_window=dummy_action),
+            market=YahooOHLCV(
+                source={s: f'tests/_data_/{s}_bar1day.csv' for s in SYMBOLS},
+                start=start,
+                end=end,
+                length=length),
+            broker=PaperEX(SYMBOLS)
+        )
+    bt = Backtest(
+        trader('Benchmark'),
+        trader('DummySt')
+    )
+    bt.run()
+
+    for t in bt.traders:
+        info(Log(str(t.dashboard)).by(t).tag('dashboard'))
+        assert isinstance(t.dashboard, Dashboard)
+    info(Log(str(bt.result)).by(bt).tag('result'))
+    assert isinstance(bt.result, Result)

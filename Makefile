@@ -6,11 +6,7 @@
 DEV_FILE=market/test_onrequest.py
 DEV_FUNCTION=test_binance
 DEV_FILE=test_basic.py
-DEV_FUNCTION=test_dummy_batch
-# DEV_FILE=logger/test_logging.py
-# DEV_FUNCTION=test_parser_results
-# DEV_FILE=broker/test_account.py
-# DEV_FUNCTION=test_account_trade
+DEV_FUNCTION=test_historical_data_batch
 
 dev:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 
