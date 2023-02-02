@@ -8,6 +8,7 @@ from trbox.event.broker import LimitOrder, MarketOrder, Order, OrderResult
 
 SPREAD = 0.001  # spread 0.1%
 FEE_RATE = 0.001  # assume 0.1%
+# TODO slippage
 
 
 @dataclass

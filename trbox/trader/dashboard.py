@@ -29,13 +29,35 @@ class Dashboard:
     def __str__(self) -> str:
         return f'{cln(self)}({self.desc})'
 
+    #
+    # data
+    #
     @property
     def navs(self) -> Series:
         return Series(self._navs, index=self._navs_index, dtype=float)
+
+    #
+    # updating
+    #
 
     def add_equity_record(self, timestamp: Timestamp, val: float) -> None:
         self._navs_index.append(timestamp)
         self._navs.append(val)
 
     def add_trade_record(self) -> None:
+        ...
+
+    #
+    # analysis
+    #
+
+    def metric(self) -> None:
+        pass
+
+    #
+    # presenting
+    #
+
+    def plot(self) -> None:
+        # TODO may be simple nav ploting, both live and backtesting
         ...

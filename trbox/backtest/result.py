@@ -9,3 +9,19 @@ class Result:
 
     def __str__(self) -> str:
         return f'{cln(self)}({self.desc})'
+
+    #
+    # analysis
+    #
+
+    def metrics(self) -> None:
+        # TODO combine all
+        ...
+
+    #
+    # presenting
+    #
+
+    def plot(self) -> None:
+        # TODO combine all traders and plot at one single chart
+        ...
