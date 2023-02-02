@@ -56,5 +56,5 @@ class Strategy(CounterParty):
         # on order result
         if isinstance(e, OrderResult):
             # TODO may be a on_fill callback?
-            Log.info(Memo('order filled', ppf(e))
+            Log.info(Memo('order result', ppf(e))
                      .by(self).tag('order', 'confirmation').sparse())

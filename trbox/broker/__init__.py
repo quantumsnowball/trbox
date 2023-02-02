@@ -46,12 +46,12 @@ class Broker(CounterParty, ABC):
 
     @property
     @abstractmethod
-    def positions_worth(self) -> float | None:
+    def positions_worth(self) -> float:
         pass
 
     @property
     @abstractmethod
-    def equity(self) -> float | None:
+    def equity(self) -> float:
         pass
 
     #

@@ -105,7 +105,7 @@ class Trader(Runner):
         return self._broker.positions
 
     @property
-    def equity(self) -> float | None:
+    def equity(self) -> float:
         return self._broker.equity
 
     # dashboard
@@ -127,8 +127,19 @@ class Trader(Runner):
     # these helpers should confirm there is no pending order first
     # otherwise may issue multiple order causing wrong rebalance ratio
 
-    def rebalance(self, symbol: Symbol, percentage: float) -> None:
-        raise NotImplementedError
+    def rebalance(self,
+                  symbol: Symbol,
+                  pct_target: float,
+                  ref_price: float,
+                  pct_min=0.01) -> None:
+        target_value = self.equity * pct_target
+        net_value = target_value - self._broker.positions_worth
+        if abs(net_value / self.equity) < pct_min:
+            return
+        target_quantity = net_value / ref_price
+        Log.warning(Memo(target_quantity=target_quantity)
+                    .by(self).sparse())
+        self._broker.trade(MarketOrder(symbol, target_quantity))
 
     def clear(self, symbol: Symbol) -> None:
         raise NotImplementedError

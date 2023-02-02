@@ -32,7 +32,10 @@ class Distributor:
         self._market = market
         self._broker = broker
 
+    #
     # event routing
+    #
+
     def new_market_data(self, e: MarketData) -> None:
         self._strategy.put(e)
         # if backtesting, broker also receive MarketData to simulate quote
@@ -48,6 +51,7 @@ class Distributor:
 
     def new_order_result(self, e: OrderResult) -> None:
         self._strategy.put(e)
+        self._trader.dashboard.add_trade_record()
 
     def new_audit_result(self, timestamp: Timestamp, nav: float | None) -> None:
         if timestamp and nav:
