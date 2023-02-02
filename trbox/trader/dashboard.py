@@ -1,12 +1,16 @@
 from dataclasses import dataclass
-from typing import Tuple
 
 from pandas import Series, Timestamp
 
 from trbox.common.utils import cln
 
 
+@dataclass
 class TradeRecord:
+    '''
+    Date Symbol Action Quantity 
+    Price GrossProceeds Fees NetProceeds
+    '''
     ...
 
 
