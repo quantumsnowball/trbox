@@ -80,7 +80,10 @@ def make_logging_function() -> tuple[LoggerFunction, ...]:
 debug, info, warning, error, critical, exception = make_logging_function()
 
 
-class log:
+class Log:
+    '''
+    A namespace for all logger functions
+    '''
     debug = debug
     info = info
     warning = warning
