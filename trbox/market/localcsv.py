@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from threading import Thread
+from threading import Event, Thread
 
 from pandas import DataFrame, Timestamp, to_datetime
 from typing_extensions import override
@@ -35,8 +35,8 @@ class RollingWindow(Market):
             for win in self._df.rolling(self._length)
             if len(win) >= self._length
         )
-        # TODO to be removed
-        self._keep_alive = False
+        # work thread event
+        self._alive = Event()
 
     @override
     def start(self) -> None:
@@ -49,16 +49,16 @@ class RollingWindow(Market):
 
                 self.trader.signal.heartbeat.clear()
 
-                if not self._keep_alive:
-                    break
+                if not self._alive.is_set():
+                    return
 
             # stop iteration
             self.trader.stop()
 
-        self._keep_alive = True
+        self._alive.set()
         t = Thread(target=worker)
         t.start()
 
     @override
     def stop(self) -> None:
-        self._keep_alive = False
+        self._alive.clear()

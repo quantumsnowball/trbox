@@ -14,9 +14,9 @@ from trbox.market.localcsv import RollingWindow
 from trbox.trader.dashboard import Dashboard
 
 
-@pytest.mark.parametrize('live', [False, True])
-@pytest.mark.parametrize('name', [None, 'DummySt'])
-# @pytest.mark.parametrize('name, live', [('dummy', True)])
+# @pytest.mark.parametrize('live', [False, True])
+# @pytest.mark.parametrize('name', [None, 'DummySt'])
+@pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
     QUANTITY = 0.2

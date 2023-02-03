@@ -1,4 +1,4 @@
-from threading import Thread
+from threading import Event, Thread
 
 from pandas import Timestamp
 from typing_extensions import override
@@ -24,7 +24,7 @@ class DummyPrice(Market):
         super().__init__()
         self._symbol = symbol
         self._n = n
-        self._keep_alive = False
+        self._alive = Event()
 
     @override
     def start(self) -> None:
@@ -41,18 +41,18 @@ class DummyPrice(Market):
 
                 self.trader.signal.heartbeat.clear()
 
-                if not self._keep_alive:
-                    Log.debug(Memo('set flag and return',
-                                   keep_alive=self._keep_alive).by(self))
+                if not self._alive.is_set():
+                    Log.info(Memo('requested to stop',
+                                  alive=self._alive.is_set())
+                             .by(self))
                     return
 
-            # simulate the end of data
-            self.send.end_of_market_data()
-        # deamon thread will not block program from exiting
-        self._keep_alive = True
+            self.trader.stop()
+
+        self._alive.set()
         t = Thread(target=worker)
         t.start()
 
     @override
     def stop(self) -> None:
-        self._keep_alive = False
+        self._alive.clear()
