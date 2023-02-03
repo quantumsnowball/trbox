@@ -18,9 +18,9 @@ API_SECRET = os.getenv('API_SECRET')
 def test_binance():
     SYMBOL = 'BTCUSDT'
 
-    def handle(self: Strategy, _: Candlestick):
+    def handle(self: Strategy, e: Candlestick):
         # dummy trade
-        self.trader.trade(SYMBOL, +9)
+        self.trader.trade(SYMBOL, 1)
 
     Trader(
         strategy=Strategy(
