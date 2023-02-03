@@ -41,6 +41,7 @@ class Strategy(CounterParty):
                 self._on_tick(self, e)
                 # TODO also Strategy need to know the number of Tick event
                 # so maybe inc a counter state var here
+                self.trader.heartbeat.set()
         # for request and response data
         if self._on_window:
             # need to make the first request manually

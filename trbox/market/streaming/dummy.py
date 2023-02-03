@@ -38,10 +38,16 @@ class DummyPrice(StreamingSource):
                 self.send.new_market_data(Candlestick(
                     Timestamp.now(), self._symbol, i))
                 time.sleep(self._delay)
+
+                self.trader.heartbeat.clear()
+
                 if not self._keep_alive:
                     Log.debug(Memo('set flag and return',
                                    keep_alive=self._keep_alive).by(self))
                     return
+
+                self.trader.heartbeat.wait()
+
             # simulate the end of data
             self.send.end_of_market_data()
         # deamon thread will not block program from exiting
