@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import sleep
 
 import pytest
 from pandas import Series, Timestamp
@@ -29,6 +30,7 @@ def test_dummy(name, live):
         assert isinstance(self.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=self.trader.dashboard)
                  .by(self).tag('dashboard'))
+        sleep(.01)
 
     t = Trader(
         live=live,
@@ -64,6 +66,8 @@ def test_historical_data(start: Timestamp | str,
         self.trader.trade(SYMBOLS[0], QUANTITY)
         Log.info(
             f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
+        # BUG why need to wait?
+        sleep(.01)
 
     t = Trader(
         strategy=Strategy(

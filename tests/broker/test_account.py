@@ -1,11 +1,13 @@
+from time import sleep
+
 import pytest
 
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import OhlcvWindow
-from trbox.market.onrequest.localcsv import YahooOHLCV
 from trbox.market.streaming.dummy import DummyPrice
+from trbox.market.streaming.localcsv import RollingWindow
 from trbox.strategy import Strategy
 from trbox.trader import Trader
 
@@ -23,11 +25,12 @@ def test_account_trade():
                       position=self.trader.positions[SYMBOL],
                       equity=self.trader.equity)
                  .by(self).tag(SYMBOL).sparse())
+        sleep(.01)
 
     Trader(
         strategy=Strategy(
             on_window=on_window),
-        market=YahooOHLCV(
+        market=RollingWindow(
             source={SYMBOL: f'tests/_data_/{SYMBOL}_bar1day.csv'},
             start=START,
             end=END,
@@ -45,6 +48,7 @@ def test_account_cash(cash: float):
         assert self.trader.cash == cash
         Log.info(Memo(cash=self.trader.cash)
                  .by(self).tag('initial', 'cash'))
+        sleep(.01)
 
     Trader(
         strategy=Strategy(

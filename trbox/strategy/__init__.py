@@ -41,6 +41,7 @@ class Strategy(CounterParty):
                 self._on_tick(self, e)
                 # TODO also Strategy need to know the number of Tick event
                 # so maybe inc a counter state var here
+                Log.error(Memo('free you from waiting me forever').by(self))
                 self.trader.heartbeat.set()
         # for request and response data
         if self._on_window:
@@ -54,6 +55,7 @@ class Strategy(CounterParty):
                 # TODO this pattern assume the ohlcv always comes in time
                 # which is not very realistic, so may be should make ohlcv slow
                 # datasource to be just a very slow `Tick` source
+                Log.critical('free you from waiting me forever')
                 self.trader.heartbeat.set()
         # on order result
         if isinstance(e, OrderResult):

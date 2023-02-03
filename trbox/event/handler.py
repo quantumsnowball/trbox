@@ -29,11 +29,11 @@ class EventHandler(ABC):
         while True:
             # block by the get method until a event is retrieved
             e = self._event_queue.get()
-            Log.debug(Memo('receiving', event=cln(e)).by(self))
+            # Log.debug(Memo('receiving', event=cln(e)).by(self))
 
             # pass the event to the subclass method for handling
             self.handle(e)
-            Log.debug(Memo('handling', event=cln(e)).by(self))
+            Log.debug(Memo('handled', event=cln(e)).by(self))
 
             # mark the task done and update event count
             self._event_queue.task_done()

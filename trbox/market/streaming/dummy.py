@@ -46,6 +46,8 @@ class DummyPrice(StreamingSource):
                                    keep_alive=self._keep_alive).by(self))
                     return
 
+                Log.critical(Memo('waiting for you until end of word')
+                             .by(self))
                 self.trader.heartbeat.wait()
 
             # simulate the end of data
