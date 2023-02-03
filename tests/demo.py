@@ -5,7 +5,7 @@ from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log, set_log_level
 from trbox.event.market import Candlestick
-from trbox.market.streaming.dummy import DummyPrice
+from trbox.market.dummy import DummyPrice
 
 set_log_level('DEBUG')
 

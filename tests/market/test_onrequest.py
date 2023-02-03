@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 from trbox.broker.paper import PaperEX
 from trbox.event.market import Candlestick
-from trbox.market.streaming.binance import BinanceWebsocket
+from trbox.market.binance import BinanceWebsocket
 from trbox.strategy import Strategy
 from trbox.trader import Trader
 

@@ -10,8 +10,8 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
-from trbox.market.streaming.dummy import DummyPrice
-from trbox.market.streaming.localcsv import RollingWindow
+from trbox.market.dummy import DummyPrice
+from trbox.market.localcsv import RollingWindow
 from trbox.trader.dashboard import Dashboard
 
 
@@ -23,7 +23,7 @@ def test_dummy(name, parallel):
     DELAY = 0
 
     # on_tick
-    def dummy_action(self: Strategy, e: Candlestick):
+    def dummy_action(self: Strategy, _: Candlestick):
         self.trader.trade(SYMBOL, QUANTITY)
         # BUG if no delay, becomes race condition, setting heartbeat too soon
         time.sleep(.01)

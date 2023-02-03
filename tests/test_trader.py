@@ -9,8 +9,8 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
-from trbox.market.streaming.dummy import DummyPrice
-from trbox.market.streaming.localcsv import RollingWindow
+from trbox.market.dummy import DummyPrice
+from trbox.market.localcsv import RollingWindow
 from trbox.trader.dashboard import Dashboard
 
 

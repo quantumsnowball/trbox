@@ -1,7 +1,7 @@
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.market.streaming.localcsv import RollingWindow
+from trbox.market.localcsv import RollingWindow
 from trbox.strategy.presets.benchmark import BuyAndHold
 from trbox.trader import Trader
 
