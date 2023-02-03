@@ -8,12 +8,7 @@ from trbox.event import MarketEvent
 
 
 @dataclass
-class MarketData(MarketEvent):
-    timestamp: Timestamp
-
-
-@dataclass
-class OhlcvWindow(MarketData):
+class OhlcvWindow(MarketEvent):
     symbols: Symbols
     win: DataFrame
 
@@ -25,6 +20,6 @@ class OhlcvWindow(MarketData):
 
 
 @dataclass
-class Candlestick(MarketData):
+class Candlestick(MarketEvent):
     symbol: Symbol
     price: float

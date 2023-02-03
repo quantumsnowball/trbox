@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from pandas import Timestamp
 
+from trbox.event import MarketEvent
 from trbox.event.broker import AuditRequest, OrderResult
 
 if TYPE_CHECKING:
@@ -11,8 +12,6 @@ if TYPE_CHECKING:
     from trbox.market import Market
     from trbox.strategy import Strategy
     from trbox.trader import Trader
-
-from trbox.event.market import MarketData
 
 
 class Distributor:
@@ -36,9 +35,9 @@ class Distributor:
     # event routing
     #
 
-    def new_market_data(self, e: MarketData) -> None:
+    def new_market_data(self, e: MarketEvent) -> None:
         self._strategy.put(e)
-        # if backtesting, broker also receive MarketData to simulate quote
+        # if backtesting, broker also receive MarketEvent to simulate quote
         if self._trader.backtesting:
             self._broker.put(e)
         # TODO in live trading these market data all comes in random times

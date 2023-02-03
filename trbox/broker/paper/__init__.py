@@ -74,7 +74,7 @@ class PaperEX(Broker):
     @override
     def handle(self, e: Event) -> None:
         super().handle(e)
-        # handle MarketData event when backtesting
+        # handle MarketEvent when backtesting
         if self.trader.backtesting:
             if isinstance(e, Candlestick):
                 self._engine[e.symbol].update(e.price)

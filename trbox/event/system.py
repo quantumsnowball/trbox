@@ -17,7 +17,7 @@ class TimeLapse(SystemEvent):
     in backtesting the market simulator shoot out event with zero delay.
     As a result, it is hard to simulate the sequence of event simular to
     live trading. For example, in backtesting the Market simulator may send
-    MarketData event too fast, such that the Strategy may make a trade `days`
+    MarketEvent too fast, such that the Strategy may make a trade `days`
     after normally when it should be, therefore failed to simulate reality.
 
     I propose to add a TimeLapse event that the Market is listening to only
@@ -26,7 +26,7 @@ class TimeLapse(SystemEvent):
     event to ask the Market simulator to skip the remaining idle time. When
     in live trading, runner will simple discard this event, and Strategy will
     behave exactly like in backtest mode. By listening to the TimeLapse
-    event, Market simulator can ensure the timing of the next MarketData
+    event, Market simulator can ensure the timing of the next MarketEvent
     will not front run the Order event from Broker.
 
     In short, during backtest, Strategy can tell runner to skip the remaining
