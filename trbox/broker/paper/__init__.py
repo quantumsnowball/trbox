@@ -77,7 +77,7 @@ class PaperEX(Broker):
         # handle MarketEvent when backtesting
         if self.trader.backtesting:
             if isinstance(e, Candlestick):
-                self._engine[e.symbol].update(e.price)
+                self._engine[e.symbol].update(e.timestamp, e.price)
                 Log.debug(Memo('updated OrderBook',
                                e.symbol, price=e.price)
                           .by(self, e).tag('updated', 'book'))
@@ -85,7 +85,7 @@ class PaperEX(Broker):
             elif isinstance(e, OhlcvWindow):
                 for symbol in e.symbols:
                     price = e.close[symbol]
-                    self._engine[symbol].update(price)
+                    self._engine[symbol].update(e.timestamp, price)
                     Log.debug(Memo('updated OrderBook',
                                    symbol=symbol, price=price)
                               .by(self, e).tag('updated', 'book'))

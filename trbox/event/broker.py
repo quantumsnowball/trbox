@@ -30,9 +30,11 @@ class LimitOrder(Order):
 
 @dataclass
 class OrderResult(BrokerEvent):
+    timestamp: Timestamp | None
     order: Order
     result: bool
     price: float | None = None
+    action: str | None = None
     quantity: float | None = None
     fee_rate: float | None = None
     fee: float | None = field(init=False, default=None)
@@ -41,6 +43,7 @@ class OrderResult(BrokerEvent):
 
     def __post_init__(self) -> None:
         if self.result and self.price and self.quantity and self.fee_rate:
+            self.action = 'BUY' if self.quantity >= 0 else 'SELL'
             self.gross_proceeds = -self.quantity * self.price
             self.fee = abs(self.gross_proceeds) * self.fee_rate
             self.net_proceeds = self.gross_proceeds - self.fee

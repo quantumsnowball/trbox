@@ -154,8 +154,8 @@ class Trader(Runner):
         if abs(net_value / self.equity) < pct_min:
             return
         target_quantity = net_value / ref_price
-        Log.warning(Memo(target_quantity=target_quantity)
-                    .by(self).sparse())
+        Log.info(Memo(target_quantity=target_quantity)
+                 .by(self).sparse())
         self._broker.trade(MarketOrder(symbol, target_quantity))
 
     def clear(self, symbol: Symbol) -> None:

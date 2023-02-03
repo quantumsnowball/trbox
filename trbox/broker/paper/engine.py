@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from pandas import Timestamp
+
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
@@ -14,6 +16,7 @@ FEE_RATE = 0.001  # assume 0.1%
 @dataclass
 class TradingBook:
     symbol: Symbol
+    timestamp: Timestamp | None = None
     price: float | None = None
     spread: float = SPREAD
     fee_rate: float = FEE_RATE
@@ -27,7 +30,8 @@ class TradingBook:
         return self.price * (1 + self.spread / 2) if self.price else None
 
     # update book status on related MarketEvent
-    def update(self, price: float) -> None:
+    def update(self, timestamp: Timestamp, price: float) -> None:
+        self.timestamp = timestamp
         self.price = price
 
     # transaction
@@ -55,7 +59,8 @@ class TradingBook:
             return False, None
         result, price = match_rules()
         quantity = e.quantity if result else None
-        return OrderResult(e, result, price, quantity, self.fee_rate)
+        return OrderResult(self.timestamp, e, result,
+                           price=price, quantity=quantity, fee_rate=self.fee_rate)
 
 
 class MatchingEngine(dict[Symbol, TradingBook]):
