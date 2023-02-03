@@ -42,9 +42,7 @@ class Strategy(CounterParty):
             # upon receive window data, process using hook function
             if isinstance(e, OhlcvWindow):
                 self._on_window(self, e)
-                # TODO this pattern assume the ohlcv always comes in time
-                # which is not very realistic, so may be should make ohlcv slow
-                # datasource to be just a very slow `Tick` source
+                # tell paper market to send next market event
                 self.trader.signal.heartbeat.set()
         # on order result
         if isinstance(e, OrderResult):
