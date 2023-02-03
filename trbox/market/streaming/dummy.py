@@ -8,13 +8,13 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
 from trbox.event.market import Candlestick
-from trbox.market.streaming import StreamingSource
+from trbox.market import Market
 
 DEFAULT_N = 30
 DEFAULT_DELAY = 1
 
 
-class DummyPrice(StreamingSource):
+class DummyPrice(Market):
     '''
     This is a streaming price tick simulator.
     Upon start, it push event automatically to Strategy.

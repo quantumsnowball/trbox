@@ -7,11 +7,11 @@ from typing_extensions import override
 from trbox.common.types import Symbol
 from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.market import OhlcvWindow
-from trbox.market.streaming import StreamingSource
+from trbox.market import Market
 from trbox.market.utils import concat_dfs_by_columns, import_yahoo_csv
 
 
-class RollingWindow(StreamingSource):
+class RollingWindow(Market):
     def __init__(self, *,
                  source: dict[Symbol, str],
                  start: Timestamp | str,

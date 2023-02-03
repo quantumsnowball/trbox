@@ -7,10 +7,10 @@ from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
 from trbox.common.utils import cln, ppf
 from trbox.event.market import Candlestick
-from trbox.market.streaming import StreamingSource
+from trbox.market import Market
 
 
-class BinanceWebsocket(StreamingSource):
+class BinanceWebsocket(Market):
     def __init__(self, *,
                  symbol: Symbol) -> None:
         super().__init__()
