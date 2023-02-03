@@ -138,7 +138,7 @@ class Trader(Runner):
                   symbol: Symbol,
                   pct_target: float,
                   ref_price: float,
-                  pct_min=0.01) -> None:
+                  pct_min: float = 0.01) -> None:
         target_value = self.equity * pct_target
         net_value = target_value - self._broker.positions_worth
         if abs(net_value / self.equity) < pct_min:

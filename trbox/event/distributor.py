@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from trbox.strategy import Strategy
     from trbox.trader import Trader
 
-from trbox.event.market import MarketData, MarketDataRequest
+from trbox.event.market import MarketData
 
 
 class Distributor:
@@ -45,9 +45,6 @@ class Distributor:
         # maybe I can monitor the market event timestamp here, calc the time
         # diff, if equal or exceed user arg input, then log a new value.
         self._broker.put(AuditRequest(e.timestamp))
-
-    def new_market_data_request(self, e: MarketDataRequest) -> None:
-        self._market.put(e)
 
     def new_order_result(self, e: OrderResult) -> None:
         self._strategy.put(e)

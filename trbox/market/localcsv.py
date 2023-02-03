@@ -40,7 +40,7 @@ class RollingWindow(Market):
 
     @override
     def start(self) -> None:
-        def worker():
+        def worker() -> None:
             for df in self._window_generator:
                 self.send.new_market_data(
                     OhlcvWindow(df.index[-1], self._symbols, df))

@@ -6,24 +6,6 @@ from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import verify_ohlcv
 from trbox.event import MarketEvent
 
-#
-# Requests
-#
-
-
-@dataclass
-class MarketDataRequest(MarketEvent):
-    pass
-
-
-@dataclass
-class OhlcvWindowRequest(MarketDataRequest):
-    pass
-
-
-#
-# Response
-#
 
 @dataclass
 class MarketData(MarketEvent):
