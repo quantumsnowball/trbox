@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 from typing import TYPE_CHECKING, Any
 
 from trbox.common.logger import Log
@@ -29,15 +30,21 @@ class Runner:
         self._market: Market = market
         self._broker: Broker = broker
         self._handlers = [self._strategy, self._market, self._broker]
+        self._heartbeat = threading.Event()
 
     # system controls
     def start(self) -> None:
+        self._heartbeat.set()
         for handler in self._handlers:
             handler.put(Start())
 
     def stop(self) -> None:
         for handler in self._handlers:
             handler.put(Exit())
+
+    @property
+    def heartbeat(self) -> threading.Event:
+        return self._heartbeat
 
     # main thread pool
     def run(self) -> None:
@@ -131,7 +138,7 @@ class Trader(Runner):
                   symbol: Symbol,
                   pct_target: float,
                   ref_price: float,
-                  pct_min=0.01) -> None:
+                  pct_min: float = 0.01) -> None:
         target_value = self.equity * pct_target
         net_value = target_value - self._broker.positions_worth
         if abs(net_value / self.equity) < pct_min:

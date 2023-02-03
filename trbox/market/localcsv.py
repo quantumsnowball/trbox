@@ -1,22 +1,17 @@
 from collections.abc import Generator
+from threading import Thread
 
 from pandas import DataFrame, Timestamp, to_datetime
 from typing_extensions import override
 
 from trbox.common.types import Symbol
 from trbox.common.utils import trim_ohlcv_by_range_length
-from trbox.event.market import (MarketDataRequest, OhlcvWindow,
-                                OhlcvWindowRequest)
-from trbox.market.onrequest import OnRequestSource
+from trbox.event.market import OhlcvWindow
+from trbox.market import Market
 from trbox.market.utils import concat_dfs_by_columns, import_yahoo_csv
 
 
-class YahooOHLCV(OnRequestSource):
-    '''
-    This is a relative low speed price simulator.
-    It simulates market data fetch using http request/response.
-    '''
-
+class RollingWindow(Market):
     def __init__(self, *,
                  source: dict[Symbol, str],
                  start: Timestamp | str,
@@ -40,14 +35,29 @@ class YahooOHLCV(OnRequestSource):
             for win in self._df.rolling(self._length)
             if len(win) >= self._length
         )
+        # TODO to be removed
+        self._keep_alive = False
 
     @override
-    def on_request(self, e: MarketDataRequest) -> None:
-        # actively listening to request
-        if isinstance(e, OhlcvWindowRequest):
-            try:
-                df = next(self._window_generator)
+    def start(self) -> None:
+        def worker() -> None:
+            for df in self._window_generator:
                 self.send.new_market_data(
                     OhlcvWindow(df.index[-1], self._symbols, df))
-            except StopIteration:
-                self.trader.stop()
+
+                self.trader.heartbeat.clear()
+
+                if not self._keep_alive:
+                    break
+
+                self.trader.heartbeat.wait()
+            # stop iteration
+            self.trader.stop()
+
+        self._keep_alive = True
+        t = Thread(target=worker)
+        t.start()
+
+    @override
+    def stop(self) -> None:
+        self._keep_alive = False

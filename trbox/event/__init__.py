@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from pandas import Timestamp
+
 
 class Event:
     pass
@@ -17,6 +19,7 @@ class MarketEvent(Event):
     '''
     All price data related events
     '''
+    timestamp: Timestamp
 
 
 class SystemEvent(Event):

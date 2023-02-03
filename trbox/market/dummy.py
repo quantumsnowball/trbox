@@ -8,13 +8,13 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
 from trbox.event.market import Candlestick
-from trbox.market.streaming import StreamingSource
+from trbox.market import Market
 
 DEFAULT_N = 30
 DEFAULT_DELAY = 1
 
 
-class DummyPrice(StreamingSource):
+class DummyPrice(Market):
     '''
     This is a streaming price tick simulator.
     Upon start, it push event automatically to Strategy.
@@ -38,10 +38,18 @@ class DummyPrice(StreamingSource):
                 self.send.new_market_data(Candlestick(
                     Timestamp.now(), self._symbol, i))
                 time.sleep(self._delay)
+
+                self.trader.heartbeat.clear()
+
                 if not self._keep_alive:
                     Log.debug(Memo('set flag and return',
                                    keep_alive=self._keep_alive).by(self))
                     return
+
+                Log.critical(Memo('waiting for you until end of word')
+                             .by(self))
+                self.trader.heartbeat.wait()
+
             # simulate the end of data
             self.send.end_of_market_data()
         # deamon thread will not block program from exiting

@@ -26,7 +26,7 @@ class TradingBook:
     def ask(self) -> float | None:
         return self.price * (1 + self.spread / 2) if self.price else None
 
-    # update book status on related MarketData
+    # update book status on related MarketEvent
     def update(self, price: float) -> None:
         self.price = price
 

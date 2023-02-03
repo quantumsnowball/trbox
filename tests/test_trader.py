@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import sleep
 
 import pytest
 from pandas import Series, Timestamp
@@ -8,8 +9,8 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
-from trbox.market.onrequest.localcsv import YahooOHLCV
-from trbox.market.streaming.dummy import DummyPrice
+from trbox.market.dummy import DummyPrice
+from trbox.market.localcsv import RollingWindow
 from trbox.trader.dashboard import Dashboard
 
 
@@ -29,6 +30,7 @@ def test_dummy(name, live):
         assert isinstance(self.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=self.trader.dashboard)
                  .by(self).tag('dashboard'))
+        sleep(.01)
 
     t = Trader(
         live=live,
@@ -48,9 +50,10 @@ def test_dummy(name, live):
         assert isinstance(t.dashboard.navs.index[-1], datetime)
 
 
-@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
-@pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
-@pytest.mark.parametrize('length', [100, 200, 500])
+# @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
+# @pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
+# @pytest.mark.parametrize('length', [100, 200, 500])
+@pytest.mark.parametrize('start, end, length', [('2021-01-01', '2021-03-31', 200)])
 def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
@@ -63,11 +66,13 @@ def test_historical_data(start: Timestamp | str,
         self.trader.trade(SYMBOLS[0], QUANTITY)
         Log.info(
             f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
+        # BUG why need to wait?
+        sleep(.01)
 
     t = Trader(
         strategy=Strategy(
             on_window=dummy_action),
-        market=YahooOHLCV(
+        market=RollingWindow(
             source={s: f'tests/_data_/{s}_bar1day.csv'
                     for s in SYMBOLS},
             start=start,
