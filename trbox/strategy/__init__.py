@@ -54,6 +54,7 @@ class Strategy(CounterParty):
                 # TODO this pattern assume the ohlcv always comes in time
                 # which is not very realistic, so may be should make ohlcv slow
                 # datasource to be just a very slow `Tick` source
+                self.trader.heartbeat.set()
         # on order result
         if isinstance(e, OrderResult):
             # TODO may be a on_fill callback?
