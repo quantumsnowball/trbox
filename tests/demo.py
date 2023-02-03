@@ -23,7 +23,7 @@ def test_dummy():
         live=False,
         strategy=Strategy(
             on_tick=dummy_action),
-        market=DummyPrice(SYMBOL, delay=0),
+        market=DummyPrice(SYMBOL),
         broker=PaperEX(SYMBOL)
     ).run()
 

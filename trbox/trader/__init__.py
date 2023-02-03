@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import threading
+from threading import Event
 from typing import TYPE_CHECKING, Any
 
 from trbox.common.logger import Log
@@ -21,6 +21,10 @@ from trbox.event.distributor import Distributor
 from trbox.event.system import Exit, Start
 
 
+class Signal:
+    heartbeat: Event = Event()
+
+
 class Runner:
     def __init__(self, *,
                  strategy: Strategy,
@@ -30,11 +34,11 @@ class Runner:
         self._market: Market = market
         self._broker: Broker = broker
         self._handlers = [self._strategy, self._market, self._broker]
-        self._heartbeat = threading.Event()
+        self._signal = Signal()
 
     # system controls
     def start(self) -> None:
-        self._heartbeat.set()
+        self.signal.heartbeat.set()
         for handler in self._handlers:
             handler.put(Start())
 
@@ -43,8 +47,8 @@ class Runner:
             handler.put(Exit())
 
     @property
-    def heartbeat(self) -> threading.Event:
-        return self._heartbeat
+    def signal(self) -> Signal:
+        return self._signal
 
     # main thread pool
     def run(self) -> None:

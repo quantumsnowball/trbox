@@ -42,15 +42,16 @@ class RollingWindow(Market):
     def start(self) -> None:
         def worker() -> None:
             for df in self._window_generator:
+                self.trader.signal.heartbeat.wait(5)
+
                 self.send.new_market_data(
                     OhlcvWindow(df.index[-1], self._symbols, df))
 
-                self.trader.heartbeat.clear()
+                self.trader.signal.heartbeat.clear()
 
                 if not self._keep_alive:
                     break
 
-                self.trader.heartbeat.wait()
             # stop iteration
             self.trader.stop()
 

@@ -66,6 +66,6 @@ class MatchingEngine(dict[Symbol, TradingBook]):
 
     def match(self, e: Order) -> OrderResult:
         e_result = self[e.symbol].transact(e)
-        Log.info(Memo('order matching', ppf(e_result)).sparse()
+        Log.info(Memo('matching', ppf(e)).sparse()
                  .by(self).tag('match', 'order'))
         return e_result

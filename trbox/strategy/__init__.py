@@ -7,7 +7,6 @@ from trbox.event import Event
 from trbox.event.broker import OrderResult
 from trbox.event.handler import CounterParty
 from trbox.event.market import Candlestick, OhlcvWindow
-from trbox.event.system import Start
 
 
 class Strategy(CounterParty):
@@ -37,8 +36,7 @@ class Strategy(CounterParty):
                 self._on_tick(self, e)
                 # TODO also Strategy need to know the number of Tick event
                 # so maybe inc a counter state var here
-                Log.error(Memo('free you from waiting me forever').by(self))
-                self.trader.heartbeat.set()
+                self.trader.signal.heartbeat.set()
         # for request and response data
         if self._on_window:
             # upon receive window data, process using hook function
@@ -47,8 +45,7 @@ class Strategy(CounterParty):
                 # TODO this pattern assume the ohlcv always comes in time
                 # which is not very realistic, so may be should make ohlcv slow
                 # datasource to be just a very slow `Tick` source
-                Log.critical('free you from waiting me forever')
-                self.trader.heartbeat.set()
+                self.trader.signal.heartbeat.set()
         # on order result
         if isinstance(e, OrderResult):
             # TODO may be a on_fill callback?

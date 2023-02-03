@@ -20,26 +20,23 @@ from trbox.trader.dashboard import Dashboard
 def test_dummy(name, parallel):
     SYMBOL = 'BTC'
     QUANTITY = 0.2
-    DELAY = 0
 
     # on_tick
     def dummy_action(self: Strategy, _: Candlestick):
         self.trader.trade(SYMBOL, QUANTITY)
-        # BUG if no delay, becomes race condition, setting heartbeat too soon
-        time.sleep(.01)
 
     bt = Backtest(
         Trader(
             strategy=Strategy(
                 name='Benchmark',
                 on_tick=dummy_action),
-            market=DummyPrice(SYMBOL, delay=DELAY),
+            market=DummyPrice(SYMBOL),
             broker=PaperEX(SYMBOL)),
         Trader(
             strategy=Strategy(
                 name=name,
                 on_tick=dummy_action),
-            market=DummyPrice(SYMBOL, delay=DELAY),
+            market=DummyPrice(SYMBOL),
             broker=PaperEX(SYMBOL))
     )
     bt.run(parallel=parallel)

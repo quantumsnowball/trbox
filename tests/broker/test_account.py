@@ -25,7 +25,6 @@ def test_account_trade():
                       position=self.trader.positions[SYMBOL],
                       equity=self.trader.equity)
                  .by(self).tag(SYMBOL).sparse())
-        sleep(.01)
 
     Trader(
         strategy=Strategy(
@@ -48,12 +47,11 @@ def test_account_cash(cash: float):
         assert self.trader.cash == cash
         Log.info(Memo(cash=self.trader.cash)
                  .by(self).tag('initial', 'cash'))
-        sleep(.01)
 
     Trader(
         strategy=Strategy(
             on_tick=on_tick),
-        market=DummyPrice(SYMBOL, delay=0),
+        market=DummyPrice(SYMBOL),
         broker=PaperEX(SYMBOL,
                        initial_fund=cash)
     ).run()

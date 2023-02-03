@@ -1,4 +1,3 @@
-import time
 from threading import Thread
 
 from pandas import Timestamp
@@ -11,7 +10,6 @@ from trbox.event.market import Candlestick
 from trbox.market import Market
 
 DEFAULT_N = 30
-DEFAULT_DELAY = 1
 
 
 class DummyPrice(Market):
@@ -22,12 +20,10 @@ class DummyPrice(Market):
 
     def __init__(self,
                  symbol: Symbol,
-                 n: int = DEFAULT_N,
-                 delay: int = DEFAULT_DELAY) -> None:
+                 n: int = DEFAULT_N) -> None:
         super().__init__()
         self._symbol = symbol
         self._n = n
-        self._delay = delay
         self._keep_alive = False
 
     @override
@@ -35,20 +31,20 @@ class DummyPrice(Market):
         def worker() -> None:
             # gen random price to simulate live market
             for i in range(self._n):
+                heartbeat = self.trader.signal.heartbeat.wait(5)
+                if not heartbeat:
+                    Log.error(Memo('timeout waiting for heartbeat')
+                              .by(self).tag('timeout'))
+
                 self.send.new_market_data(Candlestick(
                     Timestamp.now(), self._symbol, i))
-                time.sleep(self._delay)
 
-                self.trader.heartbeat.clear()
+                self.trader.signal.heartbeat.clear()
 
                 if not self._keep_alive:
                     Log.debug(Memo('set flag and return',
                                    keep_alive=self._keep_alive).by(self))
                     return
-
-                Log.critical(Memo('waiting for you until end of word')
-                             .by(self))
-                self.trader.heartbeat.wait()
 
             # simulate the end of data
             self.send.end_of_market_data()
