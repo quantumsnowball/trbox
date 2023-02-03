@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from threading import Event
 from typing import TYPE_CHECKING, Any
 
@@ -21,8 +22,10 @@ from trbox.event.distributor import Distributor
 from trbox.event.system import Exit, Start
 
 
+@dataclass
 class Signal:
-    heartbeat: Event = Event()
+    enter: Event
+    heartbeat: Event
 
 
 class Runner:
@@ -34,7 +37,8 @@ class Runner:
         self._market: Market = market
         self._broker: Broker = broker
         self._handlers = [self._strategy, self._market, self._broker]
-        self._signal = Signal()
+        self._signal = Signal(enter=Event(),
+                              heartbeat=Event())
 
     # system controls
     def start(self) -> None:
