@@ -3,12 +3,12 @@
 #
 # run these during dev 
 # put assert 0 (or breakpoint() inside a worker thread) for a handy breakpoint
-DEV_FILE=market/test_market.py
-DEV_FUNCTION=test_binance
-# DEV_FILE=test_trader.py
+# DEV_FILE=market/test_market.py
+# DEV_FUNCTION=test_binance
+DEV_FILE=test_trader.py
 # DEV_FILE=test_backtest.py
 # DEV_FUNCTION=test_dummy
-# DEV_FUNCTION=test_historical_data
+DEV_FUNCTION=test_historical_data
 
 dev:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 

@@ -30,6 +30,8 @@ class Strategy(CounterParty):
         return self._name
 
     def handle(self, e: Event) -> None:
+        if self.trader.backtesting:
+            self.trader.signal.broker_ready.wait(5)
         # for live streaming data
         if self._on_tick:
             if isinstance(e, Candlestick):

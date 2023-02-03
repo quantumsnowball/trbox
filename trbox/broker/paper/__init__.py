@@ -81,6 +81,7 @@ class PaperEX(Broker):
                 Log.debug(Memo('updated OrderBook',
                                e.symbol, price=e.price)
                           .by(self, e).tag('updated', 'book'))
+                self.trader.signal.broker_ready.set()
             elif isinstance(e, OhlcvWindow):
                 for symbol in e.symbols:
                     price = e.close[symbol]
@@ -88,3 +89,4 @@ class PaperEX(Broker):
                     Log.debug(Memo('updated OrderBook',
                                    symbol=symbol, price=price)
                               .by(self, e).tag('updated', 'book'))
+                self.trader.signal.broker_ready.set()

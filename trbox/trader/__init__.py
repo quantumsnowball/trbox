@@ -25,6 +25,7 @@ from trbox.event.system import Exit, Start
 @dataclass
 class Signal:
     enter: Event
+    broker_ready: Event
     heartbeat: Event
 
 
@@ -38,6 +39,7 @@ class Runner:
         self._broker: Broker = broker
         self._handlers = [self._strategy, self._market, self._broker]
         self._signal = Signal(enter=Event(),
+                              broker_ready=Event(),
                               heartbeat=Event())
 
     # system controls

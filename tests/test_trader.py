@@ -14,9 +14,9 @@ from trbox.market.localcsv import RollingWindow
 from trbox.trader.dashboard import Dashboard
 
 
-# @pytest.mark.parametrize('live', [False, True])
-# @pytest.mark.parametrize('name', [None, 'DummySt'])
-@pytest.mark.parametrize('name, live', [('dummy', False)])
+@pytest.mark.parametrize('live', [False, True])
+@pytest.mark.parametrize('name', [None, 'DummySt'])
+# @pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
     QUANTITY = 0.2
@@ -48,10 +48,10 @@ def test_dummy(name, live):
         assert isinstance(t.dashboard.navs.index[-1], datetime)
 
 
-@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
-@pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
-@pytest.mark.parametrize('length', [100, 200, 500])
-# @pytest.mark.parametrize('start, end, length', [('2021-01-01', '2021-03-31', 200)])
+# @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
+# @pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
+# @pytest.mark.parametrize('length', [100, 200, 500])
+@pytest.mark.parametrize('start, end, length', [('2021-01-01', '2021-03-31', 200)])
 def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
