@@ -48,10 +48,10 @@ def test_dummy(name, live):
         assert isinstance(t.dashboard.navs.index[-1], datetime)
 
 
-@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01', None])
+@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
 @pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
 @pytest.mark.parametrize('length', [100, 200, 500])
-def test_historical_data(start: Timestamp | str | None,
+def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
     SYMBOLS = ['BTC', 'ETH']
@@ -64,7 +64,7 @@ def test_historical_data(start: Timestamp | str | None,
         Log.info(
             f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
 
-    Trader(
+    t = Trader(
         strategy=Strategy(
             on_window=dummy_action),
         market=YahooOHLCV(
@@ -74,4 +74,8 @@ def test_historical_data(start: Timestamp | str | None,
             end=end,
             length=length),
         broker=PaperEX(SYMBOLS)
-    ).run()
+    )
+
+    t.run()
+
+    assert len(t.dashboard.navs) >= 10

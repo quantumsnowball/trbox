@@ -19,7 +19,7 @@ class YahooOHLCV(OnRequestSource):
 
     def __init__(self, *,
                  source: dict[Symbol, str],
-                 start: Timestamp | str | None = None,
+                 start: Timestamp | str,
                  end: Timestamp | str | None = None,
                  length: int) -> None:
         super().__init__()

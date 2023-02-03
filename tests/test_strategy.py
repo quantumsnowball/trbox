@@ -24,6 +24,8 @@ def test_benchmark():
 
     t.run()
 
+    assert len(t.dashboard.navs) >= 10
+
     Log.warning(Memo('Order Result',
                      navs=t.dashboard.navs)
                 .tag('dashboard').sparse())

@@ -18,7 +18,7 @@ def verify_ohlcv(ohlcv: DataFrame) -> DataFrame:
 
 def trim_ohlcv_by_range_length(
         df: DataFrame,
-        start: Timestamp | None,
+        start: Timestamp,
         end: Timestamp | None,
         length: int) -> DataFrame:
     '''

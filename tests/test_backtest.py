@@ -51,12 +51,10 @@ def test_dummy(name, parallel):
     # terminating the Trader?
 
 
-@pytest.mark.parametrize('start', [Timestamp(2022, 1, 1),])
-@pytest.mark.parametrize('end', [Timestamp(2022, 3, 31),])
-# @pytest.mark.parametrize('start', [Timestamp(2022, 1, 1), '2022-01-01', None])
-# @pytest.mark.parametrize('end', [Timestamp(2022, 3, 31), '2022-3-31', None])
+@pytest.mark.parametrize('start', [Timestamp(2022, 1, 1), '2022-01-01'])
+@pytest.mark.parametrize('end', [Timestamp(2022, 3, 31), '2022-3-31', None])
 @pytest.mark.parametrize('length', [100, 200, 500])
-def test_historical_data(start: Timestamp | str | None,
+def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
     SYMBOLS = ['BTC', 'ETH']
@@ -90,6 +88,7 @@ def test_historical_data(start: Timestamp | str | None,
     for t in bt.traders:
         assert isinstance(t.dashboard, Dashboard)
         assert isinstance(t.dashboard.navs, Series)
+        assert len(t.dashboard.navs) >= 10
         Log.warning(Memo(t.dashboard.navs.head(20),
                          shape=t.dashboard.navs.shape)
                     .by(t).tag('navs', 'tail'))
