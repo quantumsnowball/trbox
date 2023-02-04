@@ -40,15 +40,15 @@ dev-lab-binance-connector-python-restful:
 dev-lab-binance-connector-python-websocket:
 	@pytest "./tests/lab/test_binance_connector_python.py::test_websocket" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-account-balance:
-	@pytest "./tests/lab/test_binance_testnet.py::test_account_balance" --pdb --log-cli-level INFO
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_account_balance" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-market-order:
-	@pytest "./tests/lab/test_binance_testnet.py::test_market_order" --pdb --log-cli-level INFO
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_market_order" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-limit-order:
-	@pytest "./tests/lab/test_binance_testnet.py::test_limit_order" --pdb --log-cli-level INFO
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_binance_testnet.py::test_limit_order" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-cancel-all-open-order:
-	@pytest "./tests/lab/test_binance_testnet.py::test_cancel_all_open_order" --pdb --log-cli-level INFO
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_cancel_all_open_order" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-current-open-order:
-	@pytest "./tests/lab/test_binance_testnet.py::test_current_open_order" --pdb --log-cli-level INFO
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_current_open_order" --pdb --log-cli-level INFO
 
 #
 # Testing
