@@ -39,8 +39,12 @@ dev-lab-binance-connector-python-restful:
 	@pytest "./tests/lab/test_binance_connector_python.py::test_restful" --pdb --log-cli-level INFO
 dev-lab-binance-connector-python-websocket:
 	@pytest "./tests/lab/test_binance_connector_python.py::test_websocket" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-exchange-info:
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_exchange_info" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-account-balance:
 	@pytest "./tests/lab/binance_testnet/test_restful.py::test_account_balance" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-account-worth:
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_account_worth" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-market-order:
 	@pytest "./tests/lab/binance_testnet/test_restful.py::test_market_order" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-limit-order:

@@ -1,4 +1,7 @@
 import os
+from collections import namedtuple
+from dataclasses import dataclass
+from typing import NamedTuple
 
 import pytest
 from binance.spot import Spot
@@ -28,9 +31,44 @@ def client() -> Spot:
 
 
 @pytest.mark.lab()
+def test_exchange_info(client: Spot):
+    ex_info = client.exchange_info()
+    rate_limit = ex_info['rateLimits']
+    Log.info(Memo(ppf(ex_info)).sparse())
+    Log.info(Memo(ppf(rate_limit)).sparse())
+
+
+@pytest.mark.lab()
 def test_account_balance(client: Spot):
-    Log.info(client.time())
     Log.info(Memo(ppf(client.account())).sparse())
+
+
+@pytest.mark.lab()
+def test_account_worth(client: Spot):
+    CURRENCY = 'USDT'
+
+    acc = client.account()
+    bal = {r['asset']: float(r['free']) + float(r['locked'])
+           for r in acc['balances']}
+
+    def get_position_worth(symbol: str,
+                           position: float,
+                           currency: str = CURRENCY) -> NamedTuple:
+        Worth = namedtuple('Worth', 'position, price, worth')
+        try:
+            pair = f'{symbol}{currency}'
+            price = float(client.ticker_price(pair)['price'])
+            worth = price * position
+            return Worth(position, price, worth)
+        except Exception as e:
+            if symbol in ['BUSD', 'USDC', 'USDT']:
+                return Worth(position, 1, position)
+            return Worth(position, None, None)
+    worths = {sym: get_position_worth(sym, pos)
+              for sym, pos in bal.items()}
+    total = sum([w[2] for w in worths.values() if w])
+    Log.info(Memo('Positions worth', ppf(worths)).sparse())
+    Log.info(Memo(total_worth=total))
 
 
 @pytest.mark.lab()
