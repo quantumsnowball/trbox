@@ -2,10 +2,13 @@ import os
 
 import pytest
 from dotenv import load_dotenv
+from pandas import to_datetime
 
+from trbox.broker.binance.testnet import BinanceTestnet
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
+from trbox.common.utils import ppf
 from trbox.event.market import Candlestick, Kline
 from trbox.market.binance.kline import BinanceKlineStreaming
 from trbox.market.binance.trade import BinanceTradeStreaming
@@ -36,16 +39,18 @@ def test_binance_trade_streaming():
 @pytest.mark.lab()
 def test_binance_kline_streaming():
     SYMBOL = 'BTCUSDT'
+    QUANTITY = 0.1
 
     def handle(self: Strategy, e: Kline):
-        # dummy trade
-        # self.trader.trade(SYMBOL, 1)
+        # buy/sell on every minute on Binance testnet
         if e.bar_finished:
-            Log.warning(Memo(e).sparse())
+            quantity = +QUANTITY if e.timestamp.minute % 2 == 0 else -QUANTITY
+            result = self.trader.trade(SYMBOL, quantity)
+            Log.warning(Memo(ppf(result)).by(self).tag('trade').sparse())
 
     Trader(
         strategy=Strategy(
             on_kline=handle),
         market=BinanceKlineStreaming(symbol=SYMBOL, interval='1m'),
-        broker=PaperEX(SYMBOL)
+        broker=BinanceTestnet()
     ).run()

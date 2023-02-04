@@ -77,9 +77,9 @@ def test_market_order(client: Spot):
     SYMBOL2 = 'USDT'
     SYMBOLS = (SYMBOL1, SYMBOL2)
     SYMBOL = f'{SYMBOL1}{SYMBOL2}'
-    SIDE = 'BUY'
+    SIDE = 'SELL'
     TYPE = 'MARKET'
-    QUANTITY = 0.01
+    QUANTITY = 0.02
 
     def get_balance(symbols: Symbols) -> tuple[dict[str, str]]:
         bal = client.account()['balances']
