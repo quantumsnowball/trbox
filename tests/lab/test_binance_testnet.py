@@ -94,6 +94,10 @@ def test_limit_order(client: Spot):
     # after
     Log.info(Memo('After:', ppf(get_balance(SYMBOLS))).sparse())
 
+    # TODO
+    # Problem of placing orders restfully is that you don't get notified when the
+    # order is filled. You have to actively check the order status.
+
 
 @pytest.mark.lab()
 def test_current_open_order(client: Spot):
