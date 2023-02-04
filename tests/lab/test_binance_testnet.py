@@ -58,3 +58,36 @@ def test_market_order(client: Spot):
 
     # after
     Log.info(Memo('After:', ppf(get_balance(SYMBOLS))).sparse())
+
+
+@pytest.mark.lab()
+def test_limit_order(client: Spot):
+    SYMBOL1 = 'BTC'
+    SYMBOL2 = 'USDT'
+    SYMBOLS = (SYMBOL1, SYMBOL2)
+    SYMBOL = f'{SYMBOL1}{SYMBOL2}'
+    SIDE = 'BUY'
+    TYPE = 'LIMIT'
+    PRICE = 23340
+    QUANTITY = 0.01
+    TIME_IN_FORCE = 'GTC'
+
+    def get_balance(symbols: Symbols) -> tuple[dict[str, str]]:
+        bal = client.account()['balances']
+        pos = tuple(x for x in bal if x['asset'] in symbols)
+        return pos
+
+    # before
+    Log.info(Memo('Before:', ppf(get_balance(SYMBOLS))).sparse())
+
+    # trade
+    result = client.new_order(symbol=SYMBOL,
+                              side=SIDE,
+                              type=TYPE,
+                              price=PRICE,
+                              quantity=QUANTITY,
+                              timeInForce=TIME_IN_FORCE)
+    Log.info(Memo(result=ppf(result)).sparse())
+
+    # after
+    Log.info(Memo('After:', ppf(get_balance(SYMBOLS))).sparse())

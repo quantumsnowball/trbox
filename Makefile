@@ -41,8 +41,10 @@ dev-lab-binance-connector-python-websocket:
 	@pytest "./tests/lab/test_binance_connector_python.py::test_websocket" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-account-balance:
 	@pytest "./tests/lab/test_binance_testnet.py::test_account_balance" --pdb --log-cli-level INFO
-dev-lab-binance-testnet-order:
+dev-lab-binance-testnet-market-order:
 	@pytest "./tests/lab/test_binance_testnet.py::test_market_order" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-limit-order:
+	@pytest "./tests/lab/test_binance_testnet.py::test_limit_order" --pdb --log-cli-level INFO
 
 #
 # Testing
