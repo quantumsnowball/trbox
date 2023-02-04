@@ -45,6 +45,10 @@ dev-lab-binance-testnet-market-order:
 	@pytest "./tests/lab/test_binance_testnet.py::test_market_order" --pdb --log-cli-level INFO
 dev-lab-binance-testnet-limit-order:
 	@pytest "./tests/lab/test_binance_testnet.py::test_limit_order" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-cancel-all-open-order:
+	@pytest "./tests/lab/test_binance_testnet.py::test_cancel_all_open_order" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-current-open-order:
+	@pytest "./tests/lab/test_binance_testnet.py::test_current_open_order" --pdb --log-cli-level INFO
 
 #
 # Testing

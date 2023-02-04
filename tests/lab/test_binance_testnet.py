@@ -9,7 +9,9 @@ from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import ppf
 
-# ref: https://testnet.binance.vision/
+# ref:
+#   testnet: https://testnet.binance.vision/
+#   connector: https://binance-connector.readthedocs.io/
 
 
 load_dotenv()
@@ -68,7 +70,7 @@ def test_limit_order(client: Spot):
     SYMBOL = f'{SYMBOL1}{SYMBOL2}'
     SIDE = 'BUY'
     TYPE = 'LIMIT'
-    PRICE = 23340
+    PRICE = 23000
     QUANTITY = 0.01
     TIME_IN_FORCE = 'GTC'
 
@@ -91,3 +93,23 @@ def test_limit_order(client: Spot):
 
     # after
     Log.info(Memo('After:', ppf(get_balance(SYMBOLS))).sparse())
+
+
+@pytest.mark.lab()
+def test_current_open_order(client: Spot):
+    SYMBOL1 = 'BTC'
+    SYMBOL2 = 'USDT'
+    SYMBOL = f'{SYMBOL1}{SYMBOL2}'
+
+    orders = client.get_open_orders(symbol=SYMBOL)
+    Log.info(Memo('Current open orders:', ppf(orders)).sparse())
+
+
+@pytest.mark.lab()
+def test_cancel_all_open_order(client: Spot):
+    SYMBOL1 = 'BTC'
+    SYMBOL2 = 'USDT'
+    SYMBOL = f'{SYMBOL1}{SYMBOL2}'
+
+    orders = client.cancel_open_orders(symbol=SYMBOL)
+    Log.info(Memo('Cancel orders:', ppf(orders)).sparse())
