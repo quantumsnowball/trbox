@@ -6,7 +6,7 @@ from trbox.common.utils import cln, ppf
 from trbox.event import Event
 from trbox.event.broker import OrderResult
 from trbox.event.handler import CounterParty
-from trbox.event.market import Candlestick, OhlcvWindow
+from trbox.event.market import Candlestick, Kline, OhlcvWindow
 
 
 class Strategy(CounterParty):
@@ -14,12 +14,14 @@ class Strategy(CounterParty):
         self, *,
         name: str | None = None,
         on_tick: Callable[['Strategy', Candlestick], None] | None = None,
+        on_kline: Callable[['Strategy', Kline], None] | None = None,
         on_window: Callable[['Strategy', OhlcvWindow], None] | None = None
     ) -> None:
         super().__init__()
         self._name = name
         # event action hook
         self._on_tick = on_tick
+        self._on_kline = on_kline
         self._on_window = on_window
 
     def __str__(self) -> str:
@@ -38,6 +40,10 @@ class Strategy(CounterParty):
                 self._on_tick(self, e)
                 # TODO also Strategy need to know the number of Tick event
                 # so maybe inc a counter state var here
+                self.trader.signal.heartbeat.set()
+        if self._on_kline:
+            if isinstance(e, Kline):
+                self._on_kline(self, e)
                 self.trader.signal.heartbeat.set()
         # for request and response data
         if self._on_window:
