@@ -39,6 +39,8 @@ dev-lab-binance-connector-python-restful:
 	@pytest "./tests/lab/test_binance_connector_python.py::test_restful" --pdb --log-cli-level INFO
 dev-lab-binance-connector-python-websocket:
 	@pytest "./tests/lab/test_binance_connector_python.py::test_websocket" --pdb --log-cli-level INFO
+dev-lab-binance-testnet:
+	@pytest "./tests/lab/test_binance_testnet.py::test_account_balance" --pdb --log-cli-level INFO
 
 #
 # Testing
