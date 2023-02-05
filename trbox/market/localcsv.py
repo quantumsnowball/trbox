@@ -63,10 +63,11 @@ class RollingWindow(Market):
             self.trader.stop()
 
         self._alive.set()
-        for s in self._symbols:
-            if s in [k[0] for k in self.trader.strategy.heartbeats]:
-                t = Thread(target=worker, args=(s, ))
-                t.start()
+        # only start a thread if for sure Strategy will listen to it
+        hooked_symbols = [k[0] for k in self.trader.strategy.heartbeats]
+        for s in hooked_symbols:
+            t = Thread(target=worker, args=(s, ))
+            t.start()
 
     @override
     def stop(self) -> None:

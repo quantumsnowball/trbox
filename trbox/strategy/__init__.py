@@ -1,7 +1,4 @@
 import threading
-from collections import defaultdict
-from dataclasses import dataclass
-from typing import Protocol
 
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
@@ -10,65 +7,8 @@ from trbox.common.utils import cln, ppf
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import OrderResult
 from trbox.event.handler import CounterParty
-from trbox.trader import Trader
-
-
-class Count:
-    def __init__(self) -> None:
-        self._i: dict[int, int] = defaultdict(lambda: 0)
-        self._initial = True
-
-    @property
-    def beginning(self) -> bool:
-        return self._initial
-
-    def tick(self) -> None:
-        if self._initial:
-            self._initial = False
-        for n, i in self._i.items():
-            if i >= n:
-                self._i[n] = 1
-            else:
-                self._i[n] += 1
-
-    def every(self,
-              n: int, *,
-              initial: bool = False) -> bool:
-        if self._i[n] >= n:
-            return True
-        if initial:
-            return self._initial
-        return False
-
-
-@dataclass
-class Context:
-    strategy: 'Strategy'
-    count: Count
-    event: MarketEvent | None = None
-
-    @property
-    def trader(self) -> Trader:
-        return self.strategy.trader
-
-
-# Hook = Callable[[Context], None]
-class Hook(Protocol):
-    def __call__(self, my: Context) -> None:
-        ...
-
-
-@dataclass
-class DataHandler:
-    context: Context
-    hook: Hook
-
-
-DataStreamId = tuple[Symbol, type[MarketEvent]]
-
-DataHandlers = dict[DataStreamId, DataHandler]
-
-Heartbeats = dict[DataStreamId, threading.Event]
+from trbox.strategy.context import Context, Count
+from trbox.strategy.types import DataHandler, DataHandlers, Heartbeats, Hook
 
 
 class Strategy(CounterParty):
