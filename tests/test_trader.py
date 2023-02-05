@@ -14,7 +14,7 @@ from trbox.market.localcsv import RollingWindow
 from trbox.trader.dashboard import Dashboard
 
 
-@pytest.mark.parametrize('live', [False, True])
+@pytest.mark.parametrize('live', [True, False])
 @pytest.mark.parametrize('name', [None, 'DummySt'])
 # @pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dummy(name, live):
@@ -24,9 +24,11 @@ def test_dummy(name, live):
     # on_tick
     def dummy_action(self: Strategy, _: Candlestick):
         assert live == (not self.trader.backtesting)
-        if self.count.every(2):
-            self.trader.trade(SYMBOL, QUANTITY)
-            Log.info(Memo('every 2', i=self.count.i).by(self).tag('count'))
+        if self.count.beginning:
+            Log.critical('absolute beginning')
+        if self.count.every(5):
+            # self.trader.trade(SYMBOL, QUANTITY)
+            Log.error(Memo('every 2', i=self.count.i).by(self).tag('count'))
         # can also access dashboard when still trading
         assert isinstance(self.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=self.trader.dashboard)

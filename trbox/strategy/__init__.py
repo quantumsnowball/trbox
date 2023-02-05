@@ -1,3 +1,4 @@
+from collections import defaultdict
 from collections.abc import Callable
 
 from trbox.common.logger import Log
@@ -10,18 +11,31 @@ from trbox.event.market import Candlestick, Kline, OhlcvWindow
 
 
 class Count:
-    def __init__(self, initial: int = 0) -> None:
-        self._i: int = initial
+    def __init__(self) -> None:
+        self._i: dict[int, int] = defaultdict(lambda: 0)
+        self._initial = True
 
     @property
-    def i(self) -> int:
-        return self._i
+    def beginning(self) -> bool:
+        return self._initial
 
     def tick(self) -> None:
-        self._i += 1
+        if self._initial:
+            self._initial = False
+        for n, i in self._i.items():
+            if i >= n:
+                self._i[n] = 1
+            else:
+                self._i[n] += 1
 
-    def every(self, n: int) -> bool:
-        return self._i % n == 0
+    def every(self,
+              n: int, *,
+              initial: bool = False) -> bool:
+        if self._i[n] >= n:
+            return True
+        if initial:
+            return self._initial
+        return False
 
 
 class Strategy(CounterParty):
