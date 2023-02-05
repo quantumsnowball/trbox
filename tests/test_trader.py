@@ -64,27 +64,28 @@ def test_dummy(name, live):
 def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
-    SYMBOLS = ['BTC', 'ETH']
-    SYMBOL = SYMBOLS[0]
+    TARGET = 'BTC'
+    REF = ['ETH']
+    SYMBOLS = [TARGET, *REF]
     QUANTITY = 0.2
 
     # on_window
     def dummy_action(my: Context):
         assert isinstance(my.event, OhlcvWindow)
-        assert my.event.symbol == SYMBOL
+        assert my.event.symbol == TARGET
         assert my.event.win.shape == (length, 5)
-        my.trader.trade(SYMBOLS[0], QUANTITY)
+        my.trader.trade(TARGET, QUANTITY)
 
     t = Trader(
         strategy=Strategy()
-        .on(SYMBOL, OhlcvWindow, do=dummy_action),
+        .on(TARGET, OhlcvWindow, do=dummy_action),
         market=RollingWindow(
-            symbol=SYMBOL,
+            symbol=TARGET,
             source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=start,
             end=end,
             length=length),
-        broker=PaperEX(SYMBOL)
+        broker=PaperEX(TARGET)
     )
 
     t.run()
