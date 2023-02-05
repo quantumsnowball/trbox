@@ -1,5 +1,7 @@
+import threading
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import Protocol
 
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
@@ -8,6 +10,7 @@ from trbox.common.utils import cln, ppf
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import OrderResult
 from trbox.event.handler import CounterParty
+from trbox.event.system import Start
 from trbox.trader import Trader
 
 
@@ -50,14 +53,33 @@ class Context:
         return self.strategy.trader
 
 
+# Hook = Callable[[Context], None]
+class Hook(Protocol):
+    def __call__(self, my: Context) -> None:
+        ...
+
+
+@dataclass
+class DataHandler:
+    context: Context
+    hook: Hook
+
+
+DataStreamId = tuple[Symbol, type[MarketEvent]]
+
+DataHandlers = dict[DataStreamId, DataHandler]
+
+Heartbeats = dict[DataStreamId, threading.Event]
+
+
 class Strategy(CounterParty):
     def __init__(self, *,
                  name: str | None = None,) -> None:
         super().__init__()
         self._name = name
-        # bar counting
-        self._contexts = {}
-        self._dos = {}
+        self._datahandlers: DataHandlers = {}
+        # signal
+        self._heartbeats: Heartbeats = {}
 
     def __str__(self) -> str:
         return f'{cln(self)}(name={self.name})'
@@ -66,41 +88,53 @@ class Strategy(CounterParty):
     def name(self) -> str | None:
         return self._name
 
+    @property
+    def heartbeats(self) -> Heartbeats:
+        return self._heartbeats
+
     def on(self,
            symbol: Symbol,
            MarketEventClass: type[MarketEvent],
            *,
-           do):
+           do: Hook) -> 'Strategy':
         # uniquely identify a data handler
         index = (symbol, MarketEventClass)
-        assert index not in self._contexts, 'Duplicated hook'
-        # prepare bundle for handle to do its things
-        self._contexts[index] = Context(strategy=self,
-                                        count=Count())
-        assert index not in self._dos, 'Duplicated hook'
-        # prepare the data handler
-        self._dos[index] = do
+        assert index not in self._datahandlers, 'Duplicated hook'
+        # prepare bundle for datahandler to do its things
+        self._datahandlers[index] = DataHandler(
+            context=Context(strategy=self,
+                            count=Count()),
+            hook=do)
+        # create heartbeat events for every DataStreamId
+        self.heartbeats[index] = threading.Event()
         return self
 
     def handle_market_event(self, e: MarketEvent):
         # select the data handler
         index = (e.symbol, type(e))
-        context = self._contexts[index]
-        handler = self._dos[index]
+        handler = self._datahandlers[index]
+        context = handler.context
+        hook = handler.hook
         # set the event object in runtime
         context.event = e
-        # call the data handler
-        handler(my=context)
+        # call the data handler hook function
+        hook(my=context)
         # tick the counter
         context.count.tick()
+        # set heartbeat event
+        self._heartbeats[index].set()
 
     def handle(self, e: Event) -> None:
+        if isinstance(e, Start):
+            for _, hb in self.heartbeats.items():
+                hb.set()
+
+        Log.critical('yeah waiting for broker_ready')
         if self.trader.backtesting:
             self.trader.signal.broker_ready.wait(5)
 
         if isinstance(e, MarketEvent):
             self.handle_market_event(e)
-            self.trader.signal.heartbeat.set()
 
         # on order result
         if isinstance(e, OrderResult):

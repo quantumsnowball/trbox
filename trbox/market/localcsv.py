@@ -5,7 +5,8 @@ from typing import Callable
 from pandas import DataFrame, Timestamp, to_datetime
 from typing_extensions import override
 
-from trbox.common.types import Symbol
+from trbox.common.logger import Log
+from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.market import OhlcvWindow
 from trbox.market import Market
@@ -15,42 +16,46 @@ from trbox.market.utils import import_yahoo_csv
 class RollingWindow(Market):
     def __init__(self, *,
                  source: Callable[[str], str],
-                 symbol: Symbol,
+                 symbols: Symbols,
                  start: Timestamp | str,
                  end: Timestamp | str | None = None,
                  length: int) -> None:
         super().__init__()
-        self._symbol = symbol
-        self._source = source(symbol)
+        self._symbols = symbols
+        self._source = {s: source(s) for s in symbols}
         self._start = to_datetime(start)
         self._end = to_datetime(end)
         self._length = length
         # data preprocessing
-        self._df = import_yahoo_csv(self._source)
+        self._dfs = {s: import_yahoo_csv(self._source[s])
+                     for s in symbols}
         # data validation
-        self._df = trim_ohlcv_by_range_length(
-            self._df, self._start, self._end, self._length)
+        self._dfs = {s: trim_ohlcv_by_range_length(df, self._start, self._end, self._length)
+                     for s, df in self._dfs.items()}
         # data ready
-        self._window_generator: Generator[DataFrame, None, None] = (
-            win
-            for win in self._df.rolling(self._length)
-            if len(win) >= self._length
-        )
+        self._window_generators: dict[Symbol, Generator[DataFrame, None, None]] = {
+            s: (win
+                for win in df.rolling(self._length)
+                if len(win) >= self._length)
+            for s, df in self._dfs.items()
+        }
         # work thread event
         self._alive = Event()
 
     @override
     def start(self) -> None:
-        def worker() -> None:
-            for df in self._window_generator:
-                self.trader.signal.heartbeat.wait(5)
+        def worker(symbol: Symbol) -> None:
+            heartbeat = self.trader._strategy.heartbeats[(symbol, OhlcvWindow)]
+            for df in self._window_generators[symbol]:
+                Log.critical('Yes waiting for your heartbeat')
+                heartbeat.wait(5)
 
                 self.send.new_market_data(
                     OhlcvWindow(timestamp=df.index[-1],
-                                symbol=self._symbol,
+                                symbol=symbol,
                                 win=df))
 
-                self.trader.signal.heartbeat.clear()
+                heartbeat.clear()
 
                 if not self._alive.is_set():
                     return
@@ -59,8 +64,9 @@ class RollingWindow(Market):
             self.trader.stop()
 
         self._alive.set()
-        t = Thread(target=worker)
-        t.start()
+        for s in self._symbols:
+            t = Thread(target=worker, args=(s, ))
+            t.start()
 
     @override
     def stop(self) -> None:
