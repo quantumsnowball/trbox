@@ -23,9 +23,9 @@ class PaperEX(Broker):
         self._cash: float = initial_fund
         self._positions: dict[str, float] = defaultdict(float)
         if isinstance(symbols, Symbol):
-            symbols = (symbols, )
+            self._symbols = (symbols, )
         self._engine = MatchingEngine(
-            **{symbol: TradingBook(symbol) for symbol in symbols})
+            **{symbol: TradingBook(symbol) for symbol in self._symbols})
 
     # account state
 
@@ -83,8 +83,8 @@ class PaperEX(Broker):
                           .by(self, e).tag('updated', 'book'))
                 self.trader.signal.broker_ready.set()
             elif isinstance(e, OhlcvWindow):
-                for symbol in e.symbols:
-                    price = e.close[symbol]
+                for symbol in self._symbols:
+                    price = e.close
                     self._engine[symbol].update(e.timestamp, price)
                     Log.debug(Memo('updated OrderBook',
                                    symbol=symbol, price=price)

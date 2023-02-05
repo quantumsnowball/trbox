@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
-from pandas import DataFrame, Timestamp
+from pandas import DataFrame
 
-from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import verify_ohlcv
 from trbox.event import MarketEvent
 
@@ -10,23 +9,23 @@ from trbox.event import MarketEvent
 @dataclass
 class OhlcvWindow(MarketEvent):
     # TODO data structure need to be fine tuned
-    symbols: Symbols
     win: DataFrame
 
     def __post_init__(self) -> None:
         self.win = verify_ohlcv(self.win)
         self.datetime = self.win.index[-1]
         self.ohlcv = self.win.iloc[-1]
-        self.close = self.ohlcv.loc[(slice(None), 'Close')]
+        self.close = self.ohlcv.loc['Close']
+        # BUG why exception is silent here?
 
 
-@dataclass
+@ dataclass
 class Candlestick(MarketEvent):
     # TODO data structure need to be fine tuned
     price: float
 
 
-@dataclass
+@ dataclass
 class Kline(MarketEvent):
     """
     raw data structure:

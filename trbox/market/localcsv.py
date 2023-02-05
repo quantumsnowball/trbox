@@ -8,24 +8,24 @@ from trbox.common.types import Symbol
 from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.market import OhlcvWindow
 from trbox.market import Market
-from trbox.market.utils import concat_dfs_by_columns, import_yahoo_csv
+from trbox.market.utils import import_yahoo_csv
 
 
 class RollingWindow(Market):
     def __init__(self, *,
-                 source: dict[Symbol, str],
+                 source: str,
+                 symbol: Symbol,
                  start: Timestamp | str,
                  end: Timestamp | str | None = None,
                  length: int) -> None:
         super().__init__()
         self._source = source
-        self._symbols = tuple(self._source.keys())
+        self._symbol = symbol
         self._start = to_datetime(start)
         self._end = to_datetime(end)
         self._length = length
         # data preprocessing
-        dfs = {s: import_yahoo_csv(p) for s, p in self._source.items()}
-        self._df = concat_dfs_by_columns(dfs)
+        self._df = import_yahoo_csv(self._source)
         # data validation
         self._df = trim_ohlcv_by_range_length(
             self._df, self._start, self._end, self._length)
@@ -45,7 +45,9 @@ class RollingWindow(Market):
                 self.trader.signal.heartbeat.wait(5)
 
                 self.send.new_market_data(
-                    OhlcvWindow(df.index[-1], self._symbols, df))
+                    OhlcvWindow(timestamp=df.index[-1],
+                                symbol=self._symbol,
+                                win=df))
 
                 self.trader.signal.heartbeat.clear()
 
