@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Iterable
+from typing import Iterable, Iterator
 
 from typing_extensions import override
 
@@ -7,7 +7,7 @@ from trbox.broker import Broker
 from trbox.broker.paper.engine import MatchingEngine, TradingBook
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.common.types import Symbol
+from trbox.common.types import Symbol, Symbols
 from trbox.event import Event
 from trbox.event.broker import Order
 from trbox.event.market import Candlestick, OhlcvWindow
@@ -17,13 +17,14 @@ DEFAULT_INITIAL_FUND = 1e6
 
 class PaperEX(Broker):
     def __init__(self,
-                 symbols: Symbol | Iterable[Symbol],
+                 symbols: Symbol | Symbols,
                  initial_fund: float = DEFAULT_INITIAL_FUND) -> None:
         super().__init__()
         self._cash: float = initial_fund
         self._positions: dict[str, float] = defaultdict(float)
-        if isinstance(symbols, Symbol):
-            self._symbols = (symbols, )
+        self._symbols = symbols
+        if isinstance(self._symbols, Symbol):
+            self._symbols = (self._symbols, )
         self._engine = MatchingEngine(
             **{symbol: TradingBook(symbol) for symbol in self._symbols})
 
@@ -83,10 +84,8 @@ class PaperEX(Broker):
                           .by(self, e).tag('updated', 'book'))
                 self.trader.signal.broker_ready.set()
             elif isinstance(e, OhlcvWindow):
-                for symbol in self._symbols:
-                    price = e.close
-                    self._engine[symbol].update(e.timestamp, price)
-                    Log.debug(Memo('updated OrderBook',
-                                   symbol=symbol, price=price)
-                              .by(self, e).tag('updated', 'book'))
+                self._engine[e.symbol].update(e.timestamp, e.close)
+                Log.debug(Memo('updated OrderBook',
+                               symbol=e.symbol, price=e.close)
+                          .by(self, e).tag('updated', 'book'))
                 self.trader.signal.broker_ready.set()

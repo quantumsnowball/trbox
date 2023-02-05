@@ -10,7 +10,7 @@ from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.market import OhlcvWindow
 from trbox.market import Market
-from trbox.market.utils import import_yahoo_csv
+from trbox.market.utils import import_yahoo_csv, make_combined_rolling_windows
 
 
 class RollingWindow(Market):
@@ -33,28 +33,28 @@ class RollingWindow(Market):
         self._dfs = {s: trim_ohlcv_by_range_length(df, self._start, self._end, self._length)
                      for s, df in self._dfs.items()}
         # data ready
-        self._window_generators: dict[Symbol, Generator[DataFrame, None, None]] = {
-            s: (win
-                for win in df.rolling(self._length)
-                if len(win) >= self._length)
-            for s, df in self._dfs.items()
-        }
+        self._window_generator = make_combined_rolling_windows(
+            self._dfs, self._length)
         # work thread event
         self._alive = Event()
 
     @override
     def start(self) -> None:
-        def worker(symbol: Symbol) -> None:
-            heartbeat = self.trader._strategy.heartbeats[(symbol, OhlcvWindow)]
-            for df in self._window_generators[symbol]:
-                heartbeat.wait(5)
+        def worker() -> None:
+            for symbol, df in self._window_generator:
+                hb = self.trader.strategy.heartbeats.get(
+                    (symbol, OhlcvWindow), None)
+
+                if hb:
+                    hb.wait(5)
 
                 self.send.new_market_data(
                     OhlcvWindow(timestamp=df.index[-1],
                                 symbol=symbol,
                                 win=df))
 
-                heartbeat.clear()
+                if hb:
+                    hb.clear()
 
                 if not self._alive.is_set():
                     return
@@ -64,10 +64,8 @@ class RollingWindow(Market):
 
         self._alive.set()
         # only start a thread if for sure Strategy will listen to it
-        hooked_symbols = [k[0] for k in self.trader.strategy.heartbeats]
-        for s in hooked_symbols:
-            t = Thread(target=worker, args=(s, ))
-            t.start()
+        t = Thread(target=worker)
+        t.start()
 
     @override
     def stop(self) -> None:

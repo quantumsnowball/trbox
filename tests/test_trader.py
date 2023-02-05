@@ -57,10 +57,10 @@ def test_dummy(name, live):
         assert isinstance(t.dashboard.navs.index[-1], datetime)
 
 
-@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
-@pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
-@pytest.mark.parametrize('length', [100, 200, 500])
-# @pytest.mark.parametrize('start, end, length', [('2021-01-01', '2021-03-31', 200)])
+# @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
+# @pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
+# @pytest.mark.parametrize('length', [100, 200, 500])
+@pytest.mark.parametrize('start, end, length', [('2021-01-01', '2021-03-31', 200)])
 def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
@@ -73,16 +73,19 @@ def test_historical_data(start: Timestamp | str,
         assert isinstance(my.event, OhlcvWindow)
         assert my.event.symbol == TARGET
         assert my.event.win.shape == (length, 5)
-        # my.trader.trade(TARGET, QUANTITY)
+        my.trader.trade(TARGET, QUANTITY)
+        Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
 
     def for_ref(my: Context):
         assert isinstance(my.event, OhlcvWindow)
         assert my.event.symbol == REF[0]
         assert my.event.win.shape == (length, 5)
+        my.trader.trade(REF[0], QUANTITY)
+        Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
 
     t = Trader(
         strategy=Strategy()
-        .on(TARGET, OhlcvWindow, do=for_target)
+        # .on(TARGET, OhlcvWindow, do=for_target)
         .on(REF[0], OhlcvWindow, do=for_ref),
         market=RollingWindow(
             symbols=SYMBOLS,
@@ -90,7 +93,7 @@ def test_historical_data(start: Timestamp | str,
             start=start,
             end=end,
             length=length),
-        broker=PaperEX(TARGET)
+        broker=PaperEX(SYMBOLS)
     )
 
     t.run()

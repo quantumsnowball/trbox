@@ -37,7 +37,7 @@ def make_combined_rolling_windows(
             if len(win) >= length:
                 yield (sym, win)
 
-    combined = heapq.merge(*(gen_win(sym, df)
+    combined = heapq.merge(*(gen_win(sym, df.sort_index())
                              for sym, df in dfs.items()),
                            key=lambda x: x[1].index[-1])
     return iter(combined)

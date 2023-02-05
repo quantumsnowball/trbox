@@ -53,7 +53,9 @@ class Strategy(CounterParty):
     def handle_market_event(self, e: MarketEvent):
         # select the data handler
         index = (e.symbol, type(e))
-        handler = self._datahandlers[index]
+        handler = self._datahandlers.get(index, None)
+        if not handler:
+            return
         context = handler.context
         hook = handler.hook
         # set the event object in runtime

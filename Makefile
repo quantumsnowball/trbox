@@ -5,14 +5,14 @@
 # put assert 0 (or breakpoint() inside a worker thread) for a handy breakpoint
 # DEV_FILE=market/test_market.py
 # DEV_FUNCTION=test_binance_trade_streaming
-# DEV_FILE=test_trader.py
+DEV_FILE=test_trader.py
 # DEV_FILE=test_backtest.py
 # DEV_FILE=strategy/test_count.py
-DEV_FILE=market/test_utils.py
+# DEV_FILE=market/test_utils.py
 # DEV_FUNCTION=test_dummy
-# DEV_FUNCTION=test_historical_data
+DEV_FUNCTION=test_historical_data
 # DEV_FUNCTION=test_count
-DEV_FUNCTION=test_combined_rolling_windows
+# DEV_FUNCTION=test_combined_rolling_windows
 
 
 dev:
