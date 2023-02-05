@@ -1,5 +1,6 @@
 from collections.abc import Generator
 from threading import Event, Thread
+from typing import Callable
 
 from pandas import DataFrame, Timestamp, to_datetime
 from typing_extensions import override
@@ -13,14 +14,14 @@ from trbox.market.utils import import_yahoo_csv
 
 class RollingWindow(Market):
     def __init__(self, *,
-                 source: str,
+                 source: Callable[[str], str],
                  symbol: Symbol,
                  start: Timestamp | str,
                  end: Timestamp | str | None = None,
                  length: int) -> None:
         super().__init__()
-        self._source = source
         self._symbol = symbol
+        self._source = source(symbol)
         self._start = to_datetime(start)
         self._end = to_datetime(end)
         self._length = length

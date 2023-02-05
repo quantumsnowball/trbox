@@ -80,7 +80,7 @@ def test_historical_data(start: Timestamp | str,
         .on(SYMBOL, OhlcvWindow, do=dummy_action),
         market=RollingWindow(
             symbol=SYMBOL,
-            source=f'tests/_data_/{SYMBOL}_bar1day.csv',
+            source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=start,
             end=end,
             length=length),
