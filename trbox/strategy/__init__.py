@@ -10,7 +10,6 @@ from trbox.common.utils import cln, ppf
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import OrderResult
 from trbox.event.handler import CounterParty
-from trbox.event.system import Start
 from trbox.trader import Trader
 
 
@@ -106,7 +105,9 @@ class Strategy(CounterParty):
                             count=Count()),
             hook=do)
         # create heartbeat events for every DataStreamId
-        self.heartbeats[index] = threading.Event()
+        heartbeat = threading.Event()
+        heartbeat.set()
+        self.heartbeats[index] = heartbeat
         return self
 
     def handle_market_event(self, e: MarketEvent):
@@ -125,11 +126,6 @@ class Strategy(CounterParty):
         self._heartbeats[index].set()
 
     def handle(self, e: Event) -> None:
-        if isinstance(e, Start):
-            for _, hb in self.heartbeats.items():
-                hb.set()
-
-        Log.critical('yeah waiting for broker_ready')
         if self.trader.backtesting:
             self.trader.signal.broker_ready.wait(5)
 

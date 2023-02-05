@@ -22,13 +22,13 @@ class RollingWindow(Market):
                  length: int) -> None:
         super().__init__()
         self._symbols = symbols
-        self._source = {s: source(s) for s in symbols}
+        self._source = {s: source(s) for s in self._symbols}
         self._start = to_datetime(start)
         self._end = to_datetime(end)
         self._length = length
         # data preprocessing
         self._dfs = {s: import_yahoo_csv(self._source[s])
-                     for s in symbols}
+                     for s in self._symbols}
         # data validation
         self._dfs = {s: trim_ohlcv_by_range_length(df, self._start, self._end, self._length)
                      for s, df in self._dfs.items()}
@@ -47,7 +47,6 @@ class RollingWindow(Market):
         def worker(symbol: Symbol) -> None:
             heartbeat = self.trader._strategy.heartbeats[(symbol, OhlcvWindow)]
             for df in self._window_generators[symbol]:
-                Log.critical('Yes waiting for your heartbeat')
                 heartbeat.wait(5)
 
                 self.send.new_market_data(
@@ -65,8 +64,9 @@ class RollingWindow(Market):
 
         self._alive.set()
         for s in self._symbols:
-            t = Thread(target=worker, args=(s, ))
-            t.start()
+            if s in [k[0] for k in self.trader.strategy.heartbeats]:
+                t = Thread(target=worker, args=(s, ))
+                t.start()
 
     @override
     def stop(self) -> None:
