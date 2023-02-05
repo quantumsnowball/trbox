@@ -23,7 +23,6 @@ class OhlcvWindow(MarketEvent):
 @dataclass
 class Candlestick(MarketEvent):
     # TODO data structure need to be fine tuned
-    symbol: Symbol
     price: float
 
 
@@ -57,7 +56,6 @@ class Kline(MarketEvent):
       }
     }
     """
-    symbol: str
     open: float
     high: float
     low: float

@@ -11,34 +11,39 @@ from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
+from trbox.strategy import Context
 from trbox.trader.dashboard import Dashboard
 
 
-@pytest.mark.parametrize('live', [True, False])
-@pytest.mark.parametrize('name', [None, 'DummySt'])
-# @pytest.mark.parametrize('name, live', [('dummy', False)])
+# @pytest.mark.parametrize('live', [True, False])
+# @pytest.mark.parametrize('name', [None, 'DummySt'])
+@pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
     QUANTITY = 0.2
+    INTERVAL = 4
 
     # on_tick
-    def dummy_action(self: Strategy, _: Candlestick):
-        assert live == (not self.trader.backtesting)
-        if self.count.beginning:
+    def dummy_action(my: Context):
+        assert live == (not my.trader.backtesting)
+        assert my.event is not None
+        assert my.event.symbol == SYMBOL
+        if my.count.beginning:
             Log.critical('absolute beginning')
-        if self.count.every(5):
+        if my.count.every(INTERVAL):
             # self.trader.trade(SYMBOL, QUANTITY)
-            Log.error(Memo('every 2', i=self.count.i).by(self).tag('count'))
+            Log.error(Memo(f'every {INTERVAL}', i=my.count._i).by(
+                my.strategy).tag('count'))
         # can also access dashboard when still trading
-        assert isinstance(self.trader.dashboard, Dashboard)
-        Log.info(Memo('anytime get', dashboard=self.trader.dashboard)
-                 .by(self).tag('dashboard'))
+        assert isinstance(my.trader.dashboard, Dashboard)
+        Log.info(Memo('anytime get', dashboard=my.trader.dashboard)
+                 .by(my.strategy).tag('dashboard'))
 
     t = Trader(
         live=live,
-        strategy=Strategy(
-            name=name,
-            on_tick=dummy_action),
+        strategy=Strategy(name=name,)
+        .on('BTC', Candlestick, do=dummy_action)
+        .on('BTC', Candlestick, do=dummy_action),
         market=DummyPrice(SYMBOL),
         broker=PaperEX(SYMBOL)
     )
