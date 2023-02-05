@@ -24,9 +24,12 @@ API_SECRET = os.getenv('API_SECRET')
 def test_binance_trade_streaming():
     SYMBOL = 'BTCUSDT'
 
-    def handle(self: Strategy, _: Candlestick):
+    def handle(self: Strategy, e: Candlestick):
         # dummy trade
-        self.trader.trade(SYMBOL, 0.01)
+        # self.trader.trade(SYMBOL, 0.01)
+        if self.count.every(20):
+            Log.warning(Memo('counter hit', i=self.count.i, e=ppf(e))
+                        .by(self).tag('period', 'regular').sparse())
 
     Trader(
         strategy=Strategy(

@@ -24,7 +24,9 @@ def test_dummy(name, live):
     # on_tick
     def dummy_action(self: Strategy, _: Candlestick):
         assert live == (not self.trader.backtesting)
-        self.trader.trade(SYMBOL, QUANTITY)
+        if self.count.every(2):
+            self.trader.trade(SYMBOL, QUANTITY)
+            Log.info(Memo('every 2', i=self.count.i).by(self).tag('count'))
         # can also access dashboard when still trading
         assert isinstance(self.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=self.trader.dashboard)
