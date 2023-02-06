@@ -1,6 +1,7 @@
 import threading
+from collections import deque
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 from trbox.common.types import Symbol
 from trbox.event import MarketEvent
@@ -23,3 +24,5 @@ DataStreamId = tuple[Symbol, type[MarketEvent]]
 DataHandlers = dict[DataStreamId, DataHandler]
 
 Heartbeats = dict[DataStreamId, threading.Event]
+
+Memroy = dict[str, dict[int, deque[Any]]]

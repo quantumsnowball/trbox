@@ -8,10 +8,12 @@ from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
+from trbox.event import MarketEvent
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
 from trbox.strategy import Context
+from trbox.strategy.types import Memroy
 from trbox.trader.dashboard import Dashboard
 
 
@@ -69,12 +71,22 @@ def test_historical_data(start: Timestamp | str,
     SYMBOLS = (TARGET, *REF)
     QUANTITY = 0.2
 
+    def no_frontrun(memory: Memroy, e: OhlcvWindow) -> bool:
+        timestamp = e.win.index[-1]
+        last2 = memory['last2'][2]
+        last2.append(timestamp)
+        if len(last2) >= 2:
+            if not last2[-1] > last2[-2]:
+                return False
+        return True
+
     def for_target(my: Context):
         assert isinstance(my.event, OhlcvWindow)
         assert my.event.symbol == TARGET
         assert my.event.win.shape == (length, 5)
         my.trader.trade(TARGET, QUANTITY)
         Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
+        assert no_frontrun(my.memory, my.event)
 
     def for_ref(my: Context):
         assert isinstance(my.event, OhlcvWindow)
@@ -82,10 +94,11 @@ def test_historical_data(start: Timestamp | str,
         assert my.event.win.shape == (length, 5)
         my.trader.trade(REF[0], QUANTITY)
         Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
+        assert no_frontrun(my.memory, my.event)
 
     t = Trader(
         strategy=Strategy()
-        # .on(TARGET, OhlcvWindow, do=for_target)
+        .on(TARGET, OhlcvWindow, do=for_target)
         .on(REF[0], OhlcvWindow, do=for_ref),
         market=RollingWindow(
             symbols=SYMBOLS,
