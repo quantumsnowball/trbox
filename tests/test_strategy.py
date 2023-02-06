@@ -15,7 +15,8 @@ def test_benchmark():
     t = Trader(
         strategy=BuyAndHold(SYMBOL, 1.0),
         market=RollingWindow(
-            source={SYMBOL: f'tests/_data_/{SYMBOL}_bar1day.csv'},
+            symbols=(SYMBOL,),
+            source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=START,
             end=END,
             length=LENGTH),

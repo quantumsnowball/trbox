@@ -1,14 +1,13 @@
-from time import sleep
-
 import pytest
 
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.event.market import OhlcvWindow
+from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
 from trbox.strategy import Strategy
+from trbox.strategy.context import Context
 from trbox.trader import Trader
 
 
@@ -18,19 +17,20 @@ def test_account_trade():
     END = '2021-04-01'
     LENGTH = 200
 
-    def on_window(self: Strategy, _: OhlcvWindow):
-        self.trader.trade(SYMBOL, +0.2)
+    def on_window(my: Context):
+        my.trader.trade(SYMBOL, +0.2)
         Log.info(Memo('trading',
-                      cash=self.trader.cash,
-                      position=self.trader.positions[SYMBOL],
-                      equity=self.trader.equity)
-                 .by(self).tag(SYMBOL).sparse())
+                      cash=my.trader.cash,
+                      position=my.trader.positions[SYMBOL],
+                      equity=my.trader.equity)
+                 .by(my.strategy).tag(SYMBOL).sparse())
 
     Trader(
-        strategy=Strategy(
-            on_window=on_window),
+        strategy=Strategy()
+        .on(SYMBOL, OhlcvWindow, do=on_window),
         market=RollingWindow(
-            source={SYMBOL: f'tests/_data_/{SYMBOL}_bar1day.csv'},
+            symbols=(SYMBOL, ),
+            source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=START,
             end=END,
             length=LENGTH),
@@ -43,14 +43,14 @@ def test_account_trade():
 def test_account_cash(cash: float):
     SYMBOL = 'CASH'
 
-    def on_tick(self: Strategy, _):
-        assert self.trader.cash == cash
-        Log.info(Memo(cash=self.trader.cash)
-                 .by(self).tag('initial', 'cash'))
+    def on_tick(my: Context):
+        assert my.trader.cash == cash
+        Log.info(Memo(cash=my.trader.cash)
+                 .by(my.strategy).tag('initial', 'cash'))
 
     Trader(
-        strategy=Strategy(
-            on_tick=on_tick),
+        strategy=Strategy()
+        .on(SYMBOL, Candlestick, do=on_tick),
         market=DummyPrice(SYMBOL),
         broker=PaperEX(SYMBOL,
                        initial_fund=cash)

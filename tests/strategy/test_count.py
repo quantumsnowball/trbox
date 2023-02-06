@@ -1,4 +1,3 @@
-from trbox.common.logger import Log
 from trbox.strategy import Count
 
 
