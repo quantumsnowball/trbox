@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Union
 
 from pandas import Timestamp
 

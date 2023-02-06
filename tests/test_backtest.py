@@ -1,5 +1,3 @@
-import time
-
 import pytest
 from pandas import Series, Timestamp
 
@@ -12,6 +10,7 @@ from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
+from trbox.strategy.context import Context
 from trbox.trader.dashboard import Dashboard
 
 
@@ -22,20 +21,18 @@ def test_dummy(name, parallel):
     QUANTITY = 0.2
 
     # on_tick
-    def dummy_action(self: Strategy, _: Candlestick):
-        self.trader.trade(SYMBOL, QUANTITY)
+    def dummy_action(my: Context):
+        my.trader.trade(SYMBOL, QUANTITY)
 
     bt = Backtest(
         Trader(
-            strategy=Strategy(
-                name='Benchmark',
-                on_tick=dummy_action),
+            strategy=Strategy(name='Benchmark')
+            .on(SYMBOL, Candlestick, do=dummy_action),
             market=DummyPrice(SYMBOL),
             broker=PaperEX(SYMBOL)),
         Trader(
-            strategy=Strategy(
-                name=name,
-                on_tick=dummy_action),
+            strategy=Strategy(name=name)
+            .on(SYMBOL, Candlestick, do=dummy_action),
             market=DummyPrice(SYMBOL),
             broker=PaperEX(SYMBOL))
     )
@@ -57,23 +54,26 @@ def test_dummy(name, parallel):
 def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
-    SYMBOLS = ['BTC', 'ETH']
+    SYMBOLS = ('BTC', 'ETH')
+    SYMBOL = SYMBOLS[0]
     QUANTITY = 0.2
 
     # on_window
-    def dummy_action(self: Strategy, e: OhlcvWindow):
-        assert e.win.shape == (length, 10)
-        self.trader.trade(SYMBOLS[0], QUANTITY)
-        Log.info(
-            f'St: date={e.datetime} last={e.ohlcv.shape}, close={e.close}')
+    def dummy_action(my: Context):
+        e = my.event
+        assert isinstance(e, OhlcvWindow)
+        assert e.win.shape == (length, 5)
+        my.trader.trade(SYMBOL, QUANTITY)
+        Log.info(Memo(date=e.datetime, shape=e.ohlcv.shape, close=e.close)
+                 .by(my.strategy))
 
     def trader(name: str):
         return Trader(
-            strategy=Strategy(
-                name=name,
-                on_window=dummy_action),
+            strategy=Strategy(name=name)
+            .on(SYMBOL, OhlcvWindow, do=dummy_action),
             market=RollingWindow(
-                source={s: f'tests/_data_/{s}_bar1day.csv' for s in SYMBOLS},
+                symbols=SYMBOLS,
+                source=lambda s: f'tests/_data_/{s}_bar1day.csv',
                 start=start,
                 end=end,
                 length=length),

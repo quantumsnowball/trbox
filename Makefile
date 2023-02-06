@@ -4,11 +4,17 @@
 # run these during dev 
 # put assert 0 (or breakpoint() inside a worker thread) for a handy breakpoint
 # DEV_FILE=market/test_market.py
-# DEV_FUNCTION=test_binance
+# DEV_FUNCTION=test_binance_trade_streaming
+# DEV_FUNCTION=test_binance_kline_streaming
 DEV_FILE=test_trader.py
 # DEV_FILE=test_backtest.py
-# DEV_FUNCTION=test_dummy
-DEV_FUNCTION=test_historical_data
+# DEV_FILE=strategy/test_count.py
+# DEV_FILE=market/test_utils.py
+DEV_FUNCTION=test_dummy
+# DEV_FUNCTION=test_historical_data
+# DEV_FUNCTION=test_count
+# DEV_FUNCTION=test_combined_rolling_windows
+
 
 dev:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb 
@@ -39,6 +45,20 @@ dev-lab-binance-connector-python-restful:
 	@pytest "./tests/lab/test_binance_connector_python.py::test_restful" --pdb --log-cli-level INFO
 dev-lab-binance-connector-python-websocket:
 	@pytest "./tests/lab/test_binance_connector_python.py::test_websocket" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-exchange-info:
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_exchange_info" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-account-balance:
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_account_balance" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-account-worth:
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_account_worth" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-market-order:
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_market_order" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-limit-order:
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_binance_testnet.py::test_limit_order" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-cancel-all-open-order:
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_cancel_all_open_order" --pdb --log-cli-level INFO
+dev-lab-binance-testnet-current-open-order:
+	@pytest "./tests/lab/binance_testnet/test_restful.py::test_current_open_order" --pdb --log-cli-level INFO
 
 #
 # Testing
