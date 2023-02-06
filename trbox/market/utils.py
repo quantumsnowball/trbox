@@ -1,3 +1,6 @@
+import heapq
+from typing import Iterator
+
 from pandas import DataFrame, concat, read_csv
 
 from trbox.common.constants import OHLCV_COLUMN_NAMES, OHLCV_INDEX_NAME
@@ -23,3 +26,18 @@ def concat_dfs_by_columns(dfs: dict[Symbol, DataFrame]) -> DataFrame:
     assert (df.columns.levels[1] == OHLCV_COLUMN_NAMES).all()
     assert df.index.name == OHLCV_INDEX_NAME
     return df
+
+
+def make_combined_rolling_windows(
+    dfs: dict[Symbol, DataFrame],
+    length: int
+) -> Iterator[tuple[Symbol, DataFrame]]:
+    def gen_win(sym, df):
+        for win in df.rolling(length):
+            if len(win) >= length:
+                yield (sym, win)
+
+    combined = heapq.merge(*(gen_win(sym, df.sort_index())
+                             for sym, df in dfs.items()),
+                           key=lambda x: x[1].index[-1])
+    return iter(combined)

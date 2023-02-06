@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import Iterable
 
 from typing_extensions import override
 
@@ -7,8 +6,8 @@ from trbox.broker import Broker
 from trbox.broker.paper.engine import MatchingEngine, TradingBook
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.common.types import Symbol
-from trbox.event import Event
+from trbox.common.types import Symbol, Symbols
+from trbox.event import Event, MarketEvent
 from trbox.event.broker import Order
 from trbox.event.market import Candlestick, OhlcvWindow
 
@@ -17,15 +16,15 @@ DEFAULT_INITIAL_FUND = 1e6
 
 class PaperEX(Broker):
     def __init__(self,
-                 symbols: Symbol | Iterable[Symbol],
+                 symbols: Symbol | Symbols,
                  initial_fund: float = DEFAULT_INITIAL_FUND) -> None:
         super().__init__()
         self._cash: float = initial_fund
         self._positions: dict[str, float] = defaultdict(float)
-        if isinstance(symbols, Symbol):
-            symbols = (symbols, )
-        self._engine = MatchingEngine(
-            **{symbol: TradingBook(symbol) for symbol in symbols})
+        self._symbols = symbols
+        if isinstance(self._symbols, Symbol):
+            self._symbols = (self._symbols, )
+        self._engine = MatchingEngine()
 
     # account state
 
@@ -71,22 +70,37 @@ class PaperEX(Broker):
 
     # handler
 
+    def update_order_book(self, e: MarketEvent):
+        symbol = e.symbol
+        timestamp = None
+        price = None
+
+        if isinstance(e, Candlestick):
+            timestamp = e.timestamp
+            price = e.price
+        elif isinstance(e, OhlcvWindow):
+            timestamp = e.timestamp
+            price = e.close
+
+        if timestamp and price:
+            if symbol in self._engine:
+                self._engine[symbol].update(timestamp, price)
+            else:
+                self._engine[symbol] = TradingBook(symbol, timestamp, price)
+            Log.debug(Memo('updated OrderBook',
+                           e.symbol, price=price)
+                      .by(self, e).tag('updated', 'book'))
+
+            if not self.trader.signal.broker_ready.is_set():
+                if len(self._engine) >= len(self._symbols):
+                    self.trader.signal.broker_ready.set()
+                    Log.info(Memo('order book ready')
+                             .by(self).tag('orderbook', 'order', 'book', 'ready'))
+
     @override
     def handle(self, e: Event) -> None:
         super().handle(e)
         # handle MarketEvent when backtesting
         if self.trader.backtesting:
-            if isinstance(e, Candlestick):
-                self._engine[e.symbol].update(e.timestamp, e.price)
-                Log.debug(Memo('updated OrderBook',
-                               e.symbol, price=e.price)
-                          .by(self, e).tag('updated', 'book'))
-                self.trader.signal.broker_ready.set()
-            elif isinstance(e, OhlcvWindow):
-                for symbol in e.symbols:
-                    price = e.close[symbol]
-                    self._engine[symbol].update(e.timestamp, price)
-                    Log.debug(Memo('updated OrderBook',
-                                   symbol=symbol, price=price)
-                              .by(self, e).tag('updated', 'book'))
-                self.trader.signal.broker_ready.set()
+            if isinstance(e, MarketEvent):
+                self.update_order_book(e)

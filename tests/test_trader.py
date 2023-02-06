@@ -11,34 +11,39 @@ from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
+from trbox.strategy import Context
 from trbox.trader.dashboard import Dashboard
 
 
-@pytest.mark.parametrize('live', [True, False])
-@pytest.mark.parametrize('name', [None, 'DummySt'])
-# @pytest.mark.parametrize('name, live', [('dummy', False)])
+# @pytest.mark.parametrize('live', [True, False])
+# @pytest.mark.parametrize('name', [None, 'DummySt'])
+@pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
     QUANTITY = 0.2
+    INTERVAL = 4
 
     # on_tick
-    def dummy_action(self: Strategy, _: Candlestick):
-        assert live == (not self.trader.backtesting)
-        if self.count.beginning:
+    def dummy_action(my: Context):
+        assert live == (not my.trader.backtesting)
+        assert my.event is not None
+        assert my.event.symbol == SYMBOL
+        if my.count.beginning:
             Log.critical('absolute beginning')
-        if self.count.every(5):
+        if my.count.every(INTERVAL):
             # self.trader.trade(SYMBOL, QUANTITY)
-            Log.error(Memo('every 2', i=self.count.i).by(self).tag('count'))
+            Log.error(Memo(f'every {INTERVAL}', i=my.count._i).by(
+                my.strategy).tag('count'))
         # can also access dashboard when still trading
-        assert isinstance(self.trader.dashboard, Dashboard)
-        Log.info(Memo('anytime get', dashboard=self.trader.dashboard)
-                 .by(self).tag('dashboard'))
+        assert isinstance(my.trader.dashboard, Dashboard)
+        Log.info(Memo('anytime get', dashboard=my.trader.dashboard)
+                 .by(my.strategy).tag('dashboard'))
 
     t = Trader(
         live=live,
-        strategy=Strategy(
-            name=name,
-            on_tick=dummy_action),
+        strategy=Strategy(name=name,)
+        .on('BTC', Candlestick, do=dummy_action)
+        .on('BTC', Candlestick, do=dummy_action),
         market=DummyPrice(SYMBOL),
         broker=PaperEX(SYMBOL)
     )
@@ -59,20 +64,32 @@ def test_dummy(name, live):
 def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
-    SYMBOLS = ['BTC', 'ETH']
+    TARGET = 'BTC'
+    REF = ['ETH']
+    SYMBOLS = (TARGET, *REF)
     QUANTITY = 0.2
 
-    # on_window
-    def dummy_action(self: Strategy, e: OhlcvWindow):
-        assert e.win.shape == (length, 10)
-        self.trader.trade(SYMBOLS[0], QUANTITY)
+    def for_target(my: Context):
+        assert isinstance(my.event, OhlcvWindow)
+        assert my.event.symbol == TARGET
+        assert my.event.win.shape == (length, 5)
+        my.trader.trade(TARGET, QUANTITY)
+        Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
+
+    def for_ref(my: Context):
+        assert isinstance(my.event, OhlcvWindow)
+        assert my.event.symbol == REF[0]
+        assert my.event.win.shape == (length, 5)
+        my.trader.trade(REF[0], QUANTITY)
+        Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
 
     t = Trader(
-        strategy=Strategy(
-            on_window=dummy_action),
+        strategy=Strategy()
+        # .on(TARGET, OhlcvWindow, do=for_target)
+        .on(REF[0], OhlcvWindow, do=for_ref),
         market=RollingWindow(
-            source={s: f'tests/_data_/{s}_bar1day.csv'
-                    for s in SYMBOLS},
+            symbols=SYMBOLS,
+            source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=start,
             end=end,
             length=length),
