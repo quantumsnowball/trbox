@@ -82,7 +82,7 @@ class PaperEX(Broker):
             timestamp = e.timestamp
             price = e.close
 
-        if timestamp and price:
+        if timestamp is not None and price is not None:
             if symbol in self._engine:
                 self._engine[symbol].update(timestamp, price)
             else:
