@@ -1,6 +1,7 @@
 import json
 
 from flask import Flask
+from pandas import DataFrame
 from typing_extensions import override
 
 from trbox.common.logger import Log
@@ -28,13 +29,35 @@ def console():
 @app.route('/navs')
 def navs():
     if trader:
-        info = str(trader.dashboard.navs)
+        try:
+            info = DataFrame(trader.dashboard.navs).to_html()
+        except Exception as e:
+            info = str(trader.dashboard.navs)
+            Log.exception(e)
         if info:
             return info
         else:
             return 'no info'
     else:
         return 'no trader'
+
+
+@app.route('/tradelog')
+def tradelog():
+    if trader:
+        try:
+            info = trader.dashboard.trade_reacords.to_html()
+        except Exception as e:
+            info = str(trader.dashboard.trade_reacords)
+            Log.exception(e)
+            breakpoint()
+        if info:
+            return info
+        else:
+            return 'no info'
+    else:
+        return 'no trader'
+
 
 # trbox event handler
 

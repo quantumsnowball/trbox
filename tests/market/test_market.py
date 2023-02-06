@@ -2,7 +2,7 @@ import os
 
 import pytest
 from dotenv import load_dotenv
-from pandas import to_datetime
+from pandas import Series, to_datetime
 
 from trbox.broker.binance.testnet import BinanceTestnet
 from trbox.broker.paper import PaperEX
@@ -25,12 +25,17 @@ API_SECRET = os.getenv('API_SECRET')
 @pytest.mark.lab()
 def test_binance_trade_streaming():
     SYMBOL = 'BTCUSDT'
-    INTERVAL = 20
+    INTERVAL = 2000
 
     def handle(my: Context):
         # dummy trade
-        # self.trader.trade(SYMBOL, 0.01)
+        assert isinstance(my.event, Candlestick)
+        price = my.event.price
+        win = my.memory['rolling2000'][2000]
+        win.append(my.event.price)
         if my.count.every(INTERVAL):
+            pnlr: float = Series(win).rank(pct=True).iloc[-1]
+            my.trader.rebalance(SYMBOL, pnlr, price)
             Log.info(Memo('counter hit', i=my.count._i, e=ppf(my.event))
                      .by(my.strategy).tag('period', 'regular', f'bar{INTERVAL}').sparse())
 
