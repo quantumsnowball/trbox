@@ -41,7 +41,6 @@ class PaperEX(Broker):
     @property
     @override
     def positions_worth(self) -> float:
-        # TODO deprecated simple algo trading only support single target asset
         worth = 0.0
         for s, pos in self._positions.items():
             price = self._engine.price(s)
