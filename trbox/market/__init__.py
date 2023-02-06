@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+from threading import Thread
 
+from binance.websocket.binance_socket_manager import threading
 from typing_extensions import override
 
 from trbox.common.logger import Log
@@ -38,3 +40,30 @@ class Market(CounterParty, ABC):
             self.stop()
             Log.debug(Memo('requested', cln(e))
                       .by(self).tag('exit'))
+
+
+class MarketWorker(Market, ABC):
+    def __init__(self) -> None:
+        super().__init__()
+        self._alive = threading.Event()
+
+    @abstractmethod
+    def working(self) -> None:
+        pass
+
+    @override
+    def start(self) -> None:
+
+        def worker() -> None:
+            try:
+                self.working()
+            except Exception as e:
+                Log.exception(e)
+
+        self._alive.set()
+        t = Thread(target=worker)
+        t.start()
+
+    @override
+    def stop(self) -> None:
+        self._alive.clear()

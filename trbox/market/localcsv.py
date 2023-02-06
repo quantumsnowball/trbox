@@ -1,4 +1,4 @@
-from threading import Event, Thread
+from threading import Event
 from typing import Callable
 
 from pandas import Timestamp, to_datetime
@@ -7,11 +7,11 @@ from typing_extensions import override
 from trbox.common.types import Symbols
 from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.market import OhlcvWindow
-from trbox.market import Market
+from trbox.market import MarketWorker
 from trbox.market.utils import import_yahoo_csv, make_combined_rolling_windows
 
 
-class RollingWindow(Market):
+class RollingWindow(MarketWorker):
     def __init__(self, *,
                  source: Callable[[str], str],
                  symbols: Symbols,
@@ -37,34 +37,24 @@ class RollingWindow(Market):
         self._alive = Event()
 
     @override
-    def start(self) -> None:
-        def worker() -> None:
-            for symbol, df in self._window_generator:
-                hb = self.trader.strategy.heartbeats.get(
-                    (symbol, OhlcvWindow), None)
+    def working(self) -> None:
+        for symbol, df in self._window_generator:
+            hb = self.trader.strategy.heartbeats.get(
+                (symbol, OhlcvWindow), None)
 
-                if hb:
-                    hb.wait(5)
+            if hb:
+                hb.wait(5)
 
-                self.send.new_market_data(
-                    OhlcvWindow(timestamp=df.index[-1],
-                                symbol=symbol,
-                                win=df))
+            self.send.new_market_data(
+                OhlcvWindow(timestamp=df.index[-1],
+                            symbol=symbol,
+                            win=df))
 
-                if hb:
-                    hb.clear()
+            if hb:
+                hb.clear()
 
-                if not self._alive.is_set():
-                    return
+            if not self._alive.is_set():
+                return
 
-            # stop iteration
-            self.trader.stop()
-
-        self._alive.set()
-        # only start a thread if for sure Strategy will listen to it
-        t = Thread(target=worker)
-        t.start()
-
-    @override
-    def stop(self) -> None:
-        self._alive.clear()
+        # stop iteration
+        self.trader.stop()
