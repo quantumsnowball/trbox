@@ -38,9 +38,9 @@ class Runner:
         self._strategy: Strategy = strategy
         self._market: Market = market
         self._broker: Broker = broker
-        self._console: Console = console
         self._handlers = [self._strategy, self._market, self._broker]
-        if self._console:
+        if console:
+            self._console: Console = console
             self._handlers.append(self._console)
         self._signal = Signal(enter=Event(),
                               broker_ready=Event())

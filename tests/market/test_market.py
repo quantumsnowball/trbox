@@ -25,20 +25,21 @@ API_SECRET = os.getenv('API_SECRET')
 @pytest.mark.lab()
 def test_binance_trade_streaming():
     SYMBOL = 'BTCUSDT'
+    INTERVAL = 20
 
     def handle(my: Context):
         # dummy trade
         # self.trader.trade(SYMBOL, 0.01)
-        if my.count.every(20):
-            Log.warning(Memo('counter hit', i=my.count._i, e=ppf(my.event))
-                        .by(my.strategy).tag('period', 'regular').sparse())
+        if my.count.every(INTERVAL):
+            Log.info(Memo('counter hit', i=my.count._i, e=ppf(my.event))
+                     .by(my.strategy).tag('period', 'regular', f'bar{INTERVAL}').sparse())
 
     Trader(
         strategy=Strategy()
         .on(SYMBOL, Candlestick, do=handle),
         market=BinanceTradeStreaming(symbol=SYMBOL),
         broker=PaperEX(SYMBOL),
-        console=FlaskConsole(port=9888)
+        console=FlaskConsole(port=30000)
     ).run()
 
 
