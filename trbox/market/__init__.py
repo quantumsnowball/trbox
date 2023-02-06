@@ -58,6 +58,10 @@ class MarketWorker(Market, ABC):
             try:
                 self.working()
             except Exception as e:
+                # raise e
+                # even raise will silenced the Exception if not happen in the main thread
+                # P.S. only get printed out when main thread joined at the end
+                # log exception can at least print out the trace stack
                 Log.exception(e)
 
         self._alive.set()
