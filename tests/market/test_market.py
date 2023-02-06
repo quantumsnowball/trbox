@@ -13,6 +13,7 @@ from trbox.event.market import Candlestick, Kline
 from trbox.market.binance.kline import BinanceKlineStreaming
 from trbox.market.binance.trade import BinanceTradeStreaming
 from trbox.strategy import Strategy
+from trbox.strategy.context import Context
 from trbox.trader import Trader
 
 load_dotenv()
@@ -24,16 +25,16 @@ API_SECRET = os.getenv('API_SECRET')
 def test_binance_trade_streaming():
     SYMBOL = 'BTCUSDT'
 
-    def handle(self: Strategy, e: Candlestick):
+    def handle(my: Context):
         # dummy trade
         # self.trader.trade(SYMBOL, 0.01)
-        if self.count.every(20):
-            Log.warning(Memo('counter hit', i=self.count.i, e=ppf(e))
-                        .by(self).tag('period', 'regular').sparse())
+        if my.count.every(20):
+            Log.warning(Memo('counter hit', i=my.count._i, e=ppf(my.event))
+                        .by(my.strategy).tag('period', 'regular').sparse())
 
     Trader(
-        strategy=Strategy(
-            on_tick=handle),
+        strategy=Strategy()
+        .on(SYMBOL, Candlestick, do=handle),
         market=BinanceTradeStreaming(symbol=SYMBOL),
         broker=PaperEX(SYMBOL)
     ).run()
@@ -44,16 +45,17 @@ def test_binance_kline_streaming():
     SYMBOL = 'BTCUSDT'
     QUANTITY = 0.1
 
-    def handle(self: Strategy, e: Kline):
+    def handle(my: Context):
         # buy/sell on every minute on Binance testnet
-        if e.bar_finished:
-            quantity = +QUANTITY if e.timestamp.minute % 2 == 0 else -QUANTITY
-            result = self.trader.trade(SYMBOL, quantity)
-            Log.warning(Memo(ppf(result)).by(self).tag('trade').sparse())
+        if isinstance(my.event, Kline):
+            quantity = +QUANTITY if my.event.timestamp.minute % 2 == 0 else -QUANTITY
+            result = my.trader.trade(SYMBOL, quantity)
+            Log.warning(Memo(ppf(result)).by(
+                my.strategy).tag('trade').sparse())
 
     Trader(
-        strategy=Strategy(
-            on_kline=handle),
+        strategy=Strategy()
+        .on(SYMBOL, Kline, do=handle),
         market=BinanceKlineStreaming(symbol=SYMBOL, interval='1m'),
         broker=BinanceTestnet()
     ).run()
