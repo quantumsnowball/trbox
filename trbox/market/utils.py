@@ -1,7 +1,7 @@
 import heapq
-from typing import Iterator
+from typing import Generator, Iterator
 
-from pandas import DataFrame, concat, read_csv
+from pandas import DataFrame, Timestamp, concat, read_csv
 
 from trbox.common.constants import OHLCV_COLUMN_NAMES, OHLCV_INDEX_NAME
 from trbox.common.types import Symbol
@@ -32,12 +32,16 @@ def make_combined_rolling_windows(
     dfs: dict[Symbol, DataFrame],
     length: int
 ) -> Iterator[tuple[Symbol, DataFrame]]:
-    def gen_win(sym, df):
+    def gen_win(sym: Symbol, df: DataFrame) -> Generator[tuple[Symbol, DataFrame], None, None]:
         for win in df.rolling(length):
             if len(win) >= length:
                 yield (sym, win)
 
+    def sort_using(x: tuple[Symbol, DataFrame]) -> Timestamp:
+        obj: Timestamp = x[1].index[-1]
+        return obj
+
     combined = heapq.merge(*(gen_win(sym, df.sort_index())
                              for sym, df in dfs.items()),
-                           key=lambda x: x[1].index[-1])
+                           key=sort_using)
     return iter(combined)

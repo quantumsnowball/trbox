@@ -1,12 +1,10 @@
-from collections.abc import Generator
 from threading import Event, Thread
 from typing import Callable
 
-from pandas import DataFrame, Timestamp, to_datetime
+from pandas import Timestamp, to_datetime
 from typing_extensions import override
 
-from trbox.common.logger import Log
-from trbox.common.types import Symbol, Symbols
+from trbox.common.types import Symbols
 from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.market import OhlcvWindow
 from trbox.market import Market

@@ -33,7 +33,7 @@ class Dashboard:
     def __init__(self) -> None:
         self._navs: list[float] = []
         self._navs_index: list[Timestamp] = []
-        self._trade_records: list = []
+        self._trade_records: list[TradeRecord] = []
 
     def __str__(self) -> str:
         return f'{cln(self)}'

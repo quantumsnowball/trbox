@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from trbox.event import MarketEvent
+from trbox.strategy.types import MemoryCell, MemorySized, Memroy
 from trbox.trader import Trader
 
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
-    from trbox.strategy.types import Memroy
 
 
 class Count:
@@ -47,9 +47,9 @@ class Context:
     event: MarketEvent | None = None
     memory: Memroy = field(init=False, kw_only=True)
 
-    def __post_init__(self):
-        class dequedict(defaultdict[int, deque]):
-            def __missing__(self, key: int):
+    def __post_init__(self) -> None:
+        class dequedict(MemorySized):
+            def __missing__(self, key: int) -> MemoryCell:
                 self.__setitem__(key, deque(maxlen=key))
                 return self.__getitem__(key)
         self.memory = defaultdict(dequedict)

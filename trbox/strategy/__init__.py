@@ -50,7 +50,7 @@ class Strategy(CounterParty):
         self.heartbeats[index] = heartbeat
         return self
 
-    def handle_market_event(self, e: MarketEvent):
+    def handle_market_event(self, e: MarketEvent) -> None:
         # select the data handler
         index = (e.symbol, type(e))
         handler = self._datahandlers.get(index, None)
