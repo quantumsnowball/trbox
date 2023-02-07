@@ -50,6 +50,3 @@ class Distributor:
     def new_audit_result(self, timestamp: Timestamp, nav: float | None) -> None:
         if timestamp and nav:
             self._trader.dashboard.add_equity_record(timestamp, nav)
-
-    def end_of_market_data(self) -> None:
-        self._trader.stop()
