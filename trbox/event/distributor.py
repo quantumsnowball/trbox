@@ -34,11 +34,3 @@ class Distributor:
     #
     # event routing
     #
-
-    def new_market_data(self, e: MarketEvent) -> None:
-        self._strategy.put(e)
-        # if backtesting, broker also receive MarketEvent to simulate quote
-        if self._trader.backtesting:
-            self._broker.put(e)
-
-        self._broker.put(AuditRequest(e.timestamp))
