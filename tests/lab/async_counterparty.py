@@ -34,7 +34,9 @@ class Party:
     def run(self):
         async def checkmail():
             while True:
-                e = await self.inbox.get()
+                Log.critical('while loop top')
+                # still blocked here can't run other tasks
+                e = self.inbox.get()
                 Log.critical(Memo('got event', e=e))
                 asyncio.create_task(self.greeting())
                 Log.critical('created task')
