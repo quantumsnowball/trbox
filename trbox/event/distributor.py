@@ -46,7 +46,3 @@ class Distributor:
     def new_order_result(self, e: OrderResult) -> None:
         self._strategy.put(e)
         self._trader.dashboard.add_trade_record(e)
-
-    def new_audit_result(self, timestamp: Timestamp, nav: float | None) -> None:
-        if timestamp and nav:
-            self._trader.dashboard.add_equity_record(timestamp, nav)
