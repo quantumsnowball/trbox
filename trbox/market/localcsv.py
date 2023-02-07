@@ -6,6 +6,7 @@ from typing_extensions import override
 
 from trbox.common.types import Symbols
 from trbox.common.utils import trim_ohlcv_by_range_length
+from trbox.event.broker import AuditRequest
 from trbox.event.market import OhlcvWindow
 from trbox.market import MarketWorker
 from trbox.market.utils import import_yahoo_csv, make_combined_rolling_windows
@@ -45,10 +46,15 @@ class RollingWindow(MarketWorker):
             if hb:
                 hb.wait(5)
 
-            self.send.new_market_data(
-                OhlcvWindow(timestamp=df.index[-1],
+            e = OhlcvWindow(timestamp=df.index[-1],
                             symbol=symbol,
-                            win=df))
+                            win=df)
+            self.trader.strategy.put(e)
+            # if backtesting, broker also receive MarketEvent to simulate quote
+            if self.trader.backtesting:
+                self.trader.broker.put(e)
+            # TODO other parties should decide when to audit
+            self.trader.broker.put(AuditRequest(e.timestamp))
 
             if hb:
                 hb.clear()

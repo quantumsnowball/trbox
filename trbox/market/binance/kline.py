@@ -6,6 +6,7 @@ from typing_extensions import override
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln, ppf
+from trbox.event.broker import AuditRequest
 from trbox.event.market import Kline
 from trbox.market.binance import BinanceWebsocket
 
@@ -21,7 +22,7 @@ class BinanceKlineStreaming(BinanceWebsocket):
     def on_data(self, d: dict[str, Any]) -> None:
         try:
             k = d['k']
-            self.send.new_market_data(Kline(
+            e = Kline(
                 timestamp=to_datetime(int(k['T'])*1e6),
                 symbol=d['s'],
                 open=float(k['o']),
@@ -31,7 +32,13 @@ class BinanceKlineStreaming(BinanceWebsocket):
                 volume=float(k['v']),
                 value_traded=float(k['q']),
                 bar_finished=bool(k['x']),
-            ))
+            )
+            self.trader.strategy.put(e)
+            # if backtesting, broker also receive MarketEvent to simulate quote
+            if self.trader.backtesting:
+                self.trader.broker.put(e)
+            # TODO other parties should decide when to audit
+            self.trader.broker.put(AuditRequest(e.timestamp))
         except KeyError as e:
             Log.warning(Memo(repr(e), 'check fields',
                              d=ppf(d)).sparse().by(self))

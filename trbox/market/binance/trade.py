@@ -6,6 +6,7 @@ from typing_extensions import override
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln, ppf
+from trbox.event.broker import AuditRequest
 from trbox.event.market import Candlestick
 from trbox.market.binance import BinanceWebsocket
 
@@ -18,8 +19,15 @@ class BinanceTradeStreaming(BinanceWebsocket):
         try:
             price = float(d['p'])
             datetime = to_datetime(int(d['E'])*1e6)
-            self.send.new_market_data(
-                Candlestick(datetime, self._symbol, price))
+            e = Candlestick(datetime, self._symbol, price)
+
+            self.trader.strategy.put(e)
+            # if backtesting, broker also receive MarketEvent to simulate quote
+            if self.trader.backtesting:
+                self.trader.broker.put(e)
+            # TODO other parties should decide when to audit
+            self.trader.broker.put(AuditRequest(e.timestamp))
+
             Log.debug(Memo('Trade',
                            symbol=d['s'], price=d['p'], quantity=d['q'])
                       .by(self).tag('trade', 'binance'))
