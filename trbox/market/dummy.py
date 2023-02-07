@@ -4,6 +4,7 @@ from typing_extensions import override
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
+from trbox.event.broker import AuditRequest
 from trbox.event.market import Candlestick
 from trbox.market import MarketWorker
 
@@ -35,8 +36,13 @@ class DummyPrice(MarketWorker):
                     Log.error(Memo('timeout waiting for heartbeat')
                               .by(self).tag('timeout'))
 
-            self.send.new_market_data(Candlestick(
-                Timestamp.now(), self._symbol, i))
+            e = Candlestick(Timestamp.now(), self._symbol, i)
+            self.trader.strategy.put(e)
+            # if backtesting, broker also receive MarketEvent to simulate quote
+            if self.trader.backtesting:
+                self.trader.broker.put(e)
+            # TODO other parties should decide when to audit
+            self.trader.broker.put(AuditRequest(e.timestamp))
 
             if hb:
                 hb.clear()

@@ -6,7 +6,6 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event import Event
-from trbox.event.distributor import Distributor
 from trbox.event.system import Exit
 from trbox.trader import Trader
 
@@ -68,10 +67,6 @@ class CounterParty(EventHandler, ABC):
     @ property
     def trader(self) -> Trader:
         return self._trader
-
-    @ property
-    def send(self) -> Distributor:
-        return self._trader._distributor
 
     @ property
     def attached(self) -> bool:
