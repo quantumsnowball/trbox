@@ -42,7 +42,3 @@ class Distributor:
             self._broker.put(e)
 
         self._broker.put(AuditRequest(e.timestamp))
-
-    def new_order_result(self, e: OrderResult) -> None:
-        self._strategy.put(e)
-        self._trader.dashboard.add_trade_record(e)
