@@ -1,7 +1,7 @@
 import asyncio
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from queue import Queue
+from queue import Empty, Queue
 from typing import Any
 
 from trbox.common.logger import Log, set_log_level
@@ -19,6 +19,10 @@ class Event:
         return f'{cln(self)}({self.name})'
 
 
+class Stop:
+    pass
+
+
 class Party:
     def __init__(self):
         self.inbox = Queue()
@@ -27,19 +31,17 @@ class Party:
     async def handle(self, e):
         pass
 
-    async def greeting(self):
-        await asyncio.sleep(1)
-        Log.critical('greeting')
-
     def run(self):
         async def checkmail():
             while True:
-                Log.critical('while loop top')
-                # still blocked here can't run other tasks
-                e = self.inbox.get()
-                Log.critical(Memo('got event', e=e))
-                asyncio.create_task(self.greeting())
-                Log.critical('created task')
+                try:
+                    e = self.inbox.get(False)
+                    if isinstance(e, Stop):
+                        return
+                    asyncio.create_task(self.handle(e))
+                except Empty as e:
+                    await asyncio.sleep(0.01)
+
         asyncio.run(checkmail())
 
 
@@ -58,30 +60,34 @@ class Strategy(Party):
     def attach(self, mk: Market):
         self.mk = mk
 
-    async def handle_long_task(self):
-        await asyncio.sleep(5)
-        Log.critical(Memo('finally finished processing').by(self))
+    async def handle_long_task(self, e: Event, n=5):
+        await asyncio.sleep(n)
+        Log.critical(Memo(f'Took {n} seconds processing {e}').by(self))
 
     async def handle(self, e: Any):
-        Log.info(Memo('got and event', e=e).by(self))
-        asyncio.create_task(self.handle_long_task())
+        # Log.info(Memo('got and event', e=e).by(self))
+        asyncio.create_task(self.handle_long_task(e))
 
 
 class Algo:
     def __init__(self):
         self.mk = Market()
         self.st = Strategy()
+
         self.mk.attach(self.st)
         self.st.attach(self.mk)
 
         self.handlers = [self.mk, self.st]
 
     def run(self):
-        with ThreadPoolExecutor() as exe:
-            self.mk.inbox.put(Event('start'))
-            for h in self.handlers:
-                exe.submit(h.run)
-            Log.warning('blocked here, like thread.join()')
+        try:
+            with ThreadPoolExecutor() as exe:
+                self.mk.inbox.put(Event('start'))
+                for h in self.handlers:
+                    exe.submit(h.run)
+        except KeyboardInterrupt:
+            self.mk.inbox.put(Stop())
+            self.st.inbox.put(Stop())
 
 
 def main():
