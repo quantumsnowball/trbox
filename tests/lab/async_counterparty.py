@@ -2,7 +2,6 @@ import asyncio
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
-from time import sleep
 from typing import Any
 
 from trbox.common.logger import Log, set_log_level
@@ -25,37 +24,45 @@ class Party:
         self.inbox = Queue()
 
     @abstractmethod
-    def handle(self, e):
+    async def handle(self, e):
         pass
 
+    async def greeting(self):
+        await asyncio.sleep(1)
+        Log.critical('greeting')
+
     def run(self):
-        while True:
-            e = self.inbox.get()
-            self.handle(e)
+        async def checkmail():
+            while True:
+                e = await self.inbox.get()
+                Log.critical(Memo('got event', e=e))
+                asyncio.create_task(self.greeting())
+                Log.critical('created task')
+        asyncio.run(checkmail())
 
 
 class Market(Party):
     def attach(self, st: 'Strategy'):
         self.st = st
 
-    def handle(self, e: Any):
+    async def handle(self, e: Any):
         Log.info(Memo('I will keep sending market data to st', e=e).by(self))
-        for _ in range(20):
-            self.st.inbox.put(Event('market data'))
-            sleep(1)
+        for i in range(20):
+            self.st.inbox.put(Event(f'market data ({i})'))
+            await asyncio.sleep(1)
 
 
 class Strategy(Party):
     def attach(self, mk: Market):
         self.mk = mk
 
-    def handle_long_task(self):
-        sleep(5)
+    async def handle_long_task(self):
+        await asyncio.sleep(5)
         Log.critical(Memo('finally finished processing').by(self))
 
-    def handle(self, e: Any):
+    async def handle(self, e: Any):
         Log.info(Memo('got and event', e=e).by(self))
-        self.handle_long_task()
+        asyncio.create_task(self.handle_long_task())
 
 
 class Algo:
