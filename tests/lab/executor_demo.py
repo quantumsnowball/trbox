@@ -7,36 +7,38 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 
 
-class Market:
-    def __init__(self, strategy):
-        self.strategy = strategy
-
-    def run(self):
-        for i in range(50):
-            sleep(1)
-            self.strategy.put(f'Event({i})')
-            Log.critical('Market: sent Event')
-
-
 class Strategy:
     def __init__(self) -> None:
         self.queue = Queue()
+        self.pool = ThreadPoolExecutor()
 
-    def put(self, e):
+    def put(self, e) -> None:
         self.queue.put(e)
 
-    async def handle(self, e):
+    async def handle(self, e) -> None:
         await asyncio.sleep(5)
         Log.critical(f'Processed {e} after 5 seconds')
 
-    def run(self):
+    def run(self) -> None:
         async def worker():
             while True:
                 loop = asyncio.get_event_loop()
-                e = await loop.run_in_executor(None, self.queue.get)
-                Log.critical(Memo(e=e).by(self))
+                # if I use the party_pool, it is still blocking, failed
+                e = await loop.run_in_executor(self.pool, self.queue.get)
+                # Log.critical(Memo(e=e).by(self))
                 loop.create_task(self.handle(e))
         asyncio.run(worker())
+
+
+class Market:
+    def __init__(self, strategy: Strategy):
+        self.strategy = strategy
+
+    def run(self) -> None:
+        for i in range(50):
+            sleep(1)
+            self.strategy.put(f'Event({i})')
+            # Log.critical('Market: sent Event')
 
 
 class Algo:
@@ -44,13 +46,13 @@ class Algo:
         self.st = Strategy()
         self.mk = Market(self.st)
 
-    def run(self):
-        with ThreadPoolExecutor() as exe:
-            for h in [self.st, self.mk]:
-                exe.submit(h.run)
+    def run(self) -> None:
+        with ThreadPoolExecutor() as party_pool:
+            party_pool.submit(self.st.run)
+            party_pool.submit(self.mk.run)
 
 
-def main():
+def main() -> None:
     Algo().run()
 
 
