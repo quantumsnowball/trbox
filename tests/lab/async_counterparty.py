@@ -1,5 +1,9 @@
 import asyncio
+from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
+from queue import Queue
+from time import sleep
+from typing import Any
 
 from trbox.common.logger import Log, set_log_level
 from trbox.common.logger.parser import Memo
@@ -8,30 +12,72 @@ from trbox.common.utils import cln
 set_log_level('INFO')
 
 
+class Event:
+    def __init__(self, name: str):
+        self.name = name
+
+    def __str__(self) -> str:
+        return f'{cln(self)}({self.name})'
+
+
 class Party:
-    async def run(self):
+    def __init__(self):
+        self.inbox = Queue()
+
+    @abstractmethod
+    def handle(self, e):
+        pass
+
+    def run(self):
         while True:
-            Log.info(Memo('running').by(self))
-            await asyncio.sleep(1)
+            e = self.inbox.get()
+            self.handle(e)
 
 
-class A(Party):
-    pass
+class Market(Party):
+    def attach(self, st: 'Strategy'):
+        self.st = st
+
+    def handle(self, e: Any):
+        Log.info(Memo('I will keep sending market data to st', e=e).by(self))
+        for _ in range(20):
+            self.st.inbox.put(Event('market data'))
+            sleep(1)
 
 
-class B(Party):
-    pass
+class Strategy(Party):
+    def attach(self, mk: Market):
+        self.mk = mk
+
+    def handle_long_task(self):
+        sleep(5)
+        Log.critical(Memo('finally finished processing').by(self))
+
+    def handle(self, e: Any):
+        Log.info(Memo('got and event', e=e).by(self))
+        self.handle_long_task()
+
+
+class Algo:
+    def __init__(self):
+        self.mk = Market()
+        self.st = Strategy()
+        self.mk.attach(self.st)
+        self.st.attach(self.mk)
+
+        self.handlers = [self.mk, self.st]
+
+    def run(self):
+        with ThreadPoolExecutor() as exe:
+            self.mk.inbox.put(Event('start'))
+            for h in self.handlers:
+                exe.submit(h.run)
+            Log.warning('blocked here, like thread.join()')
 
 
 def main():
-    async def worker():
-        a = A()
-        b = B()
-        async with asyncio.TaskGroup() as tg:
-            tg.create_task(a.run())
-            tg.create_task(b.run())
-
-    asyncio.run(worker())
+    algo = Algo()
+    algo.run()
 
 
 if __name__ == '__main__':
