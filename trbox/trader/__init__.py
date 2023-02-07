@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from trbox.common.types import Symbol
-from trbox.event.distributor import Distributor
 from trbox.event.system import Exit, Start
 
 
@@ -91,10 +90,6 @@ class Trader(Runner):
                  **kwargs: Any):
         super().__init__(**kwargs)
         self._live = live
-        self._distributor = Distributor(self,
-                                        strategy=self._strategy,
-                                        market=self._market,
-                                        broker=self._broker)
         for handler in self._handlers:
             handler.attach(self)
         for handler in self._handlers:
