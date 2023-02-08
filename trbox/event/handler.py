@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from trbox.broker import Broker
     from trbox.console import Console
     from trbox.market import Market
+    from trbox.portfolio import Portfolio
     from trbox.strategy import Strategy
     from trbox.trader import Trader
 
@@ -72,11 +73,13 @@ class CounterParty(EventHandler, ABC):
                strategy: Strategy,
                market: Market,
                broker: Broker,
-               console: Console | None) -> Self:
+               portfolio: Portfolio,
+               console: Console) -> Self:
         self._trader = trader
         self._strategy = strategy
         self._market = market
         self._broker = broker
+        self._portfolio = portfolio
         self._console = console
         return self
 
@@ -97,5 +100,9 @@ class CounterParty(EventHandler, ABC):
         return self._broker
 
     @property
-    def console(self) -> Console | None:
+    def portfolio(self) -> Portfolio:
+        return self._portfolio
+
+    @property
+    def console(self) -> Console:
         return self._console

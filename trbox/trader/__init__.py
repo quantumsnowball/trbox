@@ -10,6 +10,7 @@ from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.console.dummy import DummyConsole
 from trbox.event.broker import MarketOrder
+from trbox.portfolio import DefaultPortfolio, Portfolio
 from trbox.trader.dashboard import Dashboard
 
 if TYPE_CHECKING:
@@ -40,10 +41,12 @@ class Runner:
         self._market: Market = market
         self._broker: Broker = broker
         self._console: Console = console if console else DummyConsole()
+        self._portfolio: Portfolio = DefaultPortfolio()
         self._handlers = (self._strategy,
                           self._market,
                           self._broker,
-                          self._console)
+                          self._console,
+                          self._portfolio, )
         self._signal = Signal(enter=Event(),
                               broker_ready=Event())
 
@@ -98,6 +101,7 @@ class Trader(Runner):
                            strategy=self._strategy,
                            market=self._market,
                            broker=self._broker,
+                           portfolio=self._portfolio,
                            console=self._console)
         # TODO How do you control when to log the equity value? should I pass
         # in a user arg and determine from it?
