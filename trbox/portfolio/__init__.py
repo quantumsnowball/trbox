@@ -18,6 +18,8 @@ class Portfolio(CounterParty, ABC):
         # TODO How do you control when to log the equity value? should I pass
         # in a user arg and determine from it?
         self._dashboard = Dashboard()
+        # maintain a state of account info flags
+        self._positions_updated = False
 
     # account status
 
@@ -69,13 +71,25 @@ class Portfolio(CounterParty, ABC):
         raise NotImplementedError
 
     # handle events
+    def handle_market_event(self, e: MarketEvent):
+        # TODO
+        # here your will receiving the same price info from Market as Strategy and Broker
+        # use it to update the position worth, and update the rolling nav
+        # log it to dashboard regularly, and also pass it to console
+        pass
+
+    def handle_order_result(self, e: OrderResult):
+        # TODO
+        # fetching the position from broker may be expensive and slow in live trading
+        # so only need to fetch in the beginnging and then update only after trade result
+        pass
+
     @override
     def handle(self, e: Event) -> None:
         if isinstance(e, MarketEvent):
-            # Log.warning(Memo(e=e).by(self))
-            pass
+            self.handle_market_event(e)
         if isinstance(e, OrderResult):
-            pass
+            self.handle_order_result(e)
 
 
 class Basic(Portfolio):
