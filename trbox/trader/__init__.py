@@ -120,10 +120,6 @@ class Trader(Runner):
     # account status
 
     @property
-    def positions(self) -> dict[Symbol, float]:
-        return self._broker.positions
-
-    @property
     def equity(self) -> float:
         return self._broker.equity
 
