@@ -28,7 +28,7 @@ class DummyPrice(MarketWorker):
     def working(self) -> None:
         # gen random price to simulate live market
         for i in range(self._n):
-            hb = self.trader.strategy.heartbeats.get((
+            hb = self.strategy.heartbeats.get((
                 self._symbol, Candlestick), None)
             if hb:
                 intime = hb.wait(5)
@@ -37,12 +37,12 @@ class DummyPrice(MarketWorker):
                               .by(self).tag('timeout'))
 
             e = Candlestick(Timestamp.now(), self._symbol, i)
-            self.trader.strategy.put(e)
+            self.strategy.put(e)
             # if backtesting, broker also receive MarketEvent to simulate quote
             if self.trader.backtesting:
-                self.trader.broker.put(e)
+                self.broker.put(e)
             # TODO other parties should decide when to audit
-            self.trader.broker.put(AuditRequest(e.timestamp))
+            self.broker.put(AuditRequest(e.timestamp))
 
             if hb:
                 hb.clear()

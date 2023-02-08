@@ -1,13 +1,21 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from queue import Queue
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event import Event
 from trbox.event.system import Exit
-from trbox.trader import Trader
+
+if TYPE_CHECKING:
+    from trbox.broker import Broker
+    from trbox.console import Console
+    from trbox.market import Market
+    from trbox.strategy import Strategy
+    from trbox.trader import Trader
 
 
 class EventHandler(ABC):
@@ -59,15 +67,35 @@ class CounterParty(EventHandler, ABC):
         super().__init__()
 
     # CounterParty must attach to a Trader to function properly
-    def attach(self: Self,
-               trader: Trader) -> Self:
+    def attach(self: Self, *,
+               trader: Trader,
+               strategy: Strategy,
+               market: Market,
+               broker: Broker,
+               console: Console | None) -> Self:
         self._trader = trader
+        self._strategy = strategy
+        self._market = market
+        self._broker = broker
+        self._console = console
         return self
 
-    @ property
+    @property
     def trader(self) -> Trader:
         return self._trader
 
-    @ property
-    def attached(self) -> bool:
-        return isinstance(self._trader, Trader)
+    @property
+    def strategy(self) -> Strategy:
+        return self._strategy
+
+    @property
+    def market(self) -> Market:
+        return self._market
+
+    @property
+    def broker(self) -> Broker:
+        return self._broker
+
+    @property
+    def console(self) -> Console | None:
+        return self._console

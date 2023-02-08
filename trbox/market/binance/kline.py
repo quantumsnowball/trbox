@@ -33,12 +33,12 @@ class BinanceKlineStreaming(BinanceWebsocket):
                 value_traded=float(k['q']),
                 bar_finished=bool(k['x']),
             )
-            self.trader.strategy.put(e)
+            self.strategy.put(e)
             # if backtesting, broker also receive MarketEvent to simulate quote
             if self.trader.backtesting:
-                self.trader.broker.put(e)
+                self.broker.put(e)
             # TODO other parties should decide when to audit
-            self.trader.broker.put(AuditRequest(e.timestamp))
+            self.broker.put(AuditRequest(e.timestamp))
         except KeyError as e:
             Log.warning(Memo(repr(e), 'check fields',
                              d=ppf(d)).sparse().by(self))

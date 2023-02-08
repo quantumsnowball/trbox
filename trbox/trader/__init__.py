@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from threading import Event
 from typing import TYPE_CHECKING, Any
 
+from trbox import strategy
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
@@ -37,9 +38,9 @@ class Runner:
         self._strategy: Strategy = strategy
         self._market: Market = market
         self._broker: Broker = broker
+        self._console: Console | None = console
         self._handlers = [self._strategy, self._market, self._broker]
-        if console:
-            self._console: Console = console
+        if self._console is not None:
             self._handlers.append(self._console)
         self._signal = Signal(enter=Event(),
                               broker_ready=Event())
@@ -91,9 +92,11 @@ class Trader(Runner):
         super().__init__(**kwargs)
         self._live = live
         for handler in self._handlers:
-            handler.attach(self)
-        for handler in self._handlers:
-            assert handler.attached
+            handler.attach(trader=self,
+                           strategy=self._strategy,
+                           market=self._market,
+                           broker=self._broker,
+                           console=self._console)
         # TODO How do you control when to log the equity value? should I pass
         # in a user arg and determine from it?
         self._dashboard = Dashboard()
@@ -107,20 +110,6 @@ class Trader(Runner):
     @property
     def backtesting(self) -> bool:
         return not self._live
-
-    # other parties
-
-    @property
-    def strategy(self) -> Strategy:
-        return self._strategy
-
-    @property
-    def broker(self) -> Broker:
-        return self._broker
-
-    @property
-    def market(self) -> Market:
-        return self._market
 
     # account status
 

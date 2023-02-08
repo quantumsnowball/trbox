@@ -21,12 +21,12 @@ class BinanceTradeStreaming(BinanceWebsocket):
             datetime = to_datetime(int(d['E'])*1e6)
             e = Candlestick(datetime, self._symbol, price)
 
-            self.trader.strategy.put(e)
+            self.strategy.put(e)
             # if backtesting, broker also receive MarketEvent to simulate quote
             if self.trader.backtesting:
-                self.trader.broker.put(e)
+                self.broker.put(e)
             # TODO other parties should decide when to audit
-            self.trader.broker.put(AuditRequest(e.timestamp))
+            self.broker.put(AuditRequest(e.timestamp))
 
             Log.debug(Memo('Trade',
                            symbol=d['s'], price=d['p'], quantity=d['q'])
