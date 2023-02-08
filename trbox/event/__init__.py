@@ -25,6 +25,13 @@ class MarketEvent(Event):
     symbol: Symbol
 
 
+class PortfolioEvent(Event):
+    '''
+    equity curve / trade log / metrics
+    '''
+    pass
+
+
 class SystemEvent(Event):
     '''
     Flow control of the Runner

@@ -5,7 +5,7 @@ from typing_extensions import override
 
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.common.types import Symbol
+from trbox.common.types import Positions, Symbol
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import MarketOrder, OrderResult
 from trbox.event.handler import CounterParty
@@ -28,7 +28,7 @@ class Portfolio(CounterParty, ABC):
         return self.broker.cash
 
     @property
-    def positions(self) -> dict[Symbol, float]:
+    def positions(self) -> Positions:
         return self.broker.positions
 
     @property
