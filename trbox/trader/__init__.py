@@ -8,7 +8,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.console.dummy import DummyConsole
-from trbox.portfolio import DefaultPortfolio, Portfolio
+from trbox.portfolio import Basic, Portfolio
 from trbox.portfolio.dashboard import Dashboard
 
 if TYPE_CHECKING:
@@ -38,7 +38,7 @@ class Runner:
         self._market: Market = market
         self._broker: Broker = broker
         self._console: Console = console if console else DummyConsole()
-        self._portfolio: Portfolio = DefaultPortfolio()
+        self._portfolio: Portfolio = Basic()
         self._handlers = (self._strategy,
                           self._market,
                           self._broker,

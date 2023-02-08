@@ -7,7 +7,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
 from trbox.event import Event, MarketEvent
-from trbox.event.broker import MarketOrder
+from trbox.event.broker import MarketOrder, OrderResult
 from trbox.event.handler import CounterParty
 from trbox.portfolio.dashboard import Dashboard
 
@@ -68,10 +68,15 @@ class Portfolio(CounterParty, ABC):
     def clear(self, _: Symbol) -> None:
         raise NotImplementedError
 
-
-class DefaultPortfolio(Portfolio):
+    # handle events
     @override
     def handle(self, e: Event) -> None:
         if isinstance(e, MarketEvent):
             # Log.warning(Memo(e=e).by(self))
             pass
+        if isinstance(e, OrderResult):
+            pass
+
+
+class Basic(Portfolio):
+    pass
