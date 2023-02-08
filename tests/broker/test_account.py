@@ -18,7 +18,7 @@ def test_account_trade():
     LENGTH = 200
 
     def on_window(my: Context):
-        my.trader.trade(SYMBOL, +0.2)
+        my.portfolio.trade(SYMBOL, +0.2)
         Log.info(Memo('trading',
                       cash=my.portfolio.cash,
                       position=my.portfolio.positions[SYMBOL],

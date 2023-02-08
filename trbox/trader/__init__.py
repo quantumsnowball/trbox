@@ -124,8 +124,3 @@ class Trader(Runner):
         # TODO I think user should be able to request the dashboard as long as
         # the Trader is still running. It should contain the lastest trading
         # result regardless live trading or backtesting.
-
-    # account operations
-
-    def trade(self, symbol: Symbol, quantity: float) -> dict[str, Any] | None:
-        return self._broker.trade(MarketOrder(symbol, quantity))

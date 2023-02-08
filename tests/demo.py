@@ -17,7 +17,7 @@ def test_dummy():
     # on_tick
     def dummy_action(self: Strategy, e: Candlestick):
         Log.info(f'St: price={e.price}')
-        self.trader.trade(SYMBOL, QUANTITY)
+        self.portfolio.trade(SYMBOL, QUANTITY)
 
     Trader(
         live=False,

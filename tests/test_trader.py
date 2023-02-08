@@ -32,7 +32,7 @@ def test_dummy(name, live):
             Log.info('absolute beginning')
         if my.count.every(INTERVAL):
             if not live:
-                my.trader.trade(SYMBOL, QUANTITY)
+                my.portfolio.trade(SYMBOL, QUANTITY)
             Log.info(Memo(f'every {INTERVAL}', i=my.count._i).by(
                 my.strategy).tag('count'))
         # can also access dashboard when still trading
@@ -82,7 +82,7 @@ def test_historical_data(start: Timestamp | str,
         assert isinstance(my.event, OhlcvWindow)
         assert my.event.symbol == TARGET
         assert my.event.win.shape == (length, 5)
-        my.trader.trade(TARGET, QUANTITY)
+        my.portfolio.trade(TARGET, QUANTITY)
         Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
         assert no_frontrun(my.memory, my.event)
 
@@ -90,7 +90,7 @@ def test_historical_data(start: Timestamp | str,
         assert isinstance(my.event, OhlcvWindow)
         assert my.event.symbol == REF[0]
         assert my.event.win.shape == (length, 5)
-        my.trader.trade(REF[0], QUANTITY)
+        my.portfolio.trade(REF[0], QUANTITY)
         Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
         assert no_frontrun(my.memory, my.event)
 

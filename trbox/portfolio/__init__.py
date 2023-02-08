@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Any
 
 from typing_extensions import override
 
@@ -33,6 +34,9 @@ class Portfolio(CounterParty, ABC):
     # TODO
     # these helpers should confirm there is no pending order first
     # otherwise may issue multiple order causing wrong rebalance ratio
+
+    def trade(self, symbol: Symbol, quantity: float) -> dict[str, Any] | None:
+        return self.broker.trade(MarketOrder(symbol, quantity))
 
     def rebalance(self,
                   symbol: Symbol,
