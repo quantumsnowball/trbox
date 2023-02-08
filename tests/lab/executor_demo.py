@@ -10,7 +10,6 @@ from trbox.common.logger.parser import Memo
 class Strategy:
     def __init__(self) -> None:
         self.queue = Queue()
-        self.pool = ThreadPoolExecutor()
 
     def put(self, e) -> None:
         self.queue.put(e)
@@ -22,11 +21,10 @@ class Strategy:
     def run(self) -> None:
         async def worker():
             while True:
-                loop = asyncio.get_event_loop()
                 # if I use the party_pool, it is still blocking, failed
-                e = await loop.run_in_executor(self.pool, self.queue.get)
+                e = await asyncio.to_thread(self.queue.get)
                 # Log.critical(Memo(e=e).by(self))
-                loop.create_task(self.handle(e))
+                asyncio.create_task(self.handle(e))
         asyncio.run(worker())
 
 
