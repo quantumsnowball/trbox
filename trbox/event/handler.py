@@ -24,18 +24,18 @@ class EventHandler(ABC):
     '''
 
     def __init__(self) -> None:
-        self._event_queue: Queue[Event] = Queue()
+        self._inbox: Queue[Event] = Queue()
 
     # event queue operations
     def put(self, e: Event) -> None:
-        self._event_queue.put(e)
+        self._inbox.put(e)
 
     # main loop
     def run(self) -> None:
         # when a thread is start, a infinite loop will keep run
         while True:
             # block by the get method until a event is retrieved
-            e = self._event_queue.get()
+            e = self._inbox.get()
             # Log.debug(Memo('receiving', event=cln(e)).by(self))
 
             # pass the event to the subclass method for handling
@@ -43,7 +43,7 @@ class EventHandler(ABC):
             Log.debug(Memo('handled', event=cln(e)).by(self))
 
             # mark the task done and update event count
-            self._event_queue.task_done()
+            self._inbox.task_done()
 
             # break handler if received the Exit event
             if isinstance(e, Exit):
