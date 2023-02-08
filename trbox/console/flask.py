@@ -20,6 +20,11 @@ trader: Trader | None = None
 def hello() -> dict[str, str]:
     return GREETING
 
+# TODO
+# need to support websocket streaming to a charting library
+# most like will be using TradingView data format
+# https://tradingview.github.io/lightweight-charts/
+
 
 @app.route('/console')
 def console() -> dict[str, Trader | None]:
