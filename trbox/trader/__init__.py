@@ -117,12 +117,6 @@ class Trader(Runner):
     def backtesting(self) -> bool:
         return not self._live
 
-    # account status
-
-    @property
-    def equity(self) -> float:
-        return self._broker.equity
-
     # dashboard
     @property
     def dashboard(self) -> Dashboard:
@@ -147,9 +141,9 @@ class Trader(Runner):
                   pct_target: float,
                   ref_price: float,
                   pct_min: float = 0.01) -> None:
-        target_value = self.equity * pct_target
+        target_value = self._portfolio.equity * pct_target
         net_value = target_value - self._broker.positions_worth
-        if abs(net_value / self.equity) < pct_min:
+        if abs(net_value / self._portfolio.equity) < pct_min:
             return
         target_quantity = net_value / ref_price
         Log.info(Memo(target_quantity=target_quantity)

@@ -22,7 +22,7 @@ def test_account_trade():
         Log.info(Memo('trading',
                       cash=my.portfolio.cash,
                       position=my.portfolio.positions[SYMBOL],
-                      equity=my.trader.equity)
+                      equity=my.portfolio.equity)
                  .by(my.strategy).tag(SYMBOL).sparse())
 
     Trader(
