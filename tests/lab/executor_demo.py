@@ -3,8 +3,10 @@ from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 from time import sleep
 
-from trbox.common.logger import Log
+from trbox.common.logger import Log, set_log_level
 from trbox.common.logger.parser import Memo
+
+set_log_level('INFO')
 
 
 class Party:
@@ -21,9 +23,15 @@ class Strategy(Party):
     def __init__(self) -> None:
         self.inbox = Queue()
 
-    async def handle(self, _) -> None:
-        # await asyncio.sleep(5)
-        # Log.critical(f'Processed {e} after 5 seconds')
+    async def trade(self, e) -> None:
+        await asyncio.sleep(5)
+        Log.critical(f'decided to trade on {e} after 5 seconds')
+
+    async def handle(self, e) -> None:
+        await asyncio.sleep(5)
+        Log.critical(f'Processed {e} after 5 seconds')
+        await self.trade(e)
+
         pass
 
     def run(self) -> None:
@@ -40,7 +48,7 @@ class Strategy(Party):
 
 class Market(Party):
     def run(self) -> None:
-        for i in range(50):
+        for i in range(10):
             sleep(1)
             self.strategy.inbox.put(f'Event({i})')
             # Log.critical('Market: sent Event')
