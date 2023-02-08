@@ -8,6 +8,7 @@ from trbox import strategy
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
+from trbox.console.dummy import DummyConsole
 from trbox.event.broker import MarketOrder
 from trbox.trader.dashboard import Dashboard
 
@@ -38,10 +39,11 @@ class Runner:
         self._strategy: Strategy = strategy
         self._market: Market = market
         self._broker: Broker = broker
-        self._console: Console | None = console
-        self._handlers = [self._strategy, self._market, self._broker]
-        if self._console is not None:
-            self._handlers.append(self._console)
+        self._console: Console = console if console else DummyConsole()
+        self._handlers = (self._strategy,
+                          self._market,
+                          self._broker,
+                          self._console)
         self._signal = Signal(enter=Event(),
                               broker_ready=Event())
 
