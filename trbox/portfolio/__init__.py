@@ -9,6 +9,7 @@ from trbox.common.types import Positions, Symbol
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import MarketOrder, OrderResult
 from trbox.event.handler import CounterParty
+from trbox.event.portfolio import EquityCurveUpdate
 from trbox.portfolio.dashboard import Dashboard
 
 
@@ -76,7 +77,9 @@ class Portfolio(CounterParty, ABC):
         # here your will receiving the same price info from Market as Strategy and Broker
         # use it to update the position worth, and update the rolling nav
         # log it to dashboard regularly, and also pass it to console
-        pass
+        self.console.put(EquityCurveUpdate(timestamp=e.timestamp,
+                                           equity=self.equity,
+                                           positions=self.positions))
 
     def handle_order_result(self, e: OrderResult):
         # TODO
