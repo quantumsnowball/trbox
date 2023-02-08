@@ -40,7 +40,7 @@ class RollingWindow(MarketWorker):
     @override
     def working(self) -> None:
         for symbol, df in self._window_generator:
-            hb = self.trader.strategy.heartbeats.get(
+            hb = self.strategy.heartbeats.get(
                 (symbol, OhlcvWindow), None)
 
             if hb:
@@ -49,7 +49,7 @@ class RollingWindow(MarketWorker):
             e = OhlcvWindow(timestamp=df.index[-1],
                             symbol=symbol,
                             win=df)
-            self.trader.strategy.put(e)
+            self.strategy.put(e)
             # if backtesting, broker also receive MarketEvent to simulate quote
             if self.trader.backtesting:
                 self.trader.broker.put(e)

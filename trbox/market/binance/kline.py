@@ -33,7 +33,7 @@ class BinanceKlineStreaming(BinanceWebsocket):
                 value_traded=float(k['q']),
                 bar_finished=bool(k['x']),
             )
-            self.trader.strategy.put(e)
+            self.strategy.put(e)
             # if backtesting, broker also receive MarketEvent to simulate quote
             if self.trader.backtesting:
                 self.trader.broker.put(e)

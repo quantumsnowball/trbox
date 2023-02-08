@@ -114,10 +114,6 @@ class Trader(Runner):
     # other parties
 
     @property
-    def strategy(self) -> Strategy:
-        return self._strategy
-
-    @property
     def broker(self) -> Broker:
         return self._broker
 

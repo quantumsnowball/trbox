@@ -21,7 +21,7 @@ class BinanceTradeStreaming(BinanceWebsocket):
             datetime = to_datetime(int(d['E'])*1e6)
             e = Candlestick(datetime, self._symbol, price)
 
-            self.trader.strategy.put(e)
+            self.strategy.put(e)
             # if backtesting, broker also receive MarketEvent to simulate quote
             if self.trader.backtesting:
                 self.trader.broker.put(e)
