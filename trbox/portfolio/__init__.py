@@ -9,11 +9,15 @@ from trbox.common.types import Symbol
 from trbox.event import Event
 from trbox.event.broker import MarketOrder
 from trbox.event.handler import CounterParty
+from trbox.portfolio.dashboard import Dashboard
 
 
 class Portfolio(CounterParty, ABC):
     def __init__(self) -> None:
         super().__init__()
+        # TODO How do you control when to log the equity value? should I pass
+        # in a user arg and determine from it?
+        self._dashboard = Dashboard()
 
     # account status
 
@@ -28,6 +32,15 @@ class Portfolio(CounterParty, ABC):
     @property
     def equity(self) -> float:
         return self._broker.equity
+
+    # dashboard
+
+    @property
+    def dashboard(self) -> Dashboard:
+        return self._dashboard
+        # TODO I think user should be able to request the dashboard as long as
+        # the Trader is still running. It should contain the lastest trading
+        # result regardless live trading or backtesting.
 
     # helpers
 

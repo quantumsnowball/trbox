@@ -4,14 +4,12 @@ from dataclasses import dataclass
 from threading import Event
 from typing import TYPE_CHECKING, Any
 
-from trbox import strategy
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.console.dummy import DummyConsole
-from trbox.event.broker import MarketOrder
 from trbox.portfolio import DefaultPortfolio, Portfolio
-from trbox.trader.dashboard import Dashboard
+from trbox.portfolio.dashboard import Dashboard
 
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
@@ -21,7 +19,6 @@ if TYPE_CHECKING:
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from trbox.common.types import Symbol
 from trbox.event.system import Exit, Start
 
 
@@ -103,9 +100,6 @@ class Trader(Runner):
                            broker=self._broker,
                            portfolio=self._portfolio,
                            console=self._console)
-        # TODO How do you control when to log the equity value? should I pass
-        # in a user arg and determine from it?
-        self._dashboard = Dashboard()
 
     # mode
 
@@ -120,7 +114,4 @@ class Trader(Runner):
     # dashboard
     @property
     def dashboard(self) -> Dashboard:
-        return self._dashboard
-        # TODO I think user should be able to request the dashboard as long as
-        # the Trader is still running. It should contain the lastest trading
-        # result regardless live trading or backtesting.
+        return self._portfolio.dashboard

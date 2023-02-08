@@ -10,8 +10,8 @@ from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
+from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy.context import Context
-from trbox.trader.dashboard import Dashboard
 
 
 @pytest.mark.parametrize('name', [None, 'DummySt', ])

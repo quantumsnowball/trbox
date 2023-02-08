@@ -27,7 +27,8 @@ class Broker(CounterParty, ABC):
         if isinstance(e, MarketOrder):
             self.trade(e)
         if isinstance(e, AuditRequest):
-            self.trader.dashboard.add_equity_record(e.timestamp, self.equity)
+            self.portfolio.dashboard.add_equity_record(
+                e.timestamp, self.equity)
 
     #
     # account status
