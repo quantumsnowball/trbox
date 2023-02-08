@@ -6,7 +6,7 @@ from typing_extensions import override
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
-from trbox.event import Event
+from trbox.event import Event, MarketEvent
 from trbox.event.broker import MarketOrder
 from trbox.event.handler import CounterParty
 from trbox.portfolio.dashboard import Dashboard
@@ -23,15 +23,15 @@ class Portfolio(CounterParty, ABC):
 
     @property
     def cash(self) -> float:
-        return self._broker.cash
+        return self.broker.cash
 
     @property
     def positions(self) -> dict[Symbol, float]:
-        return self._broker.positions
+        return self.broker.positions
 
     @property
     def equity(self) -> float:
-        return self._broker.equity
+        return self.broker.equity
 
     # dashboard
 
@@ -71,5 +71,7 @@ class Portfolio(CounterParty, ABC):
 
 class DefaultPortfolio(Portfolio):
     @override
-    def handle(self, _: Event) -> None:
-        pass
+    def handle(self, e: Event) -> None:
+        if isinstance(e, MarketEvent):
+            # Log.warning(Memo(e=e).by(self))
+            pass
