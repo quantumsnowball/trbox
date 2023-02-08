@@ -35,7 +35,7 @@ def test_binance_trade_streaming():
         win.append(my.event.price)
         if my.count.every(INTERVAL):
             pnlr: float = Series(win).rank(pct=True).iloc[-1]
-            my.trader.rebalance(SYMBOL, pnlr, price)
+            my.portfolio.rebalance(SYMBOL, pnlr, price)
             Log.info(Memo('counter hit', i=my.count._i, e=ppf(my.event))
                      .by(my.strategy).tag('period', 'regular', f'bar{INTERVAL}').sparse())
 

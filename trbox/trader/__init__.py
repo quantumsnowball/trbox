@@ -129,26 +129,3 @@ class Trader(Runner):
 
     def trade(self, symbol: Symbol, quantity: float) -> dict[str, Any] | None:
         return self._broker.trade(MarketOrder(symbol, quantity))
-
-    # helpers
-
-    # TODO
-    # these helpers should confirm there is no pending order first
-    # otherwise may issue multiple order causing wrong rebalance ratio
-
-    def rebalance(self,
-                  symbol: Symbol,
-                  pct_target: float,
-                  ref_price: float,
-                  pct_min: float = 0.01) -> None:
-        target_value = self._portfolio.equity * pct_target
-        net_value = target_value - self._broker.positions_worth
-        if abs(net_value / self._portfolio.equity) < pct_min:
-            return
-        target_quantity = net_value / ref_price
-        Log.info(Memo(target_quantity=target_quantity)
-                 .by(self).sparse())
-        self._broker.trade(MarketOrder(symbol, target_quantity))
-
-    def clear(self, symbol: Symbol) -> None:
-        raise NotImplementedError
