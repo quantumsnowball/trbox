@@ -12,7 +12,7 @@ from trbox.market.binance import BinanceWebsocket
 
 
 class BinanceTradeStreaming(BinanceWebsocket):
-    def __init__(self, *args, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def on_data(self, d: dict[str, str]) -> None:

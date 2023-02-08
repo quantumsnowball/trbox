@@ -46,7 +46,7 @@ class BinanceTestnet(Broker):
     def trade(self, e: MarketOrder) -> dict[str, Any]:
         assert e.quantity != 0
         side = 'BUY' if e.quantity > 0 else 'SELL'
-        result = self._client.new_order(
+        result: dict[str, Any] = self._client.new_order(
             symbol=e.symbol,
             side=side,
             type='MARKET',

@@ -71,7 +71,7 @@ class PaperEX(Broker):
 
     # handler
 
-    def update_order_book(self, e: MarketEvent):
+    def update_order_book(self, e: MarketEvent) -> None:
         symbol = e.symbol
         timestamp = None
         price = None

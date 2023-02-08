@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 from trbox.common.types import Symbol
 from trbox.event import Event
-from trbox.event.broker import AuditRequest, Order
+from trbox.event.broker import AuditRequest, MarketOrder
 from trbox.event.handler import CounterParty
 
 
@@ -23,7 +24,7 @@ class Broker(CounterParty, ABC):
         self._positions: dict[Symbol, float]
 
     def handle(self, e: Event) -> None:
-        if isinstance(e, Order):
+        if isinstance(e, MarketOrder):
             self.trade(e)
         if isinstance(e, AuditRequest):
             self.trader.dashboard.add_equity_record(e.timestamp, self.equity)
@@ -58,5 +59,5 @@ class Broker(CounterParty, ABC):
     # trade operations
     #
     @abstractmethod
-    def trade(self, e: Order) -> None:
+    def trade(self, e: MarketOrder) -> dict[str, Any] | None:
         pass

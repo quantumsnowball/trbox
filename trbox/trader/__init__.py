@@ -135,7 +135,7 @@ class Trader(Runner):
 
     # account operations
 
-    def trade(self, symbol: Symbol, quantity: float) -> None:
+    def trade(self, symbol: Symbol, quantity: float) -> dict[str, Any] | None:
         return self._broker.trade(MarketOrder(symbol, quantity))
 
     # helpers

@@ -13,7 +13,7 @@ from trbox.market.binance import BinanceWebsocket
 
 class BinanceKlineStreaming(BinanceWebsocket):
     def __init__(self,
-                 *args,
+                 *args: Any,
                  interval: str = '1m',
                  **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)

@@ -17,17 +17,17 @@ trader: Trader | None = None
 
 
 @app.route("/")
-def hello():
+def hello() -> dict[str, str]:
     return GREETING
 
 
 @app.route('/console')
-def console():
+def console() -> dict[str, Trader | None]:
     return {'trader': trader}
 
 
 @app.route('/navs')
-def navs():
+def navs() -> str:
     if trader:
         try:
             info = DataFrame(trader.dashboard.navs).to_html()
@@ -43,7 +43,7 @@ def navs():
 
 
 @app.route('/tradelog')
-def tradelog():
+def tradelog() -> str:
     if trader:
         try:
             info = trader.dashboard.trade_reacords.to_html()
