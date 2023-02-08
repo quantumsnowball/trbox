@@ -111,12 +111,6 @@ class Trader(Runner):
     def backtesting(self) -> bool:
         return not self._live
 
-    # other parties
-
-    @property
-    def market(self) -> Market:
-        return self._market
-
     # account status
 
     @property
