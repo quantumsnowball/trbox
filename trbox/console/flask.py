@@ -63,30 +63,35 @@ def tradelog() -> str:
         return 'no trader'
 
 
-@app.route("/frontend")
-@app.route("/frontend/")
+FRONTEND_PREFIX = 'dashboard'
+FRONTEND_LOCAL_DIR = 'tests/lab/static/'
+DEFAULT_FILENAME = 'index.html'
+
+
+@app.route(f'/{FRONTEND_PREFIX}')
+@app.route(f'/{FRONTEND_PREFIX}/')
 def serve_static_index() -> Response:
     try:
-        return send_file('tests/lab/static/index.html')
+        return send_file(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
     except Exception as e:
         Log.exception(e)
-        return Response('Exception')
+        return Response('File not found.')
 
 
-@app.route("/frontend/<path:filename>")
+@app.route(f'/{FRONTEND_PREFIX}/<path:filename>')
 def serve_static(filename) -> Response:
     try:
         # return send_from_directory('~/Dev/trbox-dashboard/out/', filename)
         # app.logger.warning(f'filename={filename}')
 
-        return send_from_directory('tests/lab/static', filename)
+        return send_from_directory(FRONTEND_LOCAL_DIR, filename)
 
         # must use relative path to our root dir
         # return send_file('tests/lab/static/index.html')
 
     except Exception as e:
         Log.exception(e)
-        return Response('Exception')
+        return Response('File not found.')
 
 
 # trbox event handler
