@@ -63,10 +63,21 @@ def tradelog() -> str:
         return 'no trader'
 
 
+@app.route("/frontend")
+@app.route("/frontend/")
+def serve_static_index() -> Response:
+    try:
+        return send_file('tests/lab/static/index.html')
+    except Exception as e:
+        Log.exception(e)
+        return Response('Exception')
+
+
 @app.route("/frontend/<path:filename>")
 def serve_static(filename) -> Response:
     try:
         # return send_from_directory('~/Dev/trbox-dashboard/out/', filename)
+        # app.logger.warning(f'filename={filename}')
 
         return send_from_directory('tests/lab/static', filename)
 
