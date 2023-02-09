@@ -2,6 +2,7 @@ from flask import Flask, send_file, send_from_directory
 from flask.wrappers import Response
 from pandas import DataFrame
 from typing_extensions import override
+from werkzeug.utils import secure_filename
 
 from trbox.common.logger import Log
 from trbox.console import Console
@@ -15,9 +16,38 @@ trader: Trader | None = None
 # routes
 
 
-@app.route("/")
-def hello() -> dict[str, str]:
-    return GREETING
+FRONTEND_PREFIX = 'dashboard'
+# FRONTEND_LOCAL_DIR = 'tests/lab/static/'
+FRONTEND_LOCAL_DIR = '../trbox-dashboard/out/'
+DEFAULT_FILENAME = 'index.html'
+
+
+# @app.route(f'/{FRONTEND_PREFIX}')
+# @app.route(f'/{FRONTEND_PREFIX}/')
+@app.route('/')
+def serve_static_index() -> Response:
+    try:
+        return send_file(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
+    except Exception as e:
+        Log.exception(e)
+        return Response('File not found.')
+
+
+# @app.route(f'/{FRONTEND_PREFIX}/<path:filename>')
+@app.route(f'/<path:filename>')
+def serve_static(filename) -> Response:
+    try:
+        # return send_from_directory('~/Dev/trbox-dashboard/out/', filename)
+        # app.logger.warning(f'filename={filename}')
+
+        return send_from_directory(FRONTEND_LOCAL_DIR, filename)
+
+        # must use relative path to our root dir
+        # return send_file('tests/lab/static/index.html')
+
+    except Exception as e:
+        Log.exception(e)
+        return Response('File not found.')
 
 
 # TODO
@@ -61,38 +91,6 @@ def tradelog() -> str:
             return 'no info'
     else:
         return 'no trader'
-
-
-FRONTEND_PREFIX = 'dashboard'
-# FRONTEND_LOCAL_DIR = 'tests/lab/static/'
-FRONTEND_LOCAL_DIR = '../trbox-dashboard/out/'
-DEFAULT_FILENAME = 'index.html'
-
-
-@app.route(f'/{FRONTEND_PREFIX}')
-@app.route(f'/{FRONTEND_PREFIX}/')
-def serve_static_index() -> Response:
-    try:
-        return send_file(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
-    except Exception as e:
-        Log.exception(e)
-        return Response('File not found.')
-
-
-@app.route(f'/{FRONTEND_PREFIX}/<path:filename>')
-def serve_static(filename) -> Response:
-    try:
-        # return send_from_directory('~/Dev/trbox-dashboard/out/', filename)
-        # app.logger.warning(f'filename={filename}')
-
-        return send_from_directory(FRONTEND_LOCAL_DIR, filename)
-
-        # must use relative path to our root dir
-        # return send_file('tests/lab/static/index.html')
-
-    except Exception as e:
-        Log.exception(e)
-        return Response('File not found.')
 
 
 # trbox event handler
