@@ -43,6 +43,7 @@ def serve_static(filename) -> Response:
         return send_from_directory(FRONTEND_LOCAL_DIR, filename)
     except Exception as e:
         Log.exception(e)
+        # TODO client cannot directly access the client side path, e.g. /tradelog
         return Response('File not found.')
 
 
@@ -99,7 +100,8 @@ def test_connect() -> None:
 @socketio.on('message')
 def handle_message(message):
     print(f'received message: {message}')
-    send(message, broadcast=True)
+    # send(message, broadcast=True)
+    send(message)
 
 # trbox event handler
 
