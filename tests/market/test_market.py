@@ -44,7 +44,7 @@ def test_binance_trade_streaming():
         .on(SYMBOL, Candlestick, do=handle),
         market=BinanceTradeStreaming(symbol=SYMBOL),
         broker=PaperEX(SYMBOL),
-        console=FlaskConsole(port=30000)
+        console=FlaskConsole(port=5000)
     ).run()
 
 

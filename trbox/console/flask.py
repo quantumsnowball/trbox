@@ -1,6 +1,5 @@
-import json
-
-from flask import Flask
+from flask import Flask, send_from_directory
+from flask.wrappers import Response
 from pandas import DataFrame
 from typing_extensions import override
 
@@ -20,18 +19,19 @@ trader: Trader | None = None
 def hello() -> dict[str, str]:
     return GREETING
 
+
 # TODO
 # need to support websocket streaming to a charting library
 # most like will be using TradingView data format
 # https://tradingview.github.io/lightweight-charts/
 
 
-@app.route('/console')
-def console() -> dict[str, Trader | None]:
-    return {'trader': trader}
+@app.route('/rest/console')
+def console() -> str:
+    return 'Console'
 
 
-@app.route('/navs')
+@app.route('/rest/navs')
 def navs() -> str:
     if trader:
         try:
@@ -47,21 +47,30 @@ def navs() -> str:
         return 'no trader'
 
 
-@app.route('/tradelog')
+@app.route('/rest/tradelog')
 def tradelog() -> str:
     if trader:
         try:
             info = trader.dashboard.trade_reacords.to_html()
         except Exception as e:
-            info = str(trader.dashboard.trade_reacords)
+            info = 'Trade log not yet available, please come back later.'
             Log.exception(e)
-            breakpoint()
         if info:
             return info
         else:
             return 'no info'
     else:
         return 'no trader'
+
+
+@app.route("/frontend/<path:filename>")
+def serve_static(filename) -> Response:
+    try:
+        # return send_from_directory('~/Dev/trbox-dashboard/out/', filename)
+        return send_from_directory('tests/lab/static', filename)
+    except Exception as e:
+        Log.exception(e)
+        return
 
 
 # trbox event handler
@@ -80,7 +89,10 @@ class FlaskConsole(Console):
         trader = self.trader
         Log.critical('Flask Console started, trader should have assigned!')
         # start server
-        app.run(port=self._port)
+        try:
+            app.run(port=self._port)
+        except Exception as e:
+            Log.exception(e)
         # blocked here?
 
     @override
