@@ -18,11 +18,11 @@ def test_account_trade():
     LENGTH = 200
 
     def on_window(my: Context):
-        my.trader.trade(SYMBOL, +0.2)
+        my.portfolio.trade(SYMBOL, +0.2)
         Log.info(Memo('trading',
-                      cash=my.trader.cash,
-                      position=my.trader.positions[SYMBOL],
-                      equity=my.trader.equity)
+                      cash=my.portfolio.cash,
+                      position=my.portfolio.positions[SYMBOL],
+                      equity=my.portfolio.equity)
                  .by(my.strategy).tag(SYMBOL).sparse())
 
     Trader(
@@ -44,8 +44,8 @@ def test_account_cash(cash: float):
     SYMBOL = 'CASH'
 
     def on_tick(my: Context):
-        assert my.trader.cash == cash
-        Log.info(Memo(cash=my.trader.cash)
+        assert my.portfolio.cash == cash
+        Log.info(Memo(cash=my.portfolio.cash)
                  .by(my.strategy).tag('initial', 'cash'))
 
     Trader(

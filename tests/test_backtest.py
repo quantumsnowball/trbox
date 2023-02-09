@@ -10,8 +10,8 @@ from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
+from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy.context import Context
-from trbox.trader.dashboard import Dashboard
 
 
 @pytest.mark.parametrize('name', [None, 'DummySt', ])
@@ -22,7 +22,7 @@ def test_dummy(name, parallel):
 
     # on_tick
     def dummy_action(my: Context):
-        my.trader.trade(SYMBOL, QUANTITY)
+        my.portfolio.trade(SYMBOL, QUANTITY)
 
     bt = Backtest(
         Trader(
@@ -63,7 +63,7 @@ def test_historical_data(start: Timestamp | str,
         e = my.event
         assert isinstance(e, OhlcvWindow)
         assert e.win.shape == (length, 5)
-        my.trader.trade(SYMBOL, QUANTITY)
+        my.portfolio.trade(SYMBOL, QUANTITY)
         Log.info(Memo(date=e.datetime, shape=e.ohlcv.shape, close=e.close)
                  .by(my.strategy))
 

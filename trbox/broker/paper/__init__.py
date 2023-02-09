@@ -63,7 +63,7 @@ class PaperEX(Broker):
         # on valid trading result, settlement
         if r.quantity and r.net_proceeds:
             self.strategy.put(r)
-            self.trader.dashboard.add_trade_record(r)
+            self.portfolio.dashboard.add_trade_record(r)
             # adjust cash
             self._cash += r.net_proceeds
             # adjust position

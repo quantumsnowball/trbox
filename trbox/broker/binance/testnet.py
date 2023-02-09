@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from typing_extensions import override
 
 from trbox.broker import Broker
-from trbox.common.types import Symbol
+from trbox.common.types import Positions, Symbol
 from trbox.event.broker import MarketOrder
 
 load_dotenv()
@@ -29,7 +29,7 @@ class BinanceTestnet(Broker):
 
     @property
     @override
-    def positions(self) -> dict[Symbol, float]:
+    def positions(self) -> Positions:
         return {}
 
     @property

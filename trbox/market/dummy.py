@@ -38,9 +38,9 @@ class DummyPrice(MarketWorker):
 
             e = Candlestick(Timestamp.now(), self._symbol, i)
             self.strategy.put(e)
-            # if backtesting, broker also receive MarketEvent to simulate quote
-            if self.trader.backtesting:
-                self.broker.put(e)
+            self.broker.put(e)
+            self.portfolio.put(e)
+
             # TODO other parties should decide when to audit
             self.broker.put(AuditRequest(e.timestamp))
 

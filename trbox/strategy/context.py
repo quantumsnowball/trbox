@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from trbox.event import MarketEvent
 from trbox.strategy.types import MemoryCell, MemorySized, Memroy
 from trbox.trader import Trader
 
 if TYPE_CHECKING:
+    from trbox.broker import Broker
+    from trbox.portfolio import Portfolio
     from trbox.strategy import Strategy
 
 
@@ -57,3 +59,11 @@ class Context:
     @property
     def trader(self) -> Trader:
         return self.strategy.trader
+
+    @property
+    def broker(self) -> Broker:
+        return self.strategy.broker
+
+    @property
+    def portfolio(self) -> Portfolio:
+        return self.strategy.portfolio

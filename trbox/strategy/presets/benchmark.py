@@ -11,7 +11,7 @@ def regular_rebalance(symbol: Symbol, pct_target: float) -> Hook:
     def do_rebalance(my: Context) -> None:
         e = my.event
         assert isinstance(e, OhlcvWindow)
-        my.trader.rebalance(symbol, pct_target, e.close)
+        my.portfolio.rebalance(symbol, pct_target, e.close)
     return do_rebalance
 
 

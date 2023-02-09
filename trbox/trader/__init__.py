@@ -4,13 +4,12 @@ from dataclasses import dataclass
 from threading import Event
 from typing import TYPE_CHECKING, Any
 
-from trbox import strategy
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.console.dummy import DummyConsole
-from trbox.event.broker import MarketOrder
-from trbox.trader.dashboard import Dashboard
+from trbox.portfolio import Basic, Portfolio
+from trbox.portfolio.dashboard import Dashboard
 
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from trbox.common.types import Symbol
 from trbox.event.system import Exit, Start
 
 
@@ -40,10 +38,12 @@ class Runner:
         self._market: Market = market
         self._broker: Broker = broker
         self._console: Console = console if console else DummyConsole()
+        self._portfolio: Portfolio = Basic()
         self._handlers = (self._strategy,
                           self._market,
                           self._broker,
-                          self._console)
+                          self._console,
+                          self._portfolio, )
         self._signal = Signal(enter=Event(),
                               broker_ready=Event())
 
@@ -98,10 +98,8 @@ class Trader(Runner):
                            strategy=self._strategy,
                            market=self._market,
                            broker=self._broker,
+                           portfolio=self._portfolio,
                            console=self._console)
-        # TODO How do you control when to log the equity value? should I pass
-        # in a user arg and determine from it?
-        self._dashboard = Dashboard()
 
     # mode
 
@@ -113,52 +111,7 @@ class Trader(Runner):
     def backtesting(self) -> bool:
         return not self._live
 
-    # account status
-
-    @property
-    def cash(self) -> float:
-        return self._broker.cash
-
-    @property
-    def positions(self) -> dict[Symbol, float]:
-        return self._broker.positions
-
-    @property
-    def equity(self) -> float:
-        return self._broker.equity
-
     # dashboard
     @property
     def dashboard(self) -> Dashboard:
-        return self._dashboard
-        # TODO I think user should be able to request the dashboard as long as
-        # the Trader is still running. It should contain the lastest trading
-        # result regardless live trading or backtesting.
-
-    # account operations
-
-    def trade(self, symbol: Symbol, quantity: float) -> dict[str, Any] | None:
-        return self._broker.trade(MarketOrder(symbol, quantity))
-
-    # helpers
-
-    # TODO
-    # these helpers should confirm there is no pending order first
-    # otherwise may issue multiple order causing wrong rebalance ratio
-
-    def rebalance(self,
-                  symbol: Symbol,
-                  pct_target: float,
-                  ref_price: float,
-                  pct_min: float = 0.01) -> None:
-        target_value = self.equity * pct_target
-        net_value = target_value - self._broker.positions_worth
-        if abs(net_value / self.equity) < pct_min:
-            return
-        target_quantity = net_value / ref_price
-        Log.info(Memo(target_quantity=target_quantity)
-                 .by(self).sparse())
-        self._broker.trade(MarketOrder(symbol, target_quantity))
-
-    def clear(self, symbol: Symbol) -> None:
-        raise NotImplementedError
+        return self._portfolio.dashboard
