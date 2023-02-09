@@ -22,8 +22,6 @@ FRONTEND_LOCAL_DIR = '../trbox-dashboard/out/'
 DEFAULT_FILENAME = 'index.html'
 
 
-# @app.route(f'/{FRONTEND_PREFIX}')
-# @app.route(f'/{FRONTEND_PREFIX}/')
 @app.route('/')
 def serve_static_index() -> Response:
     try:
@@ -33,18 +31,10 @@ def serve_static_index() -> Response:
         return Response('File not found.')
 
 
-# @app.route(f'/{FRONTEND_PREFIX}/<path:filename>')
 @app.route(f'/<path:filename>')
 def serve_static(filename) -> Response:
     try:
-        # return send_from_directory('~/Dev/trbox-dashboard/out/', filename)
-        # app.logger.warning(f'filename={filename}')
-
         return send_from_directory(FRONTEND_LOCAL_DIR, filename)
-
-        # must use relative path to our root dir
-        # return send_file('tests/lab/static/index.html')
-
     except Exception as e:
         Log.exception(e)
         return Response('File not found.')
