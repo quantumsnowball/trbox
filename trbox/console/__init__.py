@@ -2,6 +2,8 @@ from abc import abstractmethod
 
 from typing_extensions import override
 
+from trbox.common.logger import Log
+from trbox.common.logger.parser import Memo
 from trbox.event import Event
 from trbox.event.handler import CounterParty
 from trbox.event.system import Start

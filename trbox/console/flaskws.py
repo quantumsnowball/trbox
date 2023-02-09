@@ -1,18 +1,22 @@
 from flask import Flask, send_file, send_from_directory
 from flask.wrappers import Response
-from flask_socketio import SocketIO, send
+from flask_socketio import SocketIO, emit, send
 from pandas import DataFrame
 from typing_extensions import override
 
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console import Console
+from trbox.event import Event
+from trbox.event.portfolio import EquityCurveUpdate
 from trbox.trader import Trader
 
 app = Flask('trbox-console')
-socketio = SocketIO(app, cors_allowed_origins='*')
+socketio = SocketIO(app,
+                    cors_allowed_origins='*',
+                    async_mode='threading')
 # need to allow cors for a local file domain client to connect
-
+app.run
 app.logger.setLevel('INFO')
 
 
@@ -124,6 +128,7 @@ class FlaskConsole(Console):
             # Log.info(Memo('app.run()').by(self))
 
             socketio.run(app, port=self._port)
+            # becareful blocked after this point
             Log.info(Memo('socketio.run()').by(self))
         except Exception as e:
             Log.exception(e)
@@ -132,3 +137,14 @@ class FlaskConsole(Console):
     @override
     def stop(self) -> None:
         Log.error('How to stop flask server in Python?')
+
+    @override
+    def handle(self, e: Event) -> None:
+        super().handle(e)
+        # BUG right after this point code blocked doesn't run!!!
+        # Log.critical(Memo('Can you get pass this point?').by(self))
+
+        if isinstance(e, EquityCurveUpdate):
+            socketio.emit('EquityCurveUpdate', {'timestamp': e.timestamp,
+                                                'equity': e.equity})
+            Log.critical('equity curve update')
