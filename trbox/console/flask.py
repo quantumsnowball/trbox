@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory
+from flask import Flask, send_file, send_from_directory
 from flask.wrappers import Response
 from pandas import DataFrame
 from typing_extensions import override
@@ -63,14 +63,16 @@ def tradelog() -> str:
         return 'no trader'
 
 
-@app.route("/frontend/<path:filename>")
-def serve_static(filename) -> Response:
+@app.route("/frontend")
+def serve_static() -> Response:
     try:
         # return send_from_directory('~/Dev/trbox-dashboard/out/', filename)
-        return send_from_directory('tests/lab/static', filename)
+
+        # must use relative path to our root dir
+        return send_file('tests/lab/static/index.html')
     except Exception as e:
         Log.exception(e)
-        return
+        return Response('Exception')
 
 
 # trbox event handler
