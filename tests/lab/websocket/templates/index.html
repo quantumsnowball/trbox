@@ -2,17 +2,49 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Socket Chat</title>
+  <title>Socket Chat</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"
+    integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"
+    integrity="sha512-uXal8CICQ52UxoF9A3yBP6GUXGu5N2IoTZf/YXGMW4M0AvNyViA0ZjpGf9uqRpkN4kyx41Y5I0DmTQNOS6G05A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
+  <header>
+    <h1>Socket Chat</h1>
+  </header>
 
-    <header>
-        <h1>Socket Chat</h1>
-    </header>
+  <input type='text' id='username' placeholder='Username'>
+  <input type='text' id='message' placeholder='Message'>
+  <button id='send-btn'>Send</button>
+  <button id='clear-btn'>Clear</button>
+  <div id='chats'></div>
+
+  <script type='text/javascript'>
+    $(document).ready(function () {
+      let socket = io.connect('http://localhost:5000')
+
+      socket.on('connect', function () {
+        socket.send('Welcome, you are CONNECTED');
+      });
+
+      socket.on('message', function (data) {
+        $('#chats').append($('<p>').text(data))
+      });
+
+      $('#send-btn').on('click', function () {
+        socket.send($('#username').val() + ': ' + $('#message').val())
+      })
+      $('#clear-btn').on('click', function () {
+        $('#chats').empty()
+      })
+    })
+  </script>
 
 </body>
 

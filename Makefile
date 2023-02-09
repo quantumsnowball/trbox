@@ -102,6 +102,8 @@ change-pytest-log-format:
 # not test case but can be testing anything
 demo:
 	@python tests/demo.py
+demo-websocket-chat:
+	@python tests/lab/websocket/socket-chat.py
 
 #
 # UML diagrams gen
