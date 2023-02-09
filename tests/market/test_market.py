@@ -9,7 +9,7 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import ppf
-from trbox.console.flask import FlaskConsole
+from trbox.console.flaskws import FlaskConsole
 from trbox.event.market import Candlestick, Kline
 from trbox.market.binance.kline import BinanceKlineStreaming
 from trbox.market.binance.trade import BinanceTradeStreaming
@@ -44,7 +44,7 @@ def test_binance_trade_streaming():
         .on(SYMBOL, Candlestick, do=handle),
         market=BinanceTradeStreaming(symbol=SYMBOL),
         broker=PaperEX(SYMBOL),
-        console=FlaskConsole(port=5000)
+        console=FlaskConsole()
     ).run()
 
 

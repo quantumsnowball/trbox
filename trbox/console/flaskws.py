@@ -1,14 +1,20 @@
 from flask import Flask, send_file, send_from_directory
 from flask.wrappers import Response
+from flask_socketio import SocketIO, send
 from pandas import DataFrame
 from typing_extensions import override
-from werkzeug.utils import secure_filename
 
 from trbox.common.logger import Log
+from trbox.common.logger.parser import Memo
 from trbox.console import Console
 from trbox.trader import Trader
 
 app = Flask('trbox-console')
+socketio = SocketIO(app, cors_allowed_origins='*')
+# need to allow cors for a local file domain client to connect
+
+app.logger.setLevel('INFO')
+
 
 GREETING = {'message': 'hello from dashboard!'}
 
@@ -82,13 +88,25 @@ def tradelog() -> str:
     else:
         return 'no trader'
 
+# websocket
+
+
+@socketio.on('connect')
+def test_connect() -> None:
+    Log.critical(f'Someone has connected to websocket')
+
+
+@socketio.on('message')
+def handle_message(message):
+    print(f'received message: {message}')
+    send(message, broadcast=True)
 
 # trbox event handler
 
 
 class FlaskConsole(Console):
     def __init__(self,
-                 port: int = 3000) -> None:
+                 port: int = 5000) -> None:
         super().__init__()
         self._port = port
 
@@ -100,7 +118,11 @@ class FlaskConsole(Console):
         Log.critical('Flask Console started, trader should have assigned!')
         # start server
         try:
-            app.run(port=self._port)
+            # app.run(port=self._port)
+            # Log.info(Memo('app.run()').by(self))
+
+            socketio.run(app, port=self._port)
+            Log.info(Memo('socketio.run()').by(self))
         except Exception as e:
             Log.exception(e)
         # blocked here?
