@@ -64,7 +64,8 @@ def tradelog() -> str:
 
 
 FRONTEND_PREFIX = 'dashboard'
-FRONTEND_LOCAL_DIR = 'tests/lab/static/'
+# FRONTEND_LOCAL_DIR = 'tests/lab/static/'
+FRONTEND_LOCAL_DIR = '../trbox-dashboard/out/'
 DEFAULT_FILENAME = 'index.html'
 
 
