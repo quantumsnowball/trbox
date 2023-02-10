@@ -8,7 +8,7 @@ from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.console.flask_socketio import FlaskSocketIO
+from trbox.console.flask_sock import FlaskSock
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
@@ -49,7 +49,7 @@ def test_dummy(name, live):
         .on('BTC', Candlestick, do=dummy_action),
         market=DummyPrice(SYMBOL),
         broker=PaperEX(SYMBOL),
-        console=FlaskSocketIO()
+        console=FlaskSock()
     )
     t.run()
     # up to here the market data terminated, simular to user termination
