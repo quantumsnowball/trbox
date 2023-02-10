@@ -114,7 +114,7 @@ def handle_message(message):
 # trbox event handler
 
 
-class FlaskConsole(Console):
+class FlaskSocketIO(Console):
     def __init__(self,
                  port: int = 5000) -> None:
         super().__init__()
