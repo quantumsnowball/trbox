@@ -1,6 +1,8 @@
+from threading import Thread
+
 from flask import Flask, send_file, send_from_directory
 from flask.wrappers import Response
-from flask_socketio import SocketIO, emit, send
+from flask_socketio import SocketIO, emit, join_room, send
 from pandas import DataFrame
 from typing_extensions import override
 
@@ -12,11 +14,12 @@ from trbox.event.portfolio import EquityCurveUpdate
 from trbox.trader import Trader
 
 app = Flask('trbox-console')
-socketio = SocketIO(app,
-                    cors_allowed_origins='*',
-                    async_mode='threading')
+socketio = SocketIO(
+    app,
+    cors_allowed_origins='*',
+    # async_mode='threading'
+)
 # need to allow cors for a local file domain client to connect
-app.run
 app.logger.setLevel('INFO')
 
 
@@ -98,12 +101,13 @@ def tradelog() -> str:
 
 @socketio.on('connect')
 def test_connect() -> None:
-    Log.critical(f'Someone has connected to websocket')
+    join_room('equity-curve')
+    Log.warning(f'Someone has connected to websocket')
 
 
 @socketio.on('message')
 def handle_message(message):
-    print(f'received message: {message}')
+    Log.critical(f'received message: {message}')
     # send(message, broadcast=True)
     send(message)
 
@@ -121,15 +125,17 @@ class FlaskConsole(Console):
         # inject trader instance to global
         global trader
         trader = self.trader
-        Log.critical('Flask Console started, trader should have assigned!')
+        Log.warning('Flask Console started, trader should have assigned!')
         # start server
         try:
-            # app.run(port=self._port)
-            # Log.info(Memo('app.run()').by(self))
-
-            socketio.run(app, port=self._port)
-            # becareful blocked after this point
-            Log.info(Memo('socketio.run()').by(self))
+            # socketio.run(app, port=self._port)
+            server_thread = Thread(target=socketio.run,
+                                   args=(app, ),
+                                   kwargs=dict(
+                                       port=self._port),
+                                   daemon=True)
+            server_thread.start()
+            # be careful must not block after this point
         except Exception as e:
             Log.exception(e)
         # blocked here?
@@ -138,13 +144,21 @@ class FlaskConsole(Console):
     def stop(self) -> None:
         Log.error('How to stop flask server in Python?')
 
+    #
+    # handle events
+    #
+
+    def handle_equity_curve_update(self, e: EquityCurveUpdate):
+        # socketio.send({'timestamp': e.timestamp.timestamp(),
+        #                'equity': e.equity},
+        #               json=True, )
+        # socketio.send('EquityCurveUpdate',
+        #               to='equity-curve', include_self=True)
+        Log.warning(Memo('sent EquityCurveUpdate').by(self))
+
     @override
     def handle(self, e: Event) -> None:
         super().handle(e)
-        # BUG right after this point code blocked doesn't run!!!
-        # Log.critical(Memo('Can you get pass this point?').by(self))
-
+        # be careful must not block after this point
         if isinstance(e, EquityCurveUpdate):
-            socketio.emit('EquityCurveUpdate', {'timestamp': e.timestamp,
-                                                'equity': e.equity})
-            Log.critical('equity curve update')
+            self.handle_equity_curve_update(e)
