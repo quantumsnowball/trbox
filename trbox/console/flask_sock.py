@@ -31,23 +31,16 @@ FRONTEND_LOCAL_DIR = '../trbox-dashboard/out/'
 DEFAULT_FILENAME = 'index.html'
 
 
+# main html and website files
+
 @app.route('/')
-def serve_static_index() -> Response:
-    try:
-        return send_file(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
-    except Exception as e:
-        Log.exception(e)
-        return Response('File not found.')
+def index() -> Response:
+    return send_file(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
 
 
 @app.route(f'/<path:filename>')
-def serve_static(filename) -> Response:
-    try:
-        return send_from_directory(FRONTEND_LOCAL_DIR, filename)
-    except Exception as e:
-        Log.exception(e)
-        # TODO client cannot directly access the client side path, e.g. /tradelog
-        return Response('File not found.')
+def everything_else(filename) -> Response:
+    return send_from_directory(FRONTEND_LOCAL_DIR, filename)
 
 
 # TODO
@@ -55,6 +48,7 @@ def serve_static(filename) -> Response:
 # most like will be using TradingView data format
 # https://tradingview.github.io/lightweight-charts/
 
+# restful api paths
 
 @app.route('/rest/console')
 def console() -> str:
@@ -91,6 +85,16 @@ def tradelog() -> str:
             return 'no info'
     else:
         return 'no trader'
+
+# error
+
+
+@app.errorhandler(404)
+def page_not_found(e: Exception):
+    # if 404 not found, deliver the index.html by default
+    # e.g. client side router only paths
+    Log.exception(e)
+    return send_file(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
 
 # websocket
 
