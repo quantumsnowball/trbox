@@ -105,7 +105,7 @@ demo:
 demo-websocket-chat:
 	@python tests/lab/websocket/socket-chat.py
 demo-gunicorn:
-	@gunicorn -b 127.0.0.1:5000 --workers 4 --threads 4 trbox.console.flask_socketio:app
+	@gunicorn -b 127.0.0.1:5000 --workers 4 --threads 4 trbox.console.flask_sock:app
 
 #
 # UML diagrams gen

@@ -132,6 +132,7 @@ class FlaskSock(Console):
         try:
             server_thread = Thread(target=app.run,
                                    kwargs=dict(
+                                       host='0.0.0.0',
                                        port=self._port),
                                    daemon=True)
             server_thread.start()
