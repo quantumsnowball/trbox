@@ -40,11 +40,8 @@ class TrboxDashboard(Console):
     # handle party events
     #
 
-    def handle_equity_curve_update(self, _: EquityCurveUpdate):
-        async def do_something():
-            await asyncio.sleep(1)
-            Log.critical('I will push updated equity curve to client')
-        self._websocket.create_task(do_something())
+    def handle_equity_curve_update(self, e: EquityCurveUpdate):
+        self._websocket.send(f'equity={e.equity}')
 
     @override
     def handle(self, e: Event) -> None:
