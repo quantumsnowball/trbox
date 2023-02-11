@@ -20,9 +20,8 @@ async def echo(websocket):
 class WebSocketService(Service):
     def __init__(self,
                  *args: Any,
-                 port: int = 8000,
                  **kwargs: Any) -> None:
-        super().__init__(*args, port=port, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @override
     async def main(self):

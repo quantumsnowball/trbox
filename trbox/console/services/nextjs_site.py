@@ -47,9 +47,8 @@ async def on_request_error(request: web.Request, handler):
 class NextSite(Service):
     def __init__(self,
                  *args: Any,
-                 port: int = 5000,
                  **kwargs: Any):
-        super().__init__(*args, port=port, **kwargs)
+        super().__init__(*args, **kwargs)
         self._app = web.Application(middlewares=[on_request_error, ])
         self._app.add_routes(routes)
         self._runner = web.AppRunner(self._app)
