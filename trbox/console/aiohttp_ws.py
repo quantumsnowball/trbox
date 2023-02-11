@@ -55,7 +55,7 @@ async def on_request_error(request: web.Request, handler):
         return web.FileResponse(ENTRY_POINT)
 
 
-class AioHttpServer(Console):
+class TrboxDashboard(Console):
     def __init__(self,
                  port_website: int = 5000,
                  port_websocket: int = 8000) -> None:
@@ -109,7 +109,7 @@ class AioHttpServer(Console):
     def handle_equity_curve_update(self, e: EquityCurveUpdate):
         async def do_something():
             await asyncio.sleep(1)
-            Log.critical('Yeah, I will push updated info to client')
+            Log.critical('I will push updated equity curve to client')
         if self._websocket_event_loop is not None:
             asyncio.run_coroutine_threadsafe(
                 do_something(), self._websocket_event_loop)
