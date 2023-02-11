@@ -22,6 +22,8 @@ async def index(request: web.Request):
     Log.critical(str(request))
     return web.FileResponse(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
 
+routes.static('/', FRONTEND_LOCAL_DIR)
+
 
 class AioHttpServer(Console):
     def __init__(self,
