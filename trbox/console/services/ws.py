@@ -11,12 +11,6 @@ from trbox.console.services import Service
 #
 # websocket
 #
-async def echo(websocket):
-    async for message in websocket:
-        Log.critical(message)
-        await websocket.send(message)
-
-
 class WebSocketService(Service):
     def __init__(self,
                  *args: Any,
@@ -25,5 +19,10 @@ class WebSocketService(Service):
 
     @override
     async def main(self):
-        async with serve(echo, port=self.port):
+        async with serve(self.echo, port=self.port):
             await Future()  # run forever
+
+    async def echo(self, websocket):
+        async for message in websocket:
+            Log.critical(message)
+            await websocket.send(message)
