@@ -1,3 +1,4 @@
+from asyncio import AbstractEventLoop
 from threading import Thread
 
 from aiohttp import web
@@ -64,13 +65,16 @@ class AioHttpServer(Console):
         self._app = web.Application(middlewares=[on_request_error, ])
         self._app.add_routes(routes)
         self._runner = web.AppRunner(self._app)
+        self._websocket_event_loop: AbstractEventLoop | None = None
 
     def run_services(self):
         def websocket():
             async def service():
                 async with serve(echo, port=self._port_websocket):
                     await asyncio.Future()  # run forever
-            asyncio.run(service())
+            eloop = asyncio.new_event_loop()
+            self._websocket_event_loop = eloop
+            eloop.run_until_complete(service())
 
         def website():
             async def service():
@@ -103,6 +107,12 @@ class AioHttpServer(Console):
     #
 
     def handle_equity_curve_update(self, e: EquityCurveUpdate):
+        async def do_something():
+            await asyncio.sleep(1)
+            Log.critical('Yeah, I will push updated info to client')
+        if self._websocket_event_loop is not None:
+            asyncio.run_coroutine_threadsafe(
+                do_something(), self._websocket_event_loop)
         Log.warning(Memo('sent EquityCurveUpdate').by(self))
 
     @override
