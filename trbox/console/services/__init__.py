@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from asyncio import AbstractEventLoop, new_event_loop, run_coroutine_threadsafe
 from threading import Thread
-from typing import Any
+from typing import Any, Awaitable
 
 from typing_extensions import override
 
@@ -26,17 +26,17 @@ class Service(Thread, ABC):
     # main service
     #
     @abstractmethod
-    async def main(self):
+    async def main(self) -> None:
         pass
 
     @override
-    def run(self):
+    def run(self) -> None:
         self._loop = new_event_loop()
         self._loop.run_until_complete(self.main())
 
     #
     # assign more tasks
     #
-    def create_task(self, coro):
+    def create_task(self, coro: Awaitable[Any]) -> None:
         assert self._loop is not None
         run_coroutine_threadsafe(coro, self._loop)

@@ -1,4 +1,3 @@
-from socketio.asyncio_client import asyncio
 from typing_extensions import override
 
 from trbox.common.logger import Log
@@ -45,7 +44,7 @@ class TrboxDashboard(Console):
     # handle party events
     #
 
-    def handle_equity_curve_update(self, e: EquityCurveUpdate):
+    def handle_equity_curve_update(self, e: EquityCurveUpdate) -> None:
         self._websocket.send(f'equity={e.equity}')
 
     @override

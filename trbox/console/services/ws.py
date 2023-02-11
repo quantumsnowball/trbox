@@ -19,11 +19,11 @@ class WebSocketService(Service):
         self._ws: WebSocketServerProtocol | None = None
 
     @override
-    async def main(self):
+    async def main(self) -> None:
         async with serve(self.ws_handle, port=self.port):
             await Future()  # run forever
 
-    async def ws_handle(self, websocket: WebSocketServerProtocol):
+    async def ws_handle(self, websocket: WebSocketServerProtocol) -> None:
         self._ws = websocket
         async for message in websocket:
             Log.critical(message)
@@ -32,9 +32,9 @@ class WebSocketService(Service):
     #
     # helpers
     #
-    def send(self, msg: str):
+    def send(self, msg: str) -> None:
         # TODO when a 2nd client connected, the 1st client stop receiving updates
-        async def task():
+        async def task() -> None:
             assert self._ws is not None
             await self._ws.send(msg)
         self.create_task(task())

@@ -2,6 +2,7 @@ from asyncio import Future
 from typing import Any
 
 from aiohttp import web
+from aiohttp.typedefs import Handler
 from typing_extensions import override
 
 from trbox.common.logger import Log
@@ -20,7 +21,7 @@ routes = web.RouteTableDef()
 # app entry point
 #
 @routes.get('/')
-async def index(_):
+async def index(_: web.Request) -> web.FileResponse:
     return web.FileResponse(ENTRY_POINT)
 
 routes.static('/', FRONTEND_LOCAL_DIR)
@@ -31,7 +32,8 @@ routes.static('/', FRONTEND_LOCAL_DIR)
 
 
 @web.middleware
-async def on_request_error(request: web.Request, handler):
+async def on_request_error(request: web.Request,
+                           handler: Handler) -> web.StreamResponse:
     try:
         return await handler(request)
     except web.HTTPNotFound as e404:
@@ -54,7 +56,7 @@ class NextSite(Service):
         self._runner = web.AppRunner(self._app)
 
     @override
-    async def main(self):
+    async def main(self) -> None:
         await self._runner.setup()
         site = web.TCPSite(self._runner, port=self._port)
         await site.start()

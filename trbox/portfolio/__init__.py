@@ -72,7 +72,7 @@ class Portfolio(CounterParty, ABC):
         raise NotImplementedError
 
     # handle events
-    def handle_market_event(self, e: MarketEvent):
+    def handle_market_event(self, e: MarketEvent) -> None:
         # TODO
         # here your will receiving the same price info from Market as Strategy and Broker
         # use it to update the position worth, and update the rolling nav
@@ -81,7 +81,7 @@ class Portfolio(CounterParty, ABC):
                                            equity=self.equity,
                                            positions=self.positions))
 
-    def handle_order_result(self, e: OrderResult):
+    def handle_order_result(self, e: OrderResult) -> None:
         # TODO
         # fetching the position from broker may be expensive and slow in live trading
         # so only need to fetch in the beginnging and then update only after trade result
