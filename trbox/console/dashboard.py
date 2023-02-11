@@ -9,6 +9,7 @@ from websockets.server import serve
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console import Console
+from trbox.console.services.ws import WebSocketService
 from trbox.event import Event
 from trbox.event.portfolio import EquityCurveUpdate
 
@@ -65,17 +66,9 @@ class TrboxDashboard(Console):
         self._app = web.Application(middlewares=[on_request_error, ])
         self._app.add_routes(routes)
         self._runner = web.AppRunner(self._app)
-        self._websocket_event_loop: AbstractEventLoop | None = None
+        self._websocket = WebSocketService(daemon=True)
 
     def run_services(self):
-        def websocket():
-            async def service():
-                async with serve(echo, port=self._port_websocket):
-                    await asyncio.Future()  # run forever
-            eloop = asyncio.new_event_loop()
-            self._websocket_event_loop = eloop
-            eloop.run_until_complete(service())
-
         def website():
             async def service():
                 await self._runner.setup()
@@ -85,10 +78,12 @@ class TrboxDashboard(Console):
             asyncio.run(service())
 
         # asyncio loop run in its own thread
-        for service in (website, websocket, ):
+        for service in (website, ):
             t = Thread(target=service,
                        daemon=True)
             t.start()
+
+        self._websocket.start()
 
         Log.info(Memo(f'Starting website on port {self._port_website}'
                       f' and websocket on port {self._port_websocket}')
@@ -110,10 +105,7 @@ class TrboxDashboard(Console):
         async def do_something():
             await asyncio.sleep(1)
             Log.critical('I will push updated equity curve to client')
-        if self._websocket_event_loop is not None:
-            asyncio.run_coroutine_threadsafe(
-                do_something(), self._websocket_event_loop)
-        Log.warning(Memo('sent EquityCurveUpdate').by(self))
+        self._websocket.create_task(do_something())
 
     @override
     def handle(self, e: Event) -> None:
