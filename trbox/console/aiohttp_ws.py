@@ -66,21 +66,23 @@ class AioHttpServer(Console):
         self._runner = web.AppRunner(self._app)
 
     def run_services(self):
-        async def websocket():
-            async with serve(echo, port=self._port_websocket):
-                await asyncio.Future()  # run forever
+        def websocket():
+            async def service():
+                async with serve(echo, port=self._port_websocket):
+                    await asyncio.Future()  # run forever
+            asyncio.run(service())
 
-        async def website():
-            await self._runner.setup()
-            site = web.TCPSite(self._runner, port=self._port_website)
-            await site.start()
-            await asyncio.Future()  # run forever
+        def website():
+            async def service():
+                await self._runner.setup()
+                site = web.TCPSite(self._runner, port=self._port_website)
+                await site.start()
+                await asyncio.Future()  # run forever
+            asyncio.run(service())
 
         # asyncio loop run in its own thread
-        for service in (website(),
-                        websocket(), ):
-            t = Thread(target=asyncio.run,
-                       args=(service, ),
+        for service in (website, websocket, ):
+            t = Thread(target=service,
                        daemon=True)
             t.start()
 
