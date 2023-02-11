@@ -20,17 +20,22 @@ class TrboxDashboard(Console):
         self._websocket = WebSocketService(port=websocket_port,
                                            daemon=True)
 
-    def run_services(self):
+    @property
+    def website(self) -> NextSite:
+        return self._website
+
+    @property
+    def websocket(self) -> WebSocketService:
+        return self._websocket
+
+    @override
+    def start(self) -> None:
         self._website.start()
         self._websocket.start()
 
         Log.info(Memo(f'Starting website on port {self._website.port}'
                       f' and websocket on port {self._websocket.port}')
                  .by(self))
-
-    @override
-    def start(self) -> None:
-        self.run_services()
 
     @override
     def stop(self) -> None:
