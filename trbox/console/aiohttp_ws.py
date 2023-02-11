@@ -1,5 +1,3 @@
-
-import os.path
 from threading import Thread
 
 from aiohttp import web
@@ -14,17 +12,24 @@ from trbox.event.portfolio import EquityCurveUpdate
 
 FRONTEND_LOCAL_DIR = '../trbox-dashboard/out/'
 DEFAULT_FILENAME = 'index.html'
+ENTRY_POINT = f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}'
 
 routes = web.RouteTableDef()
 
 
+#
+# app entry point
+#
 @routes.get('/')
-async def index(request: web.Request):
-    return web.FileResponse(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
+async def index(_):
+    return web.FileResponse(ENTRY_POINT)
 
 routes.static('/', FRONTEND_LOCAL_DIR)
 
 
+#
+# error handling
+#
 @web.middleware
 async def on_request_error(request: web.Request, handler):
     try:
@@ -32,11 +37,11 @@ async def on_request_error(request: web.Request, handler):
     except web.HTTPNotFound as e404:
         # FileNotFoundError
         Log.critical(Memo(e404).by('Middleware'))
-        return web.FileResponse(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
+        return web.FileResponse(ENTRY_POINT)
     except Exception as e:
         # any other errors
         Log.exception(e)
-        return web.FileResponse(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
+        return web.FileResponse(ENTRY_POINT)
 
 
 class AioHttpServer(Console):
