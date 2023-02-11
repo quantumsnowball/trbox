@@ -1,3 +1,5 @@
+import json
+
 from typing_extensions import override
 
 from trbox.common.logger import Log
@@ -6,7 +8,7 @@ from trbox.console import Console
 from trbox.console.services.nextjs_site import NextSite
 from trbox.console.services.ws import WebSocketService
 from trbox.event import Event
-from trbox.event.portfolio import EquityCurveUpdate
+from trbox.event.portfolio import EquityCurveUpdate, OrderResultUpdate
 
 
 class TrboxDashboard(Console):
@@ -45,7 +47,12 @@ class TrboxDashboard(Console):
     #
 
     def handle_equity_curve_update(self, e: EquityCurveUpdate) -> None:
-        self._websocket.send(f'equity={e.equity}')
+        # self.websocket.send(json.dumps(e, default=str))
+        pass
+
+    def handle_order_result_update(self, e: OrderResultUpdate) -> None:
+        self.websocket.send(json.dumps(e.order_result, default=str))
+        Log.critical('I should have a trade record!')
 
     @override
     def handle(self, e: Event) -> None:
@@ -53,3 +60,5 @@ class TrboxDashboard(Console):
         # be careful must not block after this point
         if isinstance(e, EquityCurveUpdate):
             self.handle_equity_curve_update(e)
+        elif isinstance(e, OrderResultUpdate):
+            self.handle_order_result_update(e)

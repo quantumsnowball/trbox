@@ -9,7 +9,7 @@ from trbox.common.types import Positions, Symbol
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import MarketOrder, OrderResult
 from trbox.event.handler import CounterParty
-from trbox.event.portfolio import EquityCurveUpdate
+from trbox.event.portfolio import EquityCurveUpdate, OrderResultUpdate
 from trbox.portfolio.dashboard import Dashboard
 
 
@@ -85,13 +85,14 @@ class Portfolio(CounterParty, ABC):
         # TODO
         # fetching the position from broker may be expensive and slow in live trading
         # so only need to fetch in the beginnging and then update only after trade result
-        pass
+        self.dashboard.add_trade_record(e)
+        self.console.put(OrderResultUpdate(e))
 
     @override
     def handle(self, e: Event) -> None:
         if isinstance(e, MarketEvent):
             self.handle_market_event(e)
-        if isinstance(e, OrderResult):
+        elif isinstance(e, OrderResult):
             self.handle_order_result(e)
 
 

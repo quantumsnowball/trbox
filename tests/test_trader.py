@@ -17,7 +17,7 @@ from trbox.strategy import Context
 from trbox.strategy.types import Memroy
 
 
-@pytest.mark.parametrize('live', [True, False])
+@pytest.mark.parametrize('live', [False, True])
 @pytest.mark.parametrize('name', [None, 'DummySt'])
 # @pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dummy(name, live):
@@ -35,8 +35,8 @@ def test_dummy(name, live):
         if my.count.every(INTERVAL):
             if not live:
                 my.portfolio.trade(SYMBOL, QUANTITY)
-            Log.info(Memo(f'every {INTERVAL}', i=my.count._i).by(
-                my.strategy).tag('count'))
+            # Log.info(Memo(f'every {INTERVAL}', i=my.count._i).by(
+            #     my.strategy).tag('count'))
         # can also access dashboard when still trading
         assert isinstance(my.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=my.trader.dashboard)
