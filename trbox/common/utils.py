@@ -1,3 +1,5 @@
+import json
+from dataclasses import asdict
 from pprint import pformat
 from typing import Any
 
@@ -58,3 +60,29 @@ def ppf(obj: Any) -> str:
         return pformat(obj)
     except Exception:
         return str(obj)
+
+
+def to_json(obj: Any) -> str:
+    def to_dict(obj: Any):
+        try:
+            return asdict(obj)
+        except Exception:
+            pass
+        try:
+            return obj.__dict__
+        except Exception:
+            pass
+        try:
+            return vars(obj)
+        except Exception:
+            raise ValueError('Failed to convert object to dict')
+
+    def parser(obj: Any):
+        # handle special case parser
+        if isinstance(obj, Timestamp):
+            return obj.isoformat()
+        return str(obj)
+
+    dict_obj = to_dict(obj)
+    json_str = json.dumps(dict_obj, default=parser)
+    return json_str
