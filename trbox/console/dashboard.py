@@ -9,6 +9,7 @@ from websockets.server import serve
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console import Console
+from trbox.console.services.nextjs_site import NextSite
 from trbox.console.services.ws import WebSocketService
 from trbox.event import Event
 from trbox.event.portfolio import EquityCurveUpdate
@@ -66,6 +67,7 @@ class TrboxDashboard(Console):
         self._app = web.Application(middlewares=[on_request_error, ])
         self._app.add_routes(routes)
         self._runner = web.AppRunner(self._app)
+        self._website = NextSite(daemon=True)
         self._websocket = WebSocketService(daemon=True)
 
     def run_services(self):
@@ -78,11 +80,12 @@ class TrboxDashboard(Console):
             asyncio.run(service())
 
         # asyncio loop run in its own thread
-        for service in (website, ):
-            t = Thread(target=service,
-                       daemon=True)
-            t.start()
+        # for service in (website, ):
+        #     t = Thread(target=service,
+        #                daemon=True)
+        #     t.start()
 
+        self._website.start()
         self._websocket.start()
 
         Log.info(Memo(f'Starting website on port {self._port_website}'
