@@ -8,7 +8,7 @@ from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.console.aiohttp_ws import TrboxDashboard
+from trbox.console.dashboard import TrboxDashboard
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
