@@ -1,4 +1,5 @@
 
+import os.path
 from threading import Thread
 
 from aiohttp import web
@@ -19,10 +20,23 @@ routes = web.RouteTableDef()
 
 @routes.get('/')
 async def index(request: web.Request):
-    Log.critical(str(request))
     return web.FileResponse(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
 
 routes.static('/', FRONTEND_LOCAL_DIR)
+
+
+@web.middleware
+async def on_request_error(request: web.Request, handler):
+    try:
+        return await handler(request)
+    except web.HTTPNotFound as e404:
+        # FileNotFoundError
+        Log.critical(Memo(e404).by('Middleware'))
+        return web.FileResponse(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
+    except Exception as e:
+        # any other errors
+        Log.exception(e)
+        return web.FileResponse(f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}')
 
 
 class AioHttpServer(Console):
@@ -30,7 +44,7 @@ class AioHttpServer(Console):
                  port: int = 5000) -> None:
         super().__init__()
         self._port = port
-        self._app = web.Application()
+        self._app = web.Application(middlewares=[on_request_error, ])
         self._app.add_routes(routes)
         self._runner = web.AppRunner(self._app)
 
@@ -47,9 +61,7 @@ class AioHttpServer(Console):
 
     @override
     def start(self) -> None:
-        # web.run_app(self._app, port=self._port)
         self.run_server()
-        Log.critical('You must not block me!')
 
     @override
     def stop(self) -> None:
