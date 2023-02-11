@@ -33,6 +33,7 @@ class WebSocketService(Service):
     # helpers
     #
     def send(self, msg: str):
+        # TODO when a 2nd client connected, the 1st client stop receiving updates
         async def task():
             assert self._ws is not None
             await self._ws.send(msg)
