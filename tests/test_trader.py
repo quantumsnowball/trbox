@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import sleep
 
 import pytest
 from pandas import Series, Timestamp
@@ -7,6 +8,7 @@ from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
+from trbox.console.flask_sock import FlaskSock
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
@@ -39,13 +41,15 @@ def test_dummy(name, live):
         assert isinstance(my.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=my.trader.dashboard)
                  .by(my.strategy).tag('dashboard'))
+        sleep(1)
 
     t = Trader(
         live=live,
         strategy=Strategy(name=name,)
         .on('BTC', Candlestick, do=dummy_action),
         market=DummyPrice(SYMBOL),
-        broker=PaperEX(SYMBOL)
+        broker=PaperEX(SYMBOL),
+        console=FlaskSock()
     )
     t.run()
     # up to here the market data terminated, simular to user termination
