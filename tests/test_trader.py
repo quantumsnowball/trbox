@@ -24,6 +24,8 @@ def test_dummy(name, live):
     SYMBOL = 'BTC'
     QUANTITY = 0.2
     INTERVAL = 4
+    N = 300
+    DELAY = 0.1
 
     # on_tick
     def dummy_action(my: Context):
@@ -41,13 +43,13 @@ def test_dummy(name, live):
         assert isinstance(my.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=my.trader.dashboard)
                  .by(my.strategy).tag('dashboard'))
-        sleep(1)
+        sleep(DELAY)
 
     t = Trader(
         live=live,
         strategy=Strategy(name=name,)
         .on('BTC', Candlestick, do=dummy_action),
-        market=DummyPrice(SYMBOL),
+        market=DummyPrice(SYMBOL, N),
         broker=PaperEX(SYMBOL),
         console=TrboxDashboard()
     )
