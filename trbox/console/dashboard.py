@@ -3,7 +3,7 @@ from typing_extensions import override
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console import Console
-from trbox.console.services.message import Message, OrderResult
+from trbox.console.services.message import EquityCurve, OrderResult
 from trbox.console.services.nextjs_site import NextSite
 from trbox.console.services.ws import WebSocketService
 from trbox.event import Event
@@ -46,12 +46,11 @@ class TrboxDashboard(Console):
     #
 
     def handle_equity_curve_update(self, e: EquityCurveUpdate) -> None:
-        # self.websocket.send(json.dumps(e, default=str))
-        pass
+        self.websocket.send(EquityCurve(e))
+        Log.critical('equity curve update')
 
     def handle_order_result_update(self, e: OrderResultUpdate) -> None:
         self.websocket.send(OrderResult(e))
-        Log.critical('I should have a trade record!')
 
     @override
     def handle(self, e: Event) -> None:

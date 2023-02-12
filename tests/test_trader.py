@@ -49,7 +49,7 @@ def test_dummy(name, live):
         live=live,
         strategy=Strategy(name=name,)
         .on('BTC', Candlestick, do=dummy_action),
-        market=DummyPrice(SYMBOL, N),
+        market=DummyPrice(SYMBOL, n=N),
         broker=PaperEX(SYMBOL),
         console=TrboxDashboard()
     )

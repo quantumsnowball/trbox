@@ -24,8 +24,6 @@ class DummyConsole(Console):
     # handle events
 
     def handle_equity_curve_update(self, e: EquityCurveUpdate) -> None:
-        # TODO
-        # should stream these info to the fronend client using websocket
         Log.info(Memo(cln(e), e=e).by(self))
 
     @override
