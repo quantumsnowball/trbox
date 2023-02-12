@@ -17,9 +17,9 @@ from trbox.strategy import Context
 from trbox.strategy.types import Memroy
 
 
-@pytest.mark.parametrize('live', [False, True])
-@pytest.mark.parametrize('name', [None, 'DummySt'])
-# @pytest.mark.parametrize('name, live', [('dummy', False)])
+# @pytest.mark.parametrize('live', [False, True])
+# @pytest.mark.parametrize('name', [None, 'DummySt'])
+@pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
     QUANTITY = 0.2

@@ -6,6 +6,7 @@ from websockets.server import WebSocketServerProtocol, serve
 
 from trbox.common.logger import Log
 from trbox.console.services import Service
+from trbox.console.services.message import Message
 
 
 #
@@ -32,9 +33,9 @@ class WebSocketService(Service):
     #
     # helpers
     #
-    def send(self, msg: str) -> None:
+    def send(self, message: Message) -> None:
         # TODO when a 2nd client connected, the 1st client stop receiving updates
         async def task() -> None:
             assert self._ws is not None
-            await self._ws.send(msg)
+            await self._ws.send(message.json)
         self.create_task(task())

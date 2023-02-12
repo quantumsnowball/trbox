@@ -31,7 +31,7 @@ class LimitOrder(Order):
 
 @dataclass
 class OrderResult(BrokerEvent):
-    timestamp: Timestamp | None
+    timestamp: Timestamp
     order: Order
     result: bool
     price: float | None = None
