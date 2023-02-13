@@ -25,7 +25,7 @@ def test_dummy(name, live):
     QUANTITY = 0.2
     INTERVAL = 4
     N = 300
-    DELAY = 0.1
+    DELAY = 0.5
 
     # on_tick
     def dummy_action(my: Context):

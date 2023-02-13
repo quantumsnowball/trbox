@@ -47,7 +47,6 @@ class TrboxDashboard(Console):
 
     def handle_equity_curve_update(self, e: EquityCurveUpdate) -> None:
         self.websocket.send(EquityCurve(e))
-        Log.critical('equity curve update')
 
     def handle_order_result_update(self, e: OrderResultUpdate) -> None:
         self.websocket.send(OrderResult(e))
