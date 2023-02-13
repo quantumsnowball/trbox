@@ -17,15 +17,15 @@ from trbox.strategy import Context
 from trbox.strategy.types import Memroy
 
 
-# @pytest.mark.parametrize('live', [False, True])
-# @pytest.mark.parametrize('name', [None, 'DummySt'])
-@pytest.mark.parametrize('name, live', [('dummy', False)])
+@pytest.mark.parametrize('live', [False, True])
+@pytest.mark.parametrize('name', [None, 'DummySt'])
+# @pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
     QUANTITY = 0.2
     INTERVAL = 4
     N = 3000
-    DELAY = 0.5
+    DELAY = 0.0
 
     # on_tick
     def dummy_action(my: Context):
