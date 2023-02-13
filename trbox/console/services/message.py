@@ -2,16 +2,18 @@ import json
 from abc import ABC, abstractmethod
 from typing import Generic, Literal, TypeVar
 
+from pandas import Timestamp, to_datetime
 from typing_extensions import override
 
 from trbox.event.portfolio import (EquityCurveHistoryUpdate, EquityCurveUpdate,
-                                   OrderResultUpdate)
+                                   OrderResultHistoryUpdate, OrderResultUpdate)
 
 # a list of defined tags that the frontend is willing to handle
 Tag = Literal[
     'EquityValue',
     'EquityCurveHistory',
     'OrderResult',
+    'TradeLogHistory',
 ]
 
 T = TypeVar('T')
@@ -92,5 +94,27 @@ class EquityCurveHistory(Message[EquityCurveHistoryUpdate]):
             tag=self._tag,
             data=[dict(timestamp=t.isoformat(), equity=v)
                   for t, v in d.series.items()]
+        )
+        return json.dumps(packed)
+
+
+class TradeLogHistory(Message[OrderResultHistoryUpdate]):
+    def __init__(self,
+                 data: OrderResultHistoryUpdate) -> None:
+        super().__init__('TradeLogHistory', data)
+
+    @property
+    @override
+    def json(self) -> str:
+        d = self._data
+        packed = dict(
+            tag=self._tag,
+            data=[dict(
+                timestamp=to_datetime(t).isoformat(),
+                symbol=r.Symbol,
+                action=r.Action,
+                price=r.Price,
+                quantity=r.Quantity
+            ) for t, r in d.df.iterrows()]
         )
         return json.dumps(packed)

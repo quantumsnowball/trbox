@@ -12,7 +12,8 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console.services import Service
 from trbox.console.services.message import Message
-from trbox.event.portfolio import EquityCurveHistoryRequest
+from trbox.event.portfolio import (EquityCurveHistoryRequest,
+                                   OrderResultHistoryRequest)
 
 if TYPE_CHECKING:
     from trbox.console.dashboard import TrboxDashboard
@@ -52,9 +53,13 @@ class WebSocketService(Service):
                     self._host.portfolio.put(
                         EquityCurveHistoryRequest(client=client,
                                                   n=DEFAULT_HISTORY_LENGTH))
+                elif msg == 'TradeLogHistoryRequest':
+                    self._host.portfolio.put(
+                        OrderResultHistoryRequest(client=client,
+                                                  n=DEFAULT_HISTORY_LENGTH))
             # await client.wait_closed()
         except ConnectionClosedError as e:
-            Log.warning(Memo('Client has closed the connection')
+            Log.warning(Memo('Client has closed the connection', e=e)
                         .by(self).tag('client', 'disconnected'))
             # self._clients.remove(client)
         finally:
