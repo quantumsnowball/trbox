@@ -50,13 +50,13 @@ class TrboxDashboard(Console):
     #
 
     def handle_equity_curve_update(self, e: EquityCurveUpdate) -> None:
-        self.websocket.send(EquityCurve(e))
+        self.websocket.broadcast(EquityCurve(e))
 
     def handle_order_result_update(self, e: OrderResultUpdate) -> None:
-        self.websocket.send(OrderResult(e))
+        self.websocket.broadcast(OrderResult(e))
 
     def handle_equity_curve_history_update(self, e: EquityCurveHistoryUpdate) -> None:
-        self.websocket.send(EquityCurveHistory(e))
+        self.websocket.send(e.client, EquityCurveHistory(e))
 
     @override
     def handle(self, e: Event) -> None:

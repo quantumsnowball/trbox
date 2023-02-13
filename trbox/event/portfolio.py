@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from pandas import Series, Timestamp
+from websockets.server import WebSocketServerProtocol
 
 from trbox.common.types import Positions
 from trbox.event import PortfolioEvent
@@ -16,11 +17,13 @@ class EquityCurveUpdate(PortfolioEvent):
 
 @dataclass
 class EquityCurveHistoryUpdate(PortfolioEvent):
+    client: WebSocketServerProtocol
     series: Series
 
 
 @dataclass
 class EquityCurveHistoryRequest(PortfolioEvent):
+    client: WebSocketServerProtocol
     n: int | None
 
 

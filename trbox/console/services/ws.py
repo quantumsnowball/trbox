@@ -47,10 +47,10 @@ class WebSocketService(Service):
         try:
             # keep listening for incoming message request
             async for msg in client:
-                Log.critical(msg)
                 if msg == 'EquityValueHistoryRequest':
                     self._host.portfolio.put(
-                        EquityCurveHistoryRequest(DEFAULT_HISTORY_LENGTH))
+                        EquityCurveHistoryRequest(client=client,
+                                                  n=DEFAULT_HISTORY_LENGTH))
         finally:
             self._clients.remove(client)
             Log.warning(Memo('Disconnected', n_conn=len(self.clients), e=client)
@@ -66,8 +66,14 @@ class WebSocketService(Service):
     #
     # helpers
     #
-    def send(self, message: Message) -> None:
+    def broadcast(self, message: Message) -> None:
         # broadcast Message to all currently connected clients
         async def task() -> None:
             broadcast(self.clients, message.json)
+        self.create_task(task())
+
+    def send(self, client: WebSocketServerProtocol, message: Message) -> None:
+        # only send to a single client
+        async def task() -> None:
+            await client.send(message.json)
         self.create_task(task())
