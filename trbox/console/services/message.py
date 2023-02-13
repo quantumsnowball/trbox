@@ -7,7 +7,7 @@ from typing_extensions import override
 
 from trbox.event import PortfolioEvent
 from trbox.event.portfolio import (EquityCurveHistoryUpdate, EquityCurveUpdate,
-                                   OrderResultHistoryUpdate, OrderResultUpdate)
+                                   TradeLogHistoryUpdate, OrderResultUpdate)
 
 # a list of defined tags that the frontend is willing to handle
 Tag = Literal[
@@ -99,9 +99,9 @@ class EquityCurveHistory(Message[EquityCurveHistoryUpdate]):
         return json.dumps(packed)
 
 
-class TradeLogHistory(Message[OrderResultHistoryUpdate]):
+class TradeLogHistory(Message[TradeLogHistoryUpdate]):
     def __init__(self,
-                 data: OrderResultHistoryUpdate) -> None:
+                 data: TradeLogHistoryUpdate) -> None:
         super().__init__('TradeLogHistory', data)
 
     @property

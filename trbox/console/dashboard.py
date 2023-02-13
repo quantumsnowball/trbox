@@ -10,8 +10,8 @@ from trbox.console.services.ws import WebSocketService
 from trbox.event import Event
 from trbox.event.portfolio import (EquityCurveHistoryRequest,
                                    EquityCurveHistoryUpdate, EquityCurveUpdate,
-                                   OrderResultHistoryRequest,
-                                   OrderResultHistoryUpdate, OrderResultUpdate)
+                                   TradeLogHistoryRequest,
+                                   TradeLogHistoryUpdate, OrderResultUpdate)
 
 
 class TrboxDashboard(Console):
@@ -59,7 +59,7 @@ class TrboxDashboard(Console):
     def handle_equity_curve_history_update(self, e: EquityCurveHistoryUpdate) -> None:
         self.websocket.send(e.client, EquityCurveHistory(e))
 
-    def handle_order_result_history_update(self, e: OrderResultHistoryUpdate) -> None:
+    def handle_order_result_history_update(self, e: TradeLogHistoryUpdate) -> None:
         self.websocket.send(e.client, TradeLogHistory(e))
 
     @override
@@ -72,5 +72,5 @@ class TrboxDashboard(Console):
             self.handle_order_result_update(e)
         elif isinstance(e, EquityCurveHistoryUpdate):
             self.handle_equity_curve_history_update(e)
-        elif isinstance(e, OrderResultHistoryUpdate):
+        elif isinstance(e, TradeLogHistoryUpdate):
             self.handle_order_result_history_update(e)

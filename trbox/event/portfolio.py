@@ -33,12 +33,12 @@ class OrderResultUpdate(PortfolioEvent):
 
 
 @dataclass
-class OrderResultHistoryUpdate(PortfolioEvent):
+class TradeLogHistoryUpdate(PortfolioEvent):
     client: WebSocketServerProtocol
     df: DataFrame
 
 
 @dataclass
-class OrderResultHistoryRequest(PortfolioEvent):
+class TradeLogHistoryRequest(PortfolioEvent):
     client: WebSocketServerProtocol
     n: int | None

@@ -14,7 +14,7 @@ from trbox.console.services import Service
 from trbox.console.services.message import Message
 from trbox.event import Event, PortfolioEvent
 from trbox.event.portfolio import (EquityCurveHistoryRequest,
-                                   OrderResultHistoryRequest)
+                                   TradeLogHistoryRequest)
 
 if TYPE_CHECKING:
     from trbox.console.dashboard import TrboxDashboard
@@ -56,7 +56,7 @@ class WebSocketService(Service):
                                                   n=DEFAULT_HISTORY_LENGTH))
                 elif msg == 'TradeLogHistoryRequest':
                     self._host.portfolio.put(
-                        OrderResultHistoryRequest(client=client,
+                        TradeLogHistoryRequest(client=client,
                                                   n=DEFAULT_HISTORY_LENGTH))
             # await client.wait_closed()
         except ConnectionClosedError as e:

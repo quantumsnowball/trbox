@@ -11,8 +11,8 @@ from trbox.event.broker import MarketOrder, OrderResult
 from trbox.event.handler import CounterParty
 from trbox.event.portfolio import (EquityCurveHistoryRequest,
                                    EquityCurveHistoryUpdate, EquityCurveUpdate,
-                                   OrderResultHistoryRequest,
-                                   OrderResultHistoryUpdate, OrderResultUpdate)
+                                   TradeLogHistoryRequest,
+                                   TradeLogHistoryUpdate, OrderResultUpdate)
 from trbox.portfolio.dashboard import Dashboard
 
 
@@ -99,10 +99,10 @@ class Portfolio(CounterParty, ABC):
                                                   series=series))
 
     def handle_order_result_history_request(self,
-                                            e: OrderResultHistoryRequest) -> None:
+                                            e: TradeLogHistoryRequest) -> None:
         df = self.dashboard.trade_records.iloc[-e.n:] \
             if e.n is not None else self.dashboard.trade_records
-        self.console.put(OrderResultHistoryUpdate(client=e.client,
+        self.console.put(TradeLogHistoryUpdate(client=e.client,
                                                   df=df))
 
     @override
@@ -113,7 +113,7 @@ class Portfolio(CounterParty, ABC):
             self.handle_order_result(e)
         elif isinstance(e, EquityCurveHistoryRequest):
             self.handle_equity_curve_history_request(e)
-        elif isinstance(e, OrderResultHistoryRequest):
+        elif isinstance(e, TradeLogHistoryRequest):
             self.handle_order_result_history_request(e)
 
 
