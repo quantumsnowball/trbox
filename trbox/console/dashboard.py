@@ -3,11 +3,14 @@ from typing_extensions import override
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console import Console
-from trbox.console.services.message import EquityCurve, OrderResult
+from trbox.console.services.message import (EquityCurve, EquityCurveHistory,
+                                            OrderResult)
 from trbox.console.services.nextjs_site import NextSite
 from trbox.console.services.ws import WebSocketService
 from trbox.event import Event
-from trbox.event.portfolio import EquityCurveUpdate, OrderResultUpdate
+from trbox.event.portfolio import (EquityCurveHistoryRequest,
+                                   EquityCurveHistoryUpdate, EquityCurveUpdate,
+                                   OrderResultUpdate)
 
 
 class TrboxDashboard(Console):
@@ -18,7 +21,8 @@ class TrboxDashboard(Console):
         self._website = NextSite(port=website_port,
                                  daemon=True)
         self._websocket = WebSocketService(port=websocket_port,
-                                           daemon=True)
+                                           daemon=True,
+                                           host=self)
 
     @property
     def website(self) -> NextSite:
@@ -51,6 +55,9 @@ class TrboxDashboard(Console):
     def handle_order_result_update(self, e: OrderResultUpdate) -> None:
         self.websocket.send(OrderResult(e))
 
+    def handle_equity_curve_history_update(self, e: EquityCurveHistoryUpdate) -> None:
+        self.websocket.send(EquityCurveHistory(e))
+
     @override
     def handle(self, e: Event) -> None:
         super().handle(e)
@@ -59,3 +66,5 @@ class TrboxDashboard(Console):
             self.handle_equity_curve_update(e)
         elif isinstance(e, OrderResultUpdate):
             self.handle_order_result_update(e)
+        elif isinstance(e, EquityCurveHistoryUpdate):
+            self.handle_equity_curve_history_update(e)

@@ -4,12 +4,14 @@ from typing import Generic, Literal, TypeVar
 
 from typing_extensions import override
 
-from trbox.event.portfolio import EquityCurveUpdate, OrderResultUpdate
+from trbox.event.portfolio import (EquityCurveHistoryUpdate, EquityCurveUpdate,
+                                   OrderResultUpdate)
 
 # a list of defined tags that the frontend is willing to handle
 Tag = Literal[
     'EquityValue',
-    'OrderResult'
+    'EquityCurveHistory',
+    'OrderResult',
 ]
 
 T = TypeVar('T')
@@ -73,5 +75,22 @@ class EquityCurve(Message[EquityCurveUpdate]):
                 timestamp=d.timestamp.isoformat(),
                 equity=d.equity
             )
+        )
+        return json.dumps(packed)
+
+
+class EquityCurveHistory(Message[EquityCurveHistoryUpdate]):
+    def __init__(self,
+                 data: EquityCurveHistoryUpdate) -> None:
+        super().__init__('EquityCurveHistory', data)
+
+    @property
+    @override
+    def json(self) -> str:
+        d = self._data
+        packed = dict(
+            tag=self._tag,
+            data=[dict(timestamp=t.isoformat(), equity=v)
+                  for t, v in d.series.items()]
         )
         return json.dumps(packed)

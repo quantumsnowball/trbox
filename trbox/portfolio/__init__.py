@@ -9,7 +9,9 @@ from trbox.common.types import Positions, Symbol
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import MarketOrder, OrderResult
 from trbox.event.handler import CounterParty
-from trbox.event.portfolio import EquityCurveUpdate, OrderResultUpdate
+from trbox.event.portfolio import (EquityCurveHistoryRequest,
+                                   EquityCurveHistoryUpdate, EquityCurveUpdate,
+                                   OrderResultUpdate)
 from trbox.portfolio.dashboard import Dashboard
 
 
@@ -88,12 +90,19 @@ class Portfolio(CounterParty, ABC):
         self.dashboard.add_trade_record(e)
         self.console.put(OrderResultUpdate(e))
 
+    def handle_equity_curve_history_request(self, e: EquityCurveHistoryRequest) -> None:
+        series = self.dashboard.navs.iloc[-e.n:] \
+            if e.n is not None else self.dashboard.navs
+        self.console.put(EquityCurveHistoryUpdate(series))
+
     @override
     def handle(self, e: Event) -> None:
         if isinstance(e, MarketEvent):
             self.handle_market_event(e)
         elif isinstance(e, OrderResult):
             self.handle_order_result(e)
+        elif isinstance(e, EquityCurveHistoryRequest):
+            self.handle_equity_curve_history_request(e)
 
 
 class Basic(Portfolio):

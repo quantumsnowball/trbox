@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from pandas import Timestamp
+from pandas import Series, Timestamp
 
 from trbox.common.types import Positions
 from trbox.event import PortfolioEvent
@@ -12,6 +12,16 @@ class EquityCurveUpdate(PortfolioEvent):
     timestamp: Timestamp
     equity: float
     positions: Positions
+
+
+@dataclass
+class EquityCurveHistoryUpdate(PortfolioEvent):
+    series: Series
+
+
+@dataclass
+class EquityCurveHistoryRequest(PortfolioEvent):
+    n: int | None
 
 
 @dataclass
