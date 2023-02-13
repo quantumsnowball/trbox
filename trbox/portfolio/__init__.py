@@ -99,9 +99,9 @@ class Portfolio(CounterParty, ABC):
                                                   series=series))
 
     def handle_order_result_history_request(self,
-                                            e: OrderResultHistoryRequest):
-        df = self.dashboard.trade_reacords.iloc[-e.n:] \
-            if e.n is not None else self.dashboard.trade_reacords
+                                            e: OrderResultHistoryRequest) -> None:
+        df = self.dashboard.trade_records.iloc[-e.n:] \
+            if e.n is not None else self.dashboard.trade_records
         self.console.put(OrderResultHistoryUpdate(client=e.client,
                                                   df=df))
 

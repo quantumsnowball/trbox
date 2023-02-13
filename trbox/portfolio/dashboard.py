@@ -46,7 +46,7 @@ class Dashboard:
         return Series(self._navs, index=self._navs_index, dtype=float)
 
     @property
-    def trade_reacords(self) -> DataFrame:
+    def trade_records(self) -> DataFrame:
         return DataFrame([asdict(r) for r in self._trade_records]).set_index('Date')
     #
     # updating

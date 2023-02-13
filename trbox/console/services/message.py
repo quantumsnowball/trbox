@@ -2,9 +2,10 @@ import json
 from abc import ABC, abstractmethod
 from typing import Generic, Literal, TypeVar
 
-from pandas import Timestamp, to_datetime
+from pandas import to_datetime
 from typing_extensions import override
 
+from trbox.event import PortfolioEvent
 from trbox.event.portfolio import (EquityCurveHistoryUpdate, EquityCurveUpdate,
                                    OrderResultHistoryUpdate, OrderResultUpdate)
 
@@ -16,7 +17,7 @@ Tag = Literal[
     'TradeLogHistory',
 ]
 
-T = TypeVar('T')
+T = TypeVar('T', bound=PortfolioEvent, covariant=True)
 
 # the only object that is accept by the websocket.send()
 

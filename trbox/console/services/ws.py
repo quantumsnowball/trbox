@@ -12,6 +12,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console.services import Service
 from trbox.console.services.message import Message
+from trbox.event import Event, PortfolioEvent
 from trbox.event.portfolio import (EquityCurveHistoryRequest,
                                    OrderResultHistoryRequest)
 
@@ -40,7 +41,7 @@ class WebSocketService(Service):
         return self._clients
 
     # ws_handle
-    async def register(self, client: WebSocketServerProtocol):
+    async def register(self, client: WebSocketServerProtocol) -> None:
         # a client just connected here
         self._clients.add(client)
         Log.warning(Memo('Connected', n_conn=len(self.clients), e=client)
@@ -77,13 +78,16 @@ class WebSocketService(Service):
     #
     # helpers
     #
-    def broadcast(self, message: Message) -> None:
+    def broadcast(self,
+                  message: Message[PortfolioEvent]) -> None:
         # broadcast Message to all currently connected clients
         async def task() -> None:
             broadcast(self.clients, message.json)
         self.create_task(task())
 
-    def send(self, client: WebSocketServerProtocol, message: Message) -> None:
+    def send(self,
+             client: WebSocketServerProtocol,
+             message: Message[PortfolioEvent]) -> None:
         # only send to a single client
         async def task() -> None:
             await client.send(message.json)
