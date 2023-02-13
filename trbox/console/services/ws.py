@@ -4,6 +4,7 @@ from asyncio import Future
 from typing import TYPE_CHECKING, Any, Set
 
 from typing_extensions import override
+from websockets.exceptions import ConnectionClosedError
 from websockets.legacy.protocol import broadcast
 from websockets.server import WebSocketServerProtocol, serve
 
@@ -51,6 +52,11 @@ class WebSocketService(Service):
                     self._host.portfolio.put(
                         EquityCurveHistoryRequest(client=client,
                                                   n=DEFAULT_HISTORY_LENGTH))
+            # await client.wait_closed()
+        except ConnectionClosedError as e:
+            Log.warning(Memo('Client has closed the connection')
+                        .by(self).tag('client', 'disconnected'))
+            # self._clients.remove(client)
         finally:
             self._clients.remove(client)
             Log.warning(Memo('Disconnected', n_conn=len(self.clients), e=client)
