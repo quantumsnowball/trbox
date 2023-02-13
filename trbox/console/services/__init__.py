@@ -5,6 +5,10 @@ from typing import Any, Awaitable
 
 from typing_extensions import override
 
+from trbox.common.logger import Log
+from trbox.common.logger.parser import Memo
+from trbox.common.utils import cln
+
 
 class Service(Thread, ABC):
     def __init__(self,
@@ -38,5 +42,8 @@ class Service(Thread, ABC):
     # assign more tasks
     #
     def create_task(self, coro: Awaitable[Any]) -> None:
-        assert self._loop is not None
-        run_coroutine_threadsafe(coro, self._loop)
+        if self._loop is not None:
+            run_coroutine_threadsafe(coro, self._loop)
+        else:
+            Log.error(Memo(f'Event loop not ready yet, a task `{cln(coro)}` is discarded.')
+                      .by(self).tag('loop'))
