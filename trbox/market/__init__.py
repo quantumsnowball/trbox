@@ -65,7 +65,7 @@ class MarketWorker(Market, ABC):
                 Log.exception(e)
 
         self._alive.set()
-        t = Thread(target=worker)
+        t = Thread(target=worker, name='MarketWorker')
         t.start()
 
     @override

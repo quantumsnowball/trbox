@@ -31,7 +31,9 @@ class WebSocketService(Service):
                  *args: Any,
                  host: TrboxDashboard,
                  **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(*args,
+                         name='WebSocketService',
+                         **kwargs)
         self._host = host
         self._ws: WebSocketServerProtocol | None = None
         self._clients: Set[WebSocketServerProtocol] = set()
@@ -57,7 +59,7 @@ class WebSocketService(Service):
                 elif msg == 'TradeLogHistoryRequest':
                     self._host.portfolio.put(
                         TradeLogHistoryRequest(client=client,
-                                                  n=DEFAULT_HISTORY_LENGTH))
+                                               n=DEFAULT_HISTORY_LENGTH))
             # await client.wait_closed()
         except ConnectionClosedError as e:
             Log.warning(Memo('Client has closed the connection', e=e)

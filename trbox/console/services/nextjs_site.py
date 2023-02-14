@@ -50,7 +50,9 @@ class NextSite(Service):
     def __init__(self,
                  *args: Any,
                  **kwargs: Any):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args,
+                         name='NextSite',
+                         **kwargs)
         self._app = web.Application(middlewares=[on_request_error, ])
         self._app.add_routes(routes)
         self._runner = web.AppRunner(self._app)
