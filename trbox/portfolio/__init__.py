@@ -11,9 +11,10 @@ from trbox.event.broker import MarketOrder, OrderResult
 from trbox.event.handler import CounterParty
 from trbox.event.portfolio import (EquityCurveHistoryRequest,
                                    EquityCurveHistoryUpdate, EquityCurveUpdate,
-                                   TradeLogHistoryRequest,
-                                   TradeLogHistoryUpdate, OrderResultUpdate)
+                                   OrderResultUpdate, TradeLogHistoryRequest,
+                                   TradeLogHistoryUpdate)
 from trbox.portfolio.dashboard import Dashboard
+from trbox.portfolio.metrics import Metrics
 
 
 class Portfolio(CounterParty, ABC):
@@ -25,7 +26,9 @@ class Portfolio(CounterParty, ABC):
         # maintain a state of account info flags
         self._positions_updated = False
 
+    #
     # account status
+    #
 
     @property
     def cash(self) -> float:
@@ -39,7 +42,9 @@ class Portfolio(CounterParty, ABC):
     def equity(self) -> float:
         return self.broker.equity
 
+    #
     # dashboard
+    #
 
     @property
     def dashboard(self) -> Dashboard:
@@ -48,7 +53,17 @@ class Portfolio(CounterParty, ABC):
         # the Trader is still running. It should contain the lastest trading
         # result regardless live trading or backtesting.
 
+    #
+    # analysis
+    #
+
+    @property
+    def metrics(self) -> Metrics:
+        return Metrics(portfolio=self)
+
+    #
     # helpers
+    #
 
     # TODO
     # these helpers should confirm there is no pending order first
@@ -103,7 +118,7 @@ class Portfolio(CounterParty, ABC):
         df = self.dashboard.trade_records.iloc[-e.n:] \
             if e.n is not None else self.dashboard.trade_records
         self.console.put(TradeLogHistoryUpdate(client=e.client,
-                                                  df=df))
+                                               df=df))
 
     @override
     def handle(self, e: Event) -> None:

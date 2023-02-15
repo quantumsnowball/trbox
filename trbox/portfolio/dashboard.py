@@ -68,13 +68,6 @@ class Dashboard:
                         e.net_proceeds))
 
     #
-    # analysis
-    #
-
-    def metric(self) -> None:
-        pass
-
-    #
     # presenting
     #
 
