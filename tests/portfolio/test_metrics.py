@@ -1,8 +1,9 @@
 import pytest
 from pandas import DataFrame, Series, Timedelta, Timestamp
 
-from trbox.portfolio.metrics import (cagr, detect_annualize_factor, mu_sigma,
-                                     sharpe, total_return)
+from trbox.portfolio.metrics import (DrawdownPoints, DrawdownResult, cagr,
+                                     detect_annualize_factor, drawdown,
+                                     mu_sigma, sharpe, total_return)
 
 
 def int_ls(start, n):
@@ -118,8 +119,32 @@ def test_sharpe(data_ls, index_ls, start, n, risk_free):
             sharpe(series, detect_annualize_factor(series), risk_free)
 
 
-def test_drawdown():
-    assert False
+@pytest.mark.parametrize('data_ls', LS_COLLECTIONS)
+@pytest.mark.parametrize('index_ls', LS_COLLECTIONS)
+@pytest.mark.parametrize('start', [10, 100, 1000])
+@pytest.mark.parametrize('n', [10, 100, 1000])
+def test_drawdown(data_ls, index_ls, start, n):
+    data = data_ls(start, n)
+    index = index_ls(start, n)
+    series = Series(data, index=index)
+    if data_ls in [int_ls, float_ls, ] and index_ls in [datetime_ls, ]:
+        ddr = drawdown(series)
+        assert isinstance(ddr, DrawdownResult)
+        assert isinstance(ddr.maxdrawdown, float)
+        assert isinstance(ddr.points, DrawdownPoints)
+        assert isinstance(ddr.points.start, Timestamp)
+        assert isinstance(ddr.points.end, Timestamp)
+        assert isinstance(ddr.points.low, float)
+        assert isinstance(ddr.points.high, float)
+        assert isinstance(ddr.bars, int)
+        assert isinstance(ddr.duration, Timedelta)
+        assert ddr.points.start <= ddr.points.end
+        assert ddr.points.low <= ddr.points.high
+        assert ddr.bars >= 0
+        assert ddr.duration.days >= 0
+    else:
+        with pytest.raises(Exception):
+            drawdown(series)
 
 
 def test_calmar():
