@@ -1,7 +1,8 @@
 import pytest
 from pandas import Series, Timedelta, Timestamp
 
-from trbox.portfolio.metrics import cagr, total_return
+from trbox.portfolio.metrics import (cagr, detect_annualize_factor, mu_sigma,
+                                     total_return)
 
 
 def int_ls(start, n):
@@ -65,8 +66,22 @@ def test_cagr(data_ls, index_ls, start, n):
             cagr(series)
 
 
-def test_mu_sigma():
-    assert False
+@pytest.mark.parametrize('data_ls', LS_COLLECTIONS)
+@pytest.mark.parametrize('index_ls', LS_COLLECTIONS)
+@pytest.mark.parametrize('start', [10, 100, 1000])
+@pytest.mark.parametrize('n', [10, 100, 1000])
+def test_mu_sigma(data_ls, index_ls, start, n):
+    data = data_ls(start, n)
+    index = index_ls(start, n)
+    series = Series(data, index=index)
+    if data_ls in [int_ls, float_ls, ] and index_ls in [datetime_ls, ]:
+        af = detect_annualize_factor(series)
+        mu, sigma = mu_sigma(series, af)
+        assert isinstance(mu, float)
+        assert isinstance(sigma, float)
+    else:
+        with pytest.raises(Exception):
+            mu_sigma(series, detect_annualize_factor(series))
 
 
 def test_sharpe():
