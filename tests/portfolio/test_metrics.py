@@ -1,5 +1,5 @@
 import pytest
-from pandas import Series, Timedelta, Timestamp
+from pandas import DataFrame, Series, Timedelta, Timestamp
 
 from trbox.portfolio.metrics import (cagr, detect_annualize_factor, mu_sigma,
                                      sharpe, total_return)
@@ -29,8 +29,24 @@ LS_COLLECTIONS = [int_ls, float_ls, str_ls, datetime_ls]
 #
 
 
-def test_detect_annualize_factor():
-    assert False
+@pytest.mark.parametrize('data_ls', LS_COLLECTIONS)
+@pytest.mark.parametrize('index_ls', LS_COLLECTIONS)
+@pytest.mark.parametrize('start', [10, 100, 1000])
+@pytest.mark.parametrize('n', [10, 100, 1000])
+@pytest.mark.parametrize('sample_size', [10, 50, 100, ])
+def test_detect_annualize_factor(data_ls, index_ls, start, n, sample_size):
+    data = data_ls(start, n)
+    index = index_ls(start, n)
+    series = Series(data, index=index)
+    df = DataFrame({'a': data, 'b': data}, index=index)
+    if index_ls in [datetime_ls, ]:
+        assert detect_annualize_factor(series, sample_size)
+        assert detect_annualize_factor(df, sample_size)
+    else:
+        with pytest.raises(Exception):
+            detect_annualize_factor(series, sample_size)
+        with pytest.raises(Exception):
+            detect_annualize_factor(df, sample_size)
 
 
 @pytest.mark.parametrize('data_ls', LS_COLLECTIONS)
