@@ -20,6 +20,9 @@ def datetime_ls(start, n):
     return [Timestamp(2015, 1, 1) + Timedelta(days=i)
             for i in range(start, start+n)]
 
+
+LS_COLLECTIONS = [int_ls, float_ls, str_ls, datetime_ls]
+
 #
 # tests
 #
@@ -29,28 +32,32 @@ def test_detect_annualize_factor():
     assert False
 
 
-@pytest.mark.parametrize('data_ls', [int_ls, float_ls, ])
-@pytest.mark.parametrize('index_ls', [int_ls, float_ls, str_ls, datetime_ls])
+@pytest.mark.parametrize('data_ls', LS_COLLECTIONS)
+@pytest.mark.parametrize('index_ls', LS_COLLECTIONS)
 @pytest.mark.parametrize('start', [10, 100, 1000])
 @pytest.mark.parametrize('n', [10, 100, 1000])
 def test_total_return(data_ls, index_ls, start, n):
     data = data_ls(start, n)
     index = index_ls(start, n)
     series = Series(data, index=index)
-    ans = total_return(series)
-    assert isinstance(ans, float)
-    assert ans == data[-1]/data[0]-1
+    if data_ls in [int_ls, float_ls, ]:
+        ans = total_return(series)
+        assert isinstance(ans, float)
+        assert ans == data[-1]/data[0]-1
+    else:
+        with pytest.raises(Exception):
+            total_return(series)
 
 
-@pytest.mark.parametrize('data_ls', [int_ls, float_ls, ])
-@pytest.mark.parametrize('index_ls', [int_ls, float_ls, str_ls, datetime_ls])
+@pytest.mark.parametrize('data_ls', LS_COLLECTIONS)
+@pytest.mark.parametrize('index_ls', LS_COLLECTIONS)
 @pytest.mark.parametrize('start', [10, 100, 1000])
 @pytest.mark.parametrize('n', [10, 100, 1000])
 def test_cagr(data_ls, index_ls, start, n):
     data = data_ls(start, n)
     index = index_ls(start, n)
     series = Series(data, index=index)
-    if index_ls == datetime_ls:
+    if data_ls in [int_ls, float_ls, ] and index_ls in [datetime_ls, ]:
         ans = cagr(series)
         assert isinstance(ans, float)
     else:
