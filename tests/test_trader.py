@@ -4,6 +4,7 @@ from time import sleep
 import pytest
 from pandas import Series, Timestamp
 
+from tests.utils import assert_valid_metrics
 from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
@@ -37,8 +38,8 @@ def test_dummy(name, live):
         if my.count.every(INTERVAL):
             if not live:
                 my.portfolio.trade(SYMBOL, QUANTITY)
-            # Log.info(Memo(f'every {INTERVAL}', i=my.count._i).by(
-            #     my.strategy).tag('count'))
+        if my.count.every(250):
+            assert_valid_metrics(my)
         # can also access dashboard when still trading
         assert isinstance(my.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=my.trader.dashboard)
@@ -91,6 +92,8 @@ def test_historical_data(start: Timestamp | str,
         my.portfolio.trade(TARGET, QUANTITY)
         Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
         assert no_frontrun(my.memory, my.event)
+        if my.count.every(250):
+            assert_valid_metrics(my)
 
     def for_ref(my: Context):
         assert isinstance(my.event, OhlcvWindow)
@@ -99,6 +102,8 @@ def test_historical_data(start: Timestamp | str,
         my.portfolio.trade(REF[0], QUANTITY)
         Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
         assert no_frontrun(my.memory, my.event)
+        if my.count.every(250):
+            assert_valid_metrics(my)
 
     t = Trader(
         strategy=Strategy()
