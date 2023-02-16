@@ -32,10 +32,9 @@ class Dashboard:
     '''
 
     def __init__(self) -> None:
-        self._navs: list[float] = []
-        self._navs_index: list[Timestamp] = []
+        self._navs: dict[Timestamp, float] = {}
         self._trade_records: list[TradeRecord] = []
-        # locks, make sure thread safetyy
+        # locks, make sure thread safety
         self._lock_navs = threading.Lock()
         self._lock_trade_records = threading.Lock()
 
@@ -48,7 +47,7 @@ class Dashboard:
     @property
     def navs(self) -> Series:
         with self._lock_navs:
-            return Series(self._navs, index=self._navs_index, dtype=float)
+            return Series(self._navs, dtype=float).sort_index()
 
     @property
     def trade_records(self) -> DataFrame:
@@ -60,8 +59,7 @@ class Dashboard:
 
     def add_equity_record(self, timestamp: Timestamp, val: float) -> None:
         with self._lock_navs:
-            self._navs_index.append(timestamp)
-            self._navs.append(val)
+            self._navs[timestamp] = val
 
     def add_trade_record(self, e: OrderResult) -> None:
         with self._lock_trade_records:

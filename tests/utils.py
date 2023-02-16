@@ -10,4 +10,3 @@ def assert_valid_metrics(my: Context):
     assert isinstance(my.portfolio.metrics.mu_sigma, tuple)
     assert isinstance(my.portfolio.metrics.drawdown, DrawdownResult)
     assert isinstance(my.portfolio.metrics.calmar, float)
-    Log.warning(Memo('assert_valid_metrics()').tag('metrics'))

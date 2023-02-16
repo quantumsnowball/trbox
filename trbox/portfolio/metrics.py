@@ -77,6 +77,7 @@ class DrawdownResult:
 
 
 def drawdown(ts: Series) -> DrawdownResult:
+    assert isinstance(ts, Series)
     assert isinstance(ts.index, DatetimeIndex)
     log_ts = Series(np.log(ts))
     run_max = Series(np.maximum.accumulate(log_ts))

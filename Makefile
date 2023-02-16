@@ -71,7 +71,7 @@ test:
 test-debug:
 	@pytest . -k 'not lab' --pdb --log-cli-level DEBUG
 test-parallel:
-	@pytest . -k 'not lab' --pdb --workers auto
+	@pytest . -k 'not lab' --workers auto
 
 #
 # Typecheck
