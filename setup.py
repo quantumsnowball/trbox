@@ -9,5 +9,10 @@ setup(
     author_email='quantum.snowball@gmail.com',
     license='MIT',
     packages=['trbox'],
-    zip_safe=False
+    zip_safe=False,
+    entry_points={
+        'console_scripts': [
+            'trbox=trbox.cli:main',
+        ]
+    }
 )
