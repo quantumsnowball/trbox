@@ -1,6 +1,6 @@
 import click
 
-from trbox.backtest.lab import Lab
+from trbox.backtest.lab import DEFAULT_HOST, DEFAULT_PATH, DEFAULT_PORT, Lab
 
 
 @click.group()
@@ -9,9 +9,17 @@ def trbox() -> None:
 
 
 @trbox.command()
-@click.argument('path', type=click.Path(exists=True))
-@click.option('-p', '--port', default=9000)
-def lab(path: str, port: int) -> None:
-    click.echo(f'{path}, {port}')
-    lab = Lab(path, port=port, daemon=True)
+@click.argument('path', required=False, type=click.Path(exists=True))
+@click.option('-h', '--host', default=DEFAULT_HOST)
+@click.option('-p', '--port', default=DEFAULT_PORT)
+def lab(path: str, host: str, port: int) -> None:
+    # defaults
+    if not path:
+        path = DEFAULT_PATH
+    # asyncio thread
+    lab = Lab(path,
+              host=host,
+              port=port)
     lab.start()
+    # if I don't join, the asyncio loop can't setup properly
+    lab.join()
