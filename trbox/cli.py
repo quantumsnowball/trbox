@@ -9,7 +9,8 @@ def trbox() -> None:
 
 
 @trbox.command()
-def lab() -> None:
+@click.option('-p', '--port', default=9000)
+def lab(port: int) -> None:
     print('TrBox Lab: This will spawn a server, serving the trbox-lab frontend to render the current directory as a backtesting lab.')
-    lab = Lab(daemon=True)
+    lab = Lab(port=port)
     lab.start()

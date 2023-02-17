@@ -3,6 +3,7 @@ from asyncio import Future
 from threading import Thread
 from typing import Any
 
+import click
 from aiohttp import web
 from socketio.asyncio_client import asyncio
 from typing_extensions import override
@@ -31,6 +32,7 @@ class Lab(Thread):
         self._runner = web.AppRunner(self._app)
 
     async def serve(self) -> None:
+        click.echo(f'Serving at http://localhost:{self._port}')
         await self._runner.setup()
         site = web.TCPSite(self._runner, port=self._port)
         await site.start()
