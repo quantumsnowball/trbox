@@ -12,7 +12,7 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'trbox=trbox.cli:main',
+            'trbox=trbox.cli:trbox',
         ]
     }
 )

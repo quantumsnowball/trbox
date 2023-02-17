@@ -1,6 +1,11 @@
 import click
 
 
-@click.command(short_help='Trbox')
-def main() -> None:
-    print('TrBox cli: Welcome!')
+@click.group()
+def trbox() -> None:
+    pass
+
+
+@trbox.command()
+def lab() -> None:
+    print('TrBox Lab: This will spawn a server, serving the trbox-lab frontend to render the current directory as a backtesting lab.')
