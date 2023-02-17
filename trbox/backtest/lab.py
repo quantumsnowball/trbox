@@ -1,6 +1,7 @@
 import os
 from asyncio import Future
 from threading import Thread
+from typing import Any
 
 from aiohttp import web
 from socketio.asyncio_client import asyncio
@@ -20,8 +21,10 @@ async def lsdir(_):
 
 class Lab(Thread):
     def __init__(self,
-                 port: int = 9000) -> None:
-        super().__init__()
+                 *args: Any,
+                 port: int = 9000,
+                 **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self._port = port
         self._app = web.Application()
         self._app.add_routes(routes)
