@@ -1,3 +1,4 @@
+import os
 from asyncio import Future
 from threading import Thread
 
@@ -9,8 +10,12 @@ routes = web.RouteTableDef()
 
 
 @routes.get('/')
-async def hello(request):
-    return web.Response(text="Hello, world")
+async def lsdir(_):
+    txt = ''
+    for dirpath, dirname, filename in os.walk('.'):
+        txt += f'{dirpath}\t{dirname}\t{filename}\n'
+
+    return web.Response(text=txt)
 
 
 class Lab(Thread):
@@ -22,7 +27,7 @@ class Lab(Thread):
         self._app.add_routes(routes)
         self._runner = web.AppRunner(self._app)
 
-    async def serve(self):
+    async def serve(self) -> None:
         await self._runner.setup()
         site = web.TCPSite(self._runner, port=self._port)
         await site.start()
