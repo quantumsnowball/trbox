@@ -11,28 +11,38 @@ from typing_extensions import override
 routes = web.RouteTableDef()
 
 
-@routes.get('/')
-async def lsdir(_):
-    txt = ''
-    for dirpath, dirname, filename in os.walk('.'):
-        txt += f'{dirpath}\t{dirname}\t{filename}\n'
-
-    return web.Response(text=txt)
-
-
 class Lab(Thread):
     def __init__(self,
+                 path: str,
                  *args: Any,
                  port: int = 9000,
                  **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(*args,
+                         name='Lab',
+                         **kwargs)
+        self._path = path
         self._port = port
         self._app = web.Application()
-        self._app.add_routes(routes)
+        self._app.add_routes([
+            web.route('GET', '/', self.lsdir),
+        ])
         self._runner = web.AppRunner(self._app)
 
+    #
+    # routes
+    #
+    async def lsdir(self, _) -> web.Response:
+        txt = ''
+        for dirpath, dirname, filename in os.walk(self._path):
+            txt += f'{dirpath}\t{dirname}\t{filename}\n'
+
+        return web.Response(text=txt)
+
+    #
+    # main loop
+    #
     async def serve(self) -> None:
-        click.echo(f'Serving at http://localhost:{self._port}')
+        click.echo(f'Serving {self._path} at http://localhost:{self._port}')
         await self._runner.setup()
         site = web.TCPSite(self._runner, port=self._port)
         await site.start()
