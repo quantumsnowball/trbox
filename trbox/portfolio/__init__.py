@@ -9,8 +9,12 @@ from trbox.common.types import Positions, Symbol
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import MarketOrder, OrderResult
 from trbox.event.handler import CounterParty
-from trbox.event.portfolio import EquityCurveUpdate
+from trbox.event.portfolio import (EquityCurveHistoryRequest,
+                                   EquityCurveHistoryUpdate, EquityCurveUpdate,
+                                   OrderResultUpdate, TradeLogHistoryRequest,
+                                   TradeLogHistoryUpdate)
 from trbox.portfolio.dashboard import Dashboard
+from trbox.portfolio.metrics import Metrics
 
 
 class Portfolio(CounterParty, ABC):
@@ -22,7 +26,9 @@ class Portfolio(CounterParty, ABC):
         # maintain a state of account info flags
         self._positions_updated = False
 
+    #
     # account status
+    #
 
     @property
     def cash(self) -> float:
@@ -36,7 +42,9 @@ class Portfolio(CounterParty, ABC):
     def equity(self) -> float:
         return self.broker.equity
 
+    #
     # dashboard
+    #
 
     @property
     def dashboard(self) -> Dashboard:
@@ -45,7 +53,17 @@ class Portfolio(CounterParty, ABC):
         # the Trader is still running. It should contain the lastest trading
         # result regardless live trading or backtesting.
 
+    #
+    # analysis
+    #
+
+    @property
+    def metrics(self) -> Metrics:
+        return Metrics(portfolio=self)
+
+    #
     # helpers
+    #
 
     # TODO
     # these helpers should confirm there is no pending order first
@@ -72,7 +90,7 @@ class Portfolio(CounterParty, ABC):
         raise NotImplementedError
 
     # handle events
-    def handle_market_event(self, e: MarketEvent):
+    def handle_market_event(self, e: MarketEvent) -> None:
         # TODO
         # here your will receiving the same price info from Market as Strategy and Broker
         # use it to update the position worth, and update the rolling nav
@@ -81,18 +99,37 @@ class Portfolio(CounterParty, ABC):
                                            equity=self.equity,
                                            positions=self.positions))
 
-    def handle_order_result(self, e: OrderResult):
+    def handle_order_result(self, e: OrderResult) -> None:
         # TODO
         # fetching the position from broker may be expensive and slow in live trading
         # so only need to fetch in the beginnging and then update only after trade result
-        pass
+        self.dashboard.add_trade_record(e)
+        self.console.put(OrderResultUpdate(e))
+
+    def handle_equity_curve_history_request(self,
+                                            e: EquityCurveHistoryRequest) -> None:
+        series = self.dashboard.navs.iloc[-e.n:] \
+            if e.n is not None else self.dashboard.navs
+        self.console.put(EquityCurveHistoryUpdate(client=e.client,
+                                                  series=series))
+
+    def handle_order_result_history_request(self,
+                                            e: TradeLogHistoryRequest) -> None:
+        df = self.dashboard.trade_records.iloc[-e.n:] \
+            if e.n is not None else self.dashboard.trade_records
+        self.console.put(TradeLogHistoryUpdate(client=e.client,
+                                               df=df))
 
     @override
     def handle(self, e: Event) -> None:
         if isinstance(e, MarketEvent):
             self.handle_market_event(e)
-        if isinstance(e, OrderResult):
+        elif isinstance(e, OrderResult):
             self.handle_order_result(e)
+        elif isinstance(e, EquityCurveHistoryRequest):
+            self.handle_equity_curve_history_request(e)
+        elif isinstance(e, TradeLogHistoryRequest):
+            self.handle_order_result_history_request(e)
 
 
 class Basic(Portfolio):

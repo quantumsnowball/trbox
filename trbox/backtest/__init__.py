@@ -29,7 +29,7 @@ class BatchRunner(ABC):
                  .by(self).tag('batch', 'finished'))
 
     def _run_async(self) -> None:
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(thread_name_prefix='BacktestPool') as executor:
             Log.info(Memo('started', cln(executor))
                      .by(self).tag('pool', 'started'))
             futures = [executor.submit(r.run) for r in self._runners]

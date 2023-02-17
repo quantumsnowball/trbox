@@ -1,3 +1,4 @@
+import threading
 from dataclasses import asdict, dataclass
 
 from pandas import DataFrame, Series, Timestamp
@@ -31,9 +32,11 @@ class Dashboard:
     '''
 
     def __init__(self) -> None:
-        self._navs: list[float] = []
-        self._navs_index: list[Timestamp] = []
+        self._navs: dict[Timestamp, float] = {}
         self._trade_records: list[TradeRecord] = []
+        # locks, make sure thread safety
+        self._lock_navs = threading.Lock()
+        self._lock_trade_records = threading.Lock()
 
     def __str__(self) -> str:
         return f'{cln(self)}'
@@ -43,36 +46,32 @@ class Dashboard:
     #
     @property
     def navs(self) -> Series:
-        return Series(self._navs, index=self._navs_index, dtype=float)
+        with self._lock_navs:
+            return Series(self._navs, dtype=float).sort_index()
 
     @property
-    def trade_reacords(self) -> DataFrame:
-        return DataFrame([asdict(r) for r in self._trade_records]).set_index('Date')
+    def trade_records(self) -> DataFrame:
+        with self._lock_trade_records:
+            return DataFrame([asdict(r) for r in self._trade_records]).set_index('Date')
     #
     # updating
     #
 
     def add_equity_record(self, timestamp: Timestamp, val: float) -> None:
-        self._navs_index.append(timestamp)
-        self._navs.append(val)
+        with self._lock_navs:
+            self._navs[timestamp] = val
 
     def add_trade_record(self, e: OrderResult) -> None:
-        self._trade_records.append(
-            TradeRecord(e.timestamp,
-                        e.order.symbol,
-                        e.action,
-                        e.quantity,
-                        e.price,
-                        e.gross_proceeds,
-                        e.fee,
-                        e.net_proceeds))
-
-    #
-    # analysis
-    #
-
-    def metric(self) -> None:
-        pass
+        with self._lock_trade_records:
+            self._trade_records.append(
+                TradeRecord(e.timestamp,
+                            e.order.symbol,
+                            e.action,
+                            e.quantity,
+                            e.price,
+                            e.gross_proceeds,
+                            e.fee,
+                            e.net_proceeds))
 
     #
     # presenting

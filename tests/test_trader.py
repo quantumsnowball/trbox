@@ -4,11 +4,12 @@ from time import sleep
 import pytest
 from pandas import Series, Timestamp
 
+from tests.utils import assert_valid_metrics
 from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.console.flask_sock import FlaskSock
+from trbox.console.dashboard import TrboxDashboard
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
 from trbox.market.localcsv import RollingWindow
@@ -17,13 +18,15 @@ from trbox.strategy import Context
 from trbox.strategy.types import Memroy
 
 
-@pytest.mark.parametrize('live', [True, False])
+@pytest.mark.parametrize('live', [False, True])
 @pytest.mark.parametrize('name', [None, 'DummySt'])
 # @pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dummy(name, live):
     SYMBOL = 'BTC'
     QUANTITY = 0.2
     INTERVAL = 4
+    N = 3000
+    DELAY = 0.0
 
     # on_tick
     def dummy_action(my: Context):
@@ -35,21 +38,21 @@ def test_dummy(name, live):
         if my.count.every(INTERVAL):
             if not live:
                 my.portfolio.trade(SYMBOL, QUANTITY)
-            Log.info(Memo(f'every {INTERVAL}', i=my.count._i).by(
-                my.strategy).tag('count'))
+        if my.count.every(250):
+            assert_valid_metrics(my)
         # can also access dashboard when still trading
         assert isinstance(my.trader.dashboard, Dashboard)
         Log.info(Memo('anytime get', dashboard=my.trader.dashboard)
                  .by(my.strategy).tag('dashboard'))
-        sleep(1)
+        sleep(DELAY)
 
     t = Trader(
         live=live,
         strategy=Strategy(name=name,)
         .on('BTC', Candlestick, do=dummy_action),
-        market=DummyPrice(SYMBOL),
+        market=DummyPrice(SYMBOL, n=N),
         broker=PaperEX(SYMBOL),
-        console=FlaskSock()
+        console=TrboxDashboard()
     )
     t.run()
     # up to here the market data terminated, simular to user termination
@@ -89,6 +92,8 @@ def test_historical_data(start: Timestamp | str,
         my.portfolio.trade(TARGET, QUANTITY)
         Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
         assert no_frontrun(my.memory, my.event)
+        if my.count.every(250):
+            assert_valid_metrics(my)
 
     def for_ref(my: Context):
         assert isinstance(my.event, OhlcvWindow)
@@ -97,6 +102,8 @@ def test_historical_data(start: Timestamp | str,
         my.portfolio.trade(REF[0], QUANTITY)
         Log.info(Memo(datetime=my.event.timestamp, symbol=my.event.symbol))
         assert no_frontrun(my.memory, my.event)
+        if my.count.every(250):
+            assert_valid_metrics(my)
 
     t = Trader(
         strategy=Strategy()

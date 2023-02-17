@@ -62,7 +62,7 @@ class Runner:
 
     # main thread pool
     def run(self) -> None:
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(thread_name_prefix='TraderPool') as executor:
             futures = [executor.submit(h.run) for h in self._handlers]
             # notify the event handlers start
             self.start()

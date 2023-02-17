@@ -1,4 +1,4 @@
-from pandas import Timestamp
+from pandas import Timedelta, Timestamp, to_datetime
 from typing_extensions import override
 
 from trbox.common.logger import Log
@@ -8,6 +8,8 @@ from trbox.event.broker import AuditRequest
 from trbox.event.market import Candlestick
 from trbox.market import MarketWorker
 
+DEFAULT_SINCE = '2018-01-01'
+DEFAULT_PRICE = 20000
 DEFAULT_N = 30
 
 
@@ -19,9 +21,13 @@ class DummyPrice(MarketWorker):
 
     def __init__(self,
                  symbol: Symbol,
+                 since: str = DEFAULT_SINCE,
+                 price: float = DEFAULT_PRICE,
                  n: int = DEFAULT_N) -> None:
         super().__init__()
         self._symbol = symbol
+        self._since = since
+        self._price = price
         self._n = n
 
     @override
@@ -36,7 +42,9 @@ class DummyPrice(MarketWorker):
                     Log.error(Memo('timeout waiting for heartbeat')
                               .by(self).tag('timeout'))
 
-            e = Candlestick(Timestamp.now(), self._symbol, i)
+            e = Candlestick(timestamp=to_datetime(self._since) + Timedelta(days=i),
+                            symbol=self._symbol, 
+                            price=self._price + i)
             self.strategy.put(e)
             self.broker.put(e)
             self.portfolio.put(e)
