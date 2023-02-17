@@ -1,3 +1,4 @@
+import glob
 import os
 from asyncio import Future, new_event_loop
 from threading import Thread
@@ -39,9 +40,12 @@ class Lab(Thread):
     #
     async def lsdir(self, _) -> web.Response:
         txt = ''
-        for dirpath, dirname, filename in os.walk(self._path):
-            txt += f'{dirpath}\t{dirname}\t{filename}\n'
-
+        # for dirpath, dirname, filename in os.walk(self._path):
+        #     txt += f'{dirpath}\t{dirname}\t{filename}\n'
+        for f in glob.glob(f'{self._path}/**/*.py', recursive=True):
+            basename = os.path.basename(f)
+            dirname = os.path.dirname(f)
+            txt += f'{dirname}\t{basename}\n'
         return web.Response(text=txt)
 
     #
