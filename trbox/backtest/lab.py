@@ -2,7 +2,7 @@ import glob
 import os
 from asyncio import Future, new_event_loop
 from threading import Thread
-from typing import Any, Generator
+from typing import Any, Generator, Union
 
 import click
 from aiohttp import web
@@ -17,14 +17,22 @@ DEFAULT_PATH = '.'
 routes = web.RouteTableDef()
 
 
+TreeDict = dict[str, Union['TreeDict', None]]
+
+
 def scan_for_st_recursive(path: str,
                           *,
-                          prefix: str = 'st_') -> Generator[os.DirEntry[str], None, None]:
-    for item in os.scandir(path):
-        if item.is_dir():
-            yield from scan_for_st_recursive(item.path)
-        if item.is_file() and item.name.startswith(prefix):
-            yield item
+                          prefix: str = 'st_') -> TreeDict:
+    d = dict()
+    # loop through every items in path
+    for m in os.scandir(path):
+        if m.is_dir():
+            # nested one level if is a dir, key is the dirname
+            d[m.name] = scan_for_st_recursive(m.path)
+        elif m.is_file() and m.name.startswith(prefix):
+            # if a target file is found, set the key with None as value
+            d[m.name] = None
+    return d
 
 
 class Lab(Thread):
