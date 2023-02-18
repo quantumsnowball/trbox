@@ -6,6 +6,7 @@ from typing import Any
 
 import click
 from aiohttp import web
+from binance.websocket.binance_socket_manager import json
 from socketio.asyncio_client import asyncio
 from typing_extensions import override
 
@@ -39,14 +40,21 @@ class Lab(Thread):
     # routes
     #
     async def lsdir(self, _) -> web.Response:
-        txt = ''
-        # for dirpath, dirname, filename in os.walk(self._path):
-        #     txt += f'{dirpath}\t{dirname}\t{filename}\n'
-        for f in glob.glob(f'{self._path}/**/*.py', recursive=True):
-            basename = os.path.basename(f)
-            dirname = os.path.dirname(f)
-            txt += f'{dirname}\t{basename}\n'
-        return web.Response(text=txt)
+        def recursive_scan(path):
+            for item in os.scandir(path):
+                if item.is_dir():
+                    yield from recursive_scan(item)
+                yield item
+        paths = [str(m) for m in recursive_scan(self._path)]
+        return web.json_response(paths,
+                                 dumps=lambda s: json.dumps(s, indent=4))
+
+    # TODO: propose definition of a `lab` dir:
+    # 1. contains a single st_*.py file
+    # 2. can have subdir or any other files
+    # TODO: to create a lab in frontend:
+    # 1. scan cwd for a st_*.py
+    # 2. copy to new subdir and copy the original st_*.py into it
 
     #
     # main loop
