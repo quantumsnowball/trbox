@@ -57,7 +57,7 @@ class Lab(Thread):
         self._app = web.Application(middlewares=[self.on_request_error, ])
         self._app.add_routes([
             # match api first
-            web.route('GET', '/tree', self.lsdir),
+            web.route('GET', '/api/tree', self.lsdir),
             # then serve index and all other statics
             web.route('GET', '/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
@@ -106,6 +106,7 @@ class Lab(Thread):
     #
 
     async def serve(self) -> None:
+        # aiohttp does not support CORS by default
         click.echo(f'Serving {self._path} at http://{self._host}:{self._port}')
         await self._runner.setup()
         site = web.TCPSite(self._runner, host=self._host, port=self._port)
