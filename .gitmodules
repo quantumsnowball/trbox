@@ -1,0 +1,3 @@
+[submodule "trbox/frontend/trbox-lab"]
+	path = trbox/frontend/trbox-lab
+	url = git@github.com:quantumsnowball/trbox-lab.git
