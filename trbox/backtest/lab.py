@@ -2,7 +2,7 @@ import glob
 import os
 from asyncio import Future, new_event_loop
 from threading import Thread
-from typing import Any
+from typing import Any, Generator
 
 import click
 from aiohttp import web
@@ -15,6 +15,16 @@ DEFAULT_PORT = 9000
 DEFAULT_PATH = '.'
 
 routes = web.RouteTableDef()
+
+
+def scan_for_st_recursive(path: str,
+                          *,
+                          prefix: str = 'st_') -> Generator[os.DirEntry[str], None, None]:
+    for item in os.scandir(path):
+        if item.is_dir():
+            yield from scan_for_st_recursive(item.path)
+        if item.is_file() and item.name.startswith(prefix):
+            yield item
 
 
 class Lab(Thread):
@@ -40,12 +50,8 @@ class Lab(Thread):
     # routes
     #
     async def lsdir(self, _) -> web.Response:
-        def recursive_scan(path):
-            for item in os.scandir(path):
-                if item.is_dir():
-                    yield from recursive_scan(item)
-                yield item
-        paths = [str(m) for m in recursive_scan(self._path)]
+        paths = [dict(name=m.name, path=m.path)
+                 for m in scan_for_st_recursive(self._path)]
         return web.json_response(paths,
                                  dumps=lambda s: json.dumps(s, indent=4))
 
