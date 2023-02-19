@@ -19,8 +19,8 @@ DEFAULT_PATH = '.'
 FRONTEND_LOCAL_DIR = f'{os.path.dirname(__file__)}/../frontend/trbox-lab/out/'
 DEFAULT_FILENAME = 'index.html'
 ENTRY_POINT = f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}'
-
-routes = web.RouteTableDef()
+SRC_PREFIX = 'st_'
+RUNDIR_PREFIX = '.run'
 
 
 TreeDict = dict[str, Union['TreeDict', None]]
@@ -28,16 +28,33 @@ TreeDict = dict[str, Union['TreeDict', None]]
 
 def scan_for_st_recursive(path: str,
                           *,
-                          prefix: str = 'st_') -> TreeDict:
+                          prefix: str = SRC_PREFIX,
+                          prefix_excluded: str = RUNDIR_PREFIX) -> TreeDict:
     d = dict()
     # loop through every items in path
     for m in os.scandir(path):
-        if m.is_dir():
+        if m.is_dir() and not m.name.startswith(prefix_excluded):
             # nested one level if is a dir, key is the dirname
             d[m.name] = scan_for_st_recursive(m.path)
         elif m.is_file() and m.name.startswith(prefix):
             # if a target file is found, set the key with None as value
             d[m.name] = None
+    return d
+
+
+def scan_for_run_recursive(path: str,
+                           *,
+                           prefix: str = RUNDIR_PREFIX) -> TreeDict:
+    d = dict()
+    # loop through every items in path
+    for m in os.scandir(path):
+        if m.is_dir():
+            if m.name.startswith(prefix):
+                # prefixed dir should contain run info
+                d[m.name] = None
+            else:
+                # nested one level if is a dir, key is the dirname
+                d[m.name] = scan_for_run_recursive(m.path)
     return d
 
 
@@ -57,7 +74,8 @@ class Lab(Thread):
         self._app = web.Application(middlewares=[self.on_request_error, ])
         self._app.add_routes([
             # match api first
-            web.route('GET', '/api/tree', self.lsdir),
+            web.route('GET', '/api/tree/src', self.ls_src),
+            web.route('GET', '/api/tree/run', self.ls_run),
             # then serve index and all other statics
             web.route('GET', '/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
@@ -70,8 +88,13 @@ class Lab(Thread):
     async def index(self, _: web.Request) -> web.FileResponse:
         return web.FileResponse(ENTRY_POINT)
 
-    async def lsdir(self, _) -> web.Response:
+    async def ls_src(self, _) -> web.Response:
         tree = scan_for_st_recursive(self._path)
+        return web.json_response(tree,
+                                 dumps=lambda s: json.dumps(s, indent=4))
+
+    async def ls_run(self, _) -> web.Response:
+        tree = scan_for_run_recursive(self._path)
         return web.json_response(tree,
                                  dumps=lambda s: json.dumps(s, indent=4))
 
