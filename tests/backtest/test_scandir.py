@@ -36,7 +36,7 @@ def test_scan_for_run_recursive():
                 check_tree(item)
             else:
                 Log.info(Memo(file=name))
-                assert name.startswith('.run')
+                assert name.startswith('.result')
         return
 
     check_tree(tree)

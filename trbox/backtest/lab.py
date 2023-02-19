@@ -20,7 +20,7 @@ FRONTEND_LOCAL_DIR = f'{os.path.dirname(__file__)}/../frontend/trbox-lab/out/'
 DEFAULT_FILENAME = 'index.html'
 ENTRY_POINT = f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}'
 SRC_PREFIX = 'st_'
-RUNDIR_PREFIX = '.run'
+RUNDIR_PREFIX = '.result'
 
 
 TreeDict = dict[str, Union['TreeDict', None]]
@@ -75,7 +75,7 @@ class Lab(Thread):
         self._app.add_routes([
             # match api first
             web.route('GET', '/api/tree/src', self.ls_src),
-            web.route('GET', '/api/tree/run', self.ls_run),
+            web.route('GET', '/api/tree/result', self.ls_run),
             # then serve index and all other statics
             web.route('GET', '/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
