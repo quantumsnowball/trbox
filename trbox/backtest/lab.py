@@ -19,24 +19,24 @@ DEFAULT_PATH = '.'
 FRONTEND_LOCAL_DIR = f'{os.path.dirname(__file__)}/../frontend/trbox-lab/out/'
 DEFAULT_FILENAME = 'index.html'
 ENTRY_POINT = f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}'
-SRC_PREFIX = 'st_'
+PY_SUFFIX = '.py'
 RUNDIR_PREFIX = '.result'
 
 
 TreeDict = dict[str, Union['TreeDict', None]]
 
 
-def scan_for_st_recursive(path: str,
+def scan_for_py_recursive(path: str,
                           *,
-                          prefix: str = SRC_PREFIX,
+                          suffix: str = PY_SUFFIX,
                           prefix_excluded: str = RUNDIR_PREFIX) -> TreeDict:
     d = dict()
     # loop through every items in path
     for m in os.scandir(path):
         if m.is_dir() and not m.name.startswith(prefix_excluded):
             # nested one level if is a dir, key is the dirname
-            d[m.name] = scan_for_st_recursive(m.path)
-        elif m.is_file() and m.name.startswith(prefix):
+            d[m.name] = scan_for_py_recursive(m.path)
+        elif m.is_file() and m.name.endswith(suffix):
             # if a target file is found, set the key with None as value
             d[m.name] = None
     return d
@@ -89,7 +89,7 @@ class Lab(Thread):
         return web.FileResponse(ENTRY_POINT)
 
     async def ls_src(self, _) -> web.Response:
-        tree = scan_for_st_recursive(self._path)
+        tree = scan_for_py_recursive(self._path)
         return web.json_response(tree,
                                  dumps=lambda s: json.dumps(s, indent=4))
 
