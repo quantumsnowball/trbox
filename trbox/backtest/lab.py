@@ -10,6 +10,7 @@ from binance.websocket.binance_socket_manager import json
 from socketio.asyncio_client import asyncio
 from typing_extensions import override
 
+from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 
@@ -24,6 +25,20 @@ RUNDIR_PREFIX = '.result'
 
 
 TreeDict = dict[str, Union['TreeDict', None]]
+
+
+def scan_for_source(parent: Node,
+                    *,
+                    suffix: str = PY_SUFFIX,
+                    prefix_excluded: str = RUNDIR_PREFIX,
+                    basepath: str) -> Node:
+    for m in os.scandir(basepath + parent.path):
+        if m.is_dir() and not m.name.startswith(prefix_excluded):
+            parent.add(scan_for_source(Node(m.name, 'folder', parent, []),
+                                       basepath=basepath))
+        elif m.is_file() and m.name.endswith(suffix):
+            parent.add(Node(m.name, 'file', parent, []))
+    return parent
 
 
 def scan_for_py_recursive(path: str,
@@ -100,8 +115,9 @@ class Lab(Thread):
                                  dumps=lambda s: json.dumps(s, indent=4))
 
     async def ls_source(self, _) -> web.Response:
-        tree = scan_for_py_recursive(self._path)
-        return web.json_response(tree,
+        node = scan_for_source(Node('', 'folder', None, []),
+                               basepath=self._path)
+        return web.json_response(node.dict,
                                  dumps=lambda s: json.dumps(s, indent=4))
 
     async def ls_result(self, _) -> web.Response:
