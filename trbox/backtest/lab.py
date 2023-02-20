@@ -79,7 +79,9 @@ class Lab(Thread):
         self._app.add_routes([
             # match api first
             web.route('GET', '/api/tree/src', self.ls_src),
-            web.route('GET', '/api/tree/result', self.ls_run),
+            web.route('GET', '/api/tree/source', self.ls_src),
+            web.route('GET', '/api/tree/result', self.ls_result),
+            web.route('GET', '/api/source/{path:.+}', self.get_source),
             web.route('GET', '/api/result/{path:.+}', self.get_result_meta),
             # then serve index and all other statics
             web.route('GET', '/', self.index),
@@ -98,16 +100,26 @@ class Lab(Thread):
         return web.json_response(tree,
                                  dumps=lambda s: json.dumps(s, indent=4))
 
-    async def ls_run(self, _) -> web.Response:
+    async def ls_source(self, _) -> web.Response:
+        tree = scan_for_py_recursive(self._path)
+        return web.json_response(tree,
+                                 dumps=lambda s: json.dumps(s, indent=4))
+
+    async def ls_result(self, _) -> web.Response:
         tree = scan_for_result_recursive(self._path)
         return web.json_response(tree,
                                  dumps=lambda s: json.dumps(s, indent=4))
+
+    async def get_source(self, request) -> web.Response:
+        path = request.match_info['path']
+        with open(f'{path}') as f:
+            d = dict(code=f.read())
+            return web.json_response(d, dumps=lambda s: json.dumps(s, indent=4))
 
     async def get_result_meta(self, request) -> web.Response:
         path = request.match_info['path']
         with open(f'{path}/meta.json') as f:
             txt = json.load(f)
-            Log.critical(Memo('received json request, serving', json=txt))
             return web.json_response(txt, dumps=lambda s: json.dumps(s, indent=4))
 
     #
