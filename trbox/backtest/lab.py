@@ -1,10 +1,11 @@
 import os
 from asyncio import Future
+from os.path import isfile
 from threading import Thread
 from typing import Any, Union
 
 import click
-from aiohttp import web
+from aiohttp import web, web_response
 from aiohttp.typedefs import Handler
 from binance.websocket.binance_socket_manager import json
 from socketio.asyncio_client import asyncio
@@ -43,15 +44,18 @@ def scan_for_py_recursive(path: str,
 
 
 def scan_for_result_recursive(path: str,
-                           *,
-                           prefix: str = RUNDIR_PREFIX) -> TreeDict:
+                              *,
+                              prefix: str = RUNDIR_PREFIX) -> TreeDict:
     d = dict()
     # loop through every items in path
     for m in os.scandir(path):
         if m.is_dir():
             if m.name.startswith(prefix):
                 # prefixed dir should contain run info
-                d[m.name] = None
+                meta_path = f'{path}/{m.name}/meta.json'
+                if os.path.isfile(meta_path):
+                    # meta.json should exist in a valid result dir
+                    d[m.name] = None
             else:
                 # nested one level if is a dir, key is the dirname
                 d[m.name] = scan_for_result_recursive(m.path)
@@ -76,6 +80,7 @@ class Lab(Thread):
             # match api first
             web.route('GET', '/api/tree/src', self.ls_src),
             web.route('GET', '/api/tree/result', self.ls_run),
+            web.route('GET', '/api/result/{path:.+}', self.get_result_meta),
             # then serve index and all other statics
             web.route('GET', '/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
@@ -98,11 +103,18 @@ class Lab(Thread):
         return web.json_response(tree,
                                  dumps=lambda s: json.dumps(s, indent=4))
 
+    async def get_result_meta(self, request) -> web.Response:
+        path = request.match_info['path']
+        with open(f'{path}/meta.json') as f:
+            txt = json.load(f)
+            Log.critical(Memo('received json request, serving', json=txt))
+            return web.json_response(txt, dumps=lambda s: json.dumps(s, indent=4))
+
     #
     # error handling
     #
 
-    @web.middleware
+    @ web.middleware
     async def on_request_error(self,
                                request: web.Request,
                                handler: Handler) -> web.StreamResponse:
@@ -136,6 +148,6 @@ class Lab(Thread):
         await site.start()
         await Future()  # run forever
 
-    @override
+    @ override
     def run(self) -> None:
         asyncio.run(self.serve())
