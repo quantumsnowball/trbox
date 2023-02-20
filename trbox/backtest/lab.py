@@ -79,7 +79,7 @@ class Lab(Thread):
         self._app.add_routes([
             # match api first
             web.route('GET', '/api/tree/src', self.ls_src),
-            web.route('GET', '/api/tree/source', self.ls_src),
+            web.route('GET', '/api/tree/source', self.ls_source),
             web.route('GET', '/api/tree/result', self.ls_result),
             web.route('GET', '/api/source/{path:.+}', self.get_source),
             web.route('GET', '/api/result/{path:.+}', self.get_result_meta),
