@@ -1,11 +1,10 @@
 import os
 from asyncio import Future
-from os.path import isfile
 from threading import Thread
 from typing import Any, Union
 
 import click
-from aiohttp import web, web_response
+from aiohttp import web
 from aiohttp.typedefs import Handler
 from binance.websocket.binance_socket_manager import json
 from socketio.asyncio_client import asyncio
@@ -142,11 +141,11 @@ class Lab(Thread):
             return web.FileResponse(ENTRY_POINT)
 
     # TODO: propose definition of a `lab` dir:
-    # 1. contains a single st_*.py file
+    # 1. contains a single *.py file
     # 2. can have subdir or any other files
     # TODO: to create a lab in frontend:
-    # 1. scan cwd for a st_*.py
-    # 2. copy to new subdir and copy the original st_*.py into it
+    # 1. cwd for a selected *.py
+    # 2. copy to new subdir and copy the original *.py into it
 
     #
     # main loop
