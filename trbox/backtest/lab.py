@@ -42,7 +42,7 @@ def scan_for_py_recursive(path: str,
     return d
 
 
-def scan_for_run_recursive(path: str,
+def scan_for_result_recursive(path: str,
                            *,
                            prefix: str = RUNDIR_PREFIX) -> TreeDict:
     d = dict()
@@ -54,7 +54,7 @@ def scan_for_run_recursive(path: str,
                 d[m.name] = None
             else:
                 # nested one level if is a dir, key is the dirname
-                d[m.name] = scan_for_run_recursive(m.path)
+                d[m.name] = scan_for_result_recursive(m.path)
     return d
 
 
@@ -94,7 +94,7 @@ class Lab(Thread):
                                  dumps=lambda s: json.dumps(s, indent=4))
 
     async def ls_run(self, _) -> web.Response:
-        tree = scan_for_run_recursive(self._path)
+        tree = scan_for_result_recursive(self._path)
         return web.json_response(tree,
                                  dumps=lambda s: json.dumps(s, indent=4))
 

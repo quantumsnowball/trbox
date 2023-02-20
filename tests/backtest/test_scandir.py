@@ -1,5 +1,5 @@
 from trbox.backtest.lab import (TreeDict, scan_for_py_recursive,
-                                scan_for_run_recursive)
+                                scan_for_result_recursive)
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import ppf
@@ -24,8 +24,8 @@ def test_scan_for_py_recursive():
     check_tree(tree)
 
 
-def test_scan_for_run_recursive():
-    tree = scan_for_run_recursive(SAMPLE_LAB_PATH)
+def test_scan_for_result_recursive():
+    tree = scan_for_result_recursive(SAMPLE_LAB_PATH)
     Log.info(Memo(ppf(tree)).sparse())
 
     def check_tree(node: TreeDict) -> None:
