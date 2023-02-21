@@ -41,23 +41,25 @@ def scan_for_source(parent: Node,
     return parent
 
 
-def scan_for_result_recursive(path: str,
-                              *,
-                              prefix: str = RUNDIR_PREFIX) -> TreeDict:
-    d = dict()
+def scan_for_result(parent: Node,
+                    *,
+                    prefix: str = RUNDIR_PREFIX,
+                    basepath: str) -> Node:
     # loop through every items in path
-    for m in os.scandir(path):
+    for m in os.scandir(basepath + parent.path):
         if m.is_dir():
             if m.name.startswith(prefix):
                 # prefixed dir should contain run info
-                meta_path = f'{path}/{m.name}/meta.json'
+                meta_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
                 if os.path.isfile(meta_path):
                     # meta.json should exist in a valid result dir
-                    d[m.name] = None
+                    parent.add(scan_for_result(Node(m.name, 'folder', parent, []),
+                                               basepath=basepath))
             else:
                 # nested one level if is a dir, key is the dirname
-                d[m.name] = scan_for_result_recursive(m.path)
-    return d
+                parent.add(scan_for_result(Node(m.name, 'folder', parent, []),
+                                           basepath=basepath))
+    return parent
 
 
 class Lab(Thread):
@@ -99,8 +101,9 @@ class Lab(Thread):
                                  dumps=lambda s: json.dumps(s, indent=4))
 
     async def ls_result(self, _) -> web.Response:
-        tree = scan_for_result_recursive(self._path)
-        return web.json_response(tree,
+        node = scan_for_result(Node('', 'folder', None, []),
+                               basepath=self._path)
+        return web.json_response(node.dict,
                                  dumps=lambda s: json.dumps(s, indent=4))
 
     async def get_source(self, request) -> web.Response:
