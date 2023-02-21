@@ -78,7 +78,7 @@ class Lab(Thread):
             web.route('GET', '/api/tree/source', self.ls_source),
             web.route('GET', '/api/tree/result', self.ls_result),
             web.route('GET', '/api/source/{path:.+}', self.get_source),
-            web.route('GET', '/api/result/{path:.+}', self.get_result_meta),
+            web.route('GET', '/api/result/{path:.+}', self.get_result),
             # then serve index and all other statics
             web.route('GET', '/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
@@ -109,9 +109,9 @@ class Lab(Thread):
             d = dict(code=f.read())
             return web.json_response(d, dumps=lambda s: json.dumps(s, indent=4))
 
-    async def get_result_meta(self, request) -> web.Response:
+    async def get_result(self, request) -> web.Response:
         path = request.match_info['path']
-        with open(f'{path}/meta.json') as f:
+        with open(path) as f:
             txt = json.load(f)
             return web.json_response(txt, dumps=lambda s: json.dumps(s, indent=4))
 
