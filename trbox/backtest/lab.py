@@ -41,22 +41,6 @@ def scan_for_source(parent: Node,
     return parent
 
 
-def scan_for_py_recursive(path: str,
-                          *,
-                          suffix: str = PY_SUFFIX,
-                          prefix_excluded: str = RUNDIR_PREFIX) -> TreeDict:
-    d = dict()
-    # loop through every items in path
-    for m in os.scandir(path):
-        if m.is_dir() and not m.name.startswith(prefix_excluded):
-            # nested one level if is a dir, key is the dirname
-            d[m.name] = scan_for_py_recursive(m.path)
-        elif m.is_file() and m.name.endswith(suffix):
-            # if a target file is found, set the key with None as value
-            d[m.name] = None
-    return d
-
-
 def scan_for_result_recursive(path: str,
                               *,
                               prefix: str = RUNDIR_PREFIX) -> TreeDict:
@@ -92,7 +76,6 @@ class Lab(Thread):
         self._app = web.Application(middlewares=[self.on_request_error, ])
         self._app.add_routes([
             # match api first
-            web.route('GET', '/api/tree/src', self.ls_src),
             web.route('GET', '/api/tree/source', self.ls_source),
             web.route('GET', '/api/tree/result', self.ls_result),
             web.route('GET', '/api/source/{path:.+}', self.get_source),
@@ -108,11 +91,6 @@ class Lab(Thread):
     #
     async def index(self, _: web.Request) -> web.FileResponse:
         return web.FileResponse(ENTRY_POINT)
-
-    async def ls_src(self, _) -> web.Response:
-        tree = scan_for_py_recursive(self._path)
-        return web.json_response(tree,
-                                 dumps=lambda s: json.dumps(s, indent=4))
 
     async def ls_source(self, _) -> web.Response:
         node = scan_for_source(Node('', 'folder', None, []),
