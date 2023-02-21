@@ -107,8 +107,8 @@ class Lab(Thread):
     async def get_source(self, request) -> web.Response:
         path = request.match_info['path']
         with open(f'{path}') as f:
-            d = dict(code=f.read())
-            return web.json_response(d, dumps=lambda s: json.dumps(s, indent=4))
+            t = f.read()
+            return web.Response(text=t)
 
     async def get_result(self, request) -> web.Response:
         path = request.match_info['path']
