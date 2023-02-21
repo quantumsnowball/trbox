@@ -1,4 +1,4 @@
-from trbox.backtest.lab import TreeDict, scan_for_result, scan_for_source
+from trbox.backtest.lab import scan_for_result, scan_for_source
 from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo

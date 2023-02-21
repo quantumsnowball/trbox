@@ -1,8 +1,10 @@
+import pytest
 from click.testing import CliRunner
 
 from trbox.cli import trbox
 
 
+@pytest.mark.lab()
 def test_commands():
     runner = CliRunner()
     r1 = runner.invoke(trbox)

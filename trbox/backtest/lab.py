@@ -24,9 +24,6 @@ PY_SUFFIX = '.py'
 RUNDIR_PREFIX = '.result'
 
 
-TreeDict = dict[str, Union['TreeDict', None]]
-
-
 def scan_for_source(parent: Node,
                     *,
                     suffix: str = PY_SUFFIX,
