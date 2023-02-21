@@ -77,6 +77,7 @@ class Lab(Thread):
             # match api first
             web.route('GET', '/api/tree/source', self.ls_source),
             web.route('GET', '/api/tree/result', self.ls_result),
+            web.route('GET', '/api/run/{path:.+}', self.run_source),
             web.route('GET', '/api/source/{path:.+}', self.get_source),
             web.route('GET', '/api/result/{path:.+}', self.get_result),
             # then serve index and all other statics
@@ -114,6 +115,21 @@ class Lab(Thread):
         with open(path) as f:
             txt = json.load(f)
             return web.json_response(txt, dumps=lambda s: json.dumps(s, indent=4))
+
+    async def run_source(self, request) -> web.Response:
+        async def exec(cmd: str) -> tuple[str, str]:
+            proc = await asyncio.create_subprocess_shell(cmd,
+                                                         stdout=asyncio.subprocess.PIPE,
+                                                         stderr=asyncio.subprocess.PIPE)
+            stdout, stderr = await proc.communicate()
+            return stdout.decode(), stderr.decode()
+
+        path = request.match_info['path']
+        with open(path) as f:
+            Log.critical(path)
+            stdout, _ = await exec('pwd')
+            result = {'stdout': stdout}
+            return web.json_response(result, dumps=lambda s: json.dumps(s, indent=4))
 
     #
     # error handling
