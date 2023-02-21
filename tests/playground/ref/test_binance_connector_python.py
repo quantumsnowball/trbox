@@ -15,7 +15,7 @@ API_KEY = os.getenv('API_KEY')
 API_SECRET = os.getenv('API_SECRET')
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_restful():
     '''
     Yes this is working
@@ -42,7 +42,7 @@ def test_restful():
     print_kline()
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_websocket():
     '''
     Yes this is totally working

@@ -14,7 +14,7 @@ API_KEY = os.getenv('API_KEY')
 API_SECRET = os.getenv('API_SECRET')
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_binance_restful():
     '''
     It is working, fetch price json without api key
@@ -56,7 +56,7 @@ def test_binance_restful():
     asyncio.run(run_async())
 
 
-@pytest.mark.lab('not working')
+@pytest.mark.playground('not working')
 def test_binance_websocket():
     '''
     Doesn't work!

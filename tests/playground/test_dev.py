@@ -16,7 +16,7 @@ from trbox.strategy import Context
 
 
 # a slow running server for debug and testing purpose
-@pytest.mark.lab()
+@pytest.mark.playground()
 @pytest.mark.parametrize('name, live', [('dummy', False)])
 def test_dev(name, live):
     SYMBOL = 'BTC'

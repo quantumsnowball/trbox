@@ -4,7 +4,7 @@ from click.testing import CliRunner
 from trbox.cli import trbox
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_commands():
     runner = CliRunner()
     r1 = runner.invoke(trbox)
