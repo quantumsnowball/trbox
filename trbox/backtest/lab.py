@@ -127,7 +127,7 @@ class Lab(Thread):
         path = request.match_info['path']
         with open(path) as f:
             Log.critical(path)
-            stdout, _ = await exec('pwd')
+            stdout, _ = await exec(f'python {path}')
             result = {'stdout': stdout}
             return web.json_response(result, dumps=lambda s: json.dumps(s, indent=4))
 
