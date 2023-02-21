@@ -13,9 +13,15 @@ async def job():
     # print('finish communicate, this print after 10 seconds, blocking')
 
     # this gets output immediately when a line is ready:
-    if process.stdout:
-        async for line in process.stdout:
-            print(line.decode())
+    # still not print anything if no \n
+    # if process.stdout:
+    #     async for line in process.stdout:
+    #         print(line.decode())
+
+    # both the main function and coroutine need to flush to truly print immeditely
+    while process.stdout:
+        byte = await process.stdout.read(1)
+        print(byte.decode(), end='', flush=True)
 
 
 def main():
