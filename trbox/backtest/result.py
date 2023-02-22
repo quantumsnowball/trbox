@@ -41,7 +41,7 @@ class Result:
     #
     def save(self, script_path: str) -> None:
         try:
-            base_dir = os.path.dirname(script_path)
+            base_dir = os.path.relpath(os.path.dirname(script_path))
             timestamp = Timestamp.now().isoformat().replace(':', '.')
             target_dir = f'{base_dir}/.result_{timestamp}'
             target_filename = f'{ target_dir }/metrics.csv'
