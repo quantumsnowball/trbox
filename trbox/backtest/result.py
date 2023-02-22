@@ -44,9 +44,9 @@ class Result:
             base_dir = os.path.relpath(os.path.dirname(script_path))
             timestamp = Timestamp.now().isoformat().replace(':', '.')
             target_dir = f'{base_dir}/.result_{timestamp}'
-            target_filename = f'{ target_dir }/metrics.csv'
+            target_filename = f'{ target_dir }/metrics.json'
             os.makedirs(target_dir)
-            self.metrics.to_csv(target_filename)
+            self.metrics.to_json(target_filename, indent=4)
             print(f'SAVED: {target_filename}', flush=True)
         except Exception as e:
             Log.exception(e)
