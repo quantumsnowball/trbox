@@ -13,7 +13,7 @@ from trbox.strategy.types import DataHandler, DataHandlers, Heartbeats, Hook
 
 class Strategy(CounterParty):
     def __init__(self, *,
-                 name: str | None = None,) -> None:
+                 name: str) -> None:
         super().__init__()
         self._name = name
         self._datahandlers: DataHandlers = {}
@@ -24,7 +24,7 @@ class Strategy(CounterParty):
         return f'{cln(self)}(name={self.name})'
 
     @property
-    def name(self) -> str | None:
+    def name(self) -> str:
         return self._name
 
     @property

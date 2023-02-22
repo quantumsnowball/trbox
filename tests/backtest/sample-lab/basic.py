@@ -39,6 +39,8 @@ def main():
     bt.run(parallel=False)
     print('Finished backtest')
 
+    bt.result.save(__file__)
+
 
 if __name__ == '__main__':
     main()

@@ -149,3 +149,17 @@ class Metrics:
     @cached_property
     def calmar(self) -> float:
         return calmar(self._portfolio.dashboard.navs, self._annualize_factor, RISK_FREE_RATE)
+
+    @property
+    def df(self) -> DataFrame:
+        return DataFrame(dict(
+            total_return=self.total_return,
+            cagr=self.cagr,
+            mu=self.mu_sigma[0],
+            sigma=self.mu_sigma[1],
+            sharpe=self.sharpe,
+            mdd_pct=self.drawdown.maxdrawdown,
+            mdd_bars=self.drawdown.bars,
+            mdd_days=self.drawdown.duration.days,
+            calmar=self.calmar
+        ), index=[self._portfolio.strategy.name, ])
