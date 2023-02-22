@@ -48,7 +48,8 @@ def scan_for_result(parent: Node,
             if m.name.startswith(prefix):
                 # prefixed dir should contain run info
                 meta_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
-                if os.path.isfile(meta_path):
+                metrics_path = f'{basepath}/{parent.path}/{m.name}/metrics.csv'
+                if os.path.isfile(meta_path) or os.path.isfile(metrics_path):
                     # meta.json should exist in a valid result dir
                     parent.add(scan_for_result(Node(m.name, 'folder', parent, []),
                                                basepath=basepath))
