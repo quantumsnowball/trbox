@@ -46,7 +46,7 @@ class Result:
             target_dir = f'{base_dir}/.result_{timestamp}'
             target_filename = f'{ target_dir }/metrics.json'
             os.makedirs(target_dir)
-            self.metrics.to_json(target_filename, indent=4)
+            self.metrics.to_json(target_filename, orient='split', indent=4)
             print(f'SAVED: {target_filename}', flush=True)
         except Exception as e:
             Log.exception(e)

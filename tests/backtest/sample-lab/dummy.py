@@ -1,15 +1,9 @@
 from trbox import Strategy, Trader
 from trbox.backtest import Backtest
-from trbox.backtest.result import Result
 from trbox.broker.paper import PaperEX
-from trbox.common.logger import Log, set_log_level
-from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick
 from trbox.market.dummy import DummyPrice
-from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy.context import Context
-
-set_log_level('INFO')
 
 
 def main():
