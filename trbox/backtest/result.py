@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 from dataclasses import dataclass
 
 from pandas import DataFrame, Series, Timestamp, concat
@@ -50,6 +51,11 @@ class Result:
             ), open(save_path, 'w'), indent=4)
             print(f'SAVED: {save_path}', flush=True)
 
+        def save_source(target_dir: str) -> None:
+            save_path = f'{target_dir}/source.py'
+            shutil.copy(script_path, save_path)
+            print(f'SAVED: {save_path}', flush=True)
+
         def save_metrics(target_dir: str) -> None:
             save_path = f'{ target_dir }/metrics.pkl'
             self.metrics.to_pickle(save_path)
@@ -66,13 +72,10 @@ class Result:
             timestamp = Timestamp.now().isoformat().replace(':', '.')
             target_dir = f'{base_dir}/.result_{timestamp}'
             os.makedirs(target_dir)
-            # save meta
+            # save
             save_meta(target_dir, timestamp)
-            # save source
-
-            # save metrics
+            save_source(target_dir)
             save_metrics(target_dir)
-            # save equity
             save_equity(target_dir)
         except Exception as e:
             Log.exception(e)
