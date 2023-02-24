@@ -201,13 +201,6 @@ class Lab(Thread):
             Log.exception(e)
             return web.FileResponse(ENTRY_POINT)
 
-    # TODO: propose definition of a `lab` dir:
-    # 1. contains a single *.py file
-    # 2. can have subdir or any other files
-    # TODO: to create a lab in frontend:
-    # 1. cwd for a selected *.py
-    # 2. copy to new subdir and copy the original *.py into it
-
     #
     # main loop
     #
