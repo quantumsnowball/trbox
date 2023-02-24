@@ -87,8 +87,6 @@ class Lab(Thread):
             web.get('/api/tree/result', self.ls_result),
             web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
-            web.get('/api/wsinit', self.run_ws_init),
-            web.get('/api/ws', self.run_ws),
             web.get('/api/source/{path:.+}', self.get_source),
             web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
             web.get('/api/result/{path:.+}/equity', self.get_result_equity),
@@ -139,14 +137,7 @@ class Lab(Thread):
         path = request.match_info['path']
         return web.json_response([f'executing {path}'])
 
-    async def run_source_output(self, request) -> web.Response:
-        async def exec(cmd: str) -> tuple[str, str]:
-            proc = await asyncio.create_subprocess_shell(cmd,
-                                                         stdout=asyncio.subprocess.PIPE,
-                                                         stderr=asyncio.subprocess.PIPE)
-            stdout, stderr = await proc.communicate()
-            return stdout.decode(), stderr.decode()
-
+    async def run_source_output(self, request) -> web.WebSocketResponse:
         path = request.match_info['path']
         ws = web.WebSocketResponse()
         await ws.prepare(request)
@@ -159,43 +150,38 @@ class Lab(Thread):
         if proc.stdout:
             print('stdout is ready')
             async for line in proc.stdout:
-                print(line)
+                print(line.decode())
                 await ws.send_str(line.decode())
-        # stdout, stderr = await exec(f'python {path}')
-        # result = {
-        #     'stderr': stderr,
-        #     'stdout': stdout,
-        # }
-        # return web.json_response(result, dumps=lambda s: json.dumps(s, indent=4))
 
-    async def run_ws_init(self, request):
-        return web.json_response(['first  message'])
-
-    async def run_ws(self, request):
-        ws = web.WebSocketResponse()
-        await ws.prepare(request)
-        print('Something has connected')
-        await ws.send_str(
-            'Welcome to ws channel, gonna update you when stdout prints!')
-
-        for i in range(10):
-            await ws.send_str(f'{i}')
-            await asyncio.sleep(1)
-
-        async for msg in ws:
-            if msg.type == aiohttp.WSMsgType.TEXT:
-                print(msg)
-                if msg.data == 'close':
-                    await ws.close()
-                else:
-                    await ws.send_str(msg.data + '/answer')
-            elif msg.type == aiohttp.WSMsgType.ERROR:
-                print('ws connection closed with exception %s' %
-                      ws.exception())
-
-        print('websocket connection closed')
-
+        print('end of stdout, closing ws ...')
+        await ws.close()
         return ws
+
+    # async def run_ws(self, request):
+    #     ws = web.WebSocketResponse()
+    #     await ws.prepare(request)
+    #     print('Something has connected')
+    #     await ws.send_str(
+    #         'Welcome to ws channel, gonna update you when stdout prints!')
+    #
+    #     for i in range(10):
+    #         await ws.send_str(f'{i}')
+    #         await asyncio.sleep(1)
+    #
+    #     async for msg in ws:
+    #         if msg.type == aiohttp.WSMsgType.TEXT:
+    #             print(msg)
+    #             if msg.data == 'close':
+    #                 await ws.close()
+    #             else:
+    #                 await ws.send_str(msg.data + '/answer')
+    #         elif msg.type == aiohttp.WSMsgType.ERROR:
+    #             print('ws connection closed with exception %s' %
+    #                   ws.exception())
+    #
+    #     print('websocket connection closed')
+    #
+    #     return ws
     #
     # error handling
     #
