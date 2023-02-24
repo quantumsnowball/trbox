@@ -3,7 +3,6 @@ from asyncio import Future
 from threading import Thread
 from typing import Any
 
-import aiohttp
 import click
 import pandas as pd
 from aiohttp import web
@@ -135,7 +134,8 @@ class Lab(Thread):
 
     async def run_source(self, request) -> web.Response:
         path = request.match_info['path']
-        return web.json_response([f'executing {path}'])
+        return web.json_response([dict(type='stdout',
+                                       text=f'executing {path}'), ])
 
     async def run_source_output(self, request) -> web.WebSocketResponse:
         path = request.match_info['path']
@@ -150,8 +150,9 @@ class Lab(Thread):
         if proc.stdout:
             print('stdout is ready')
             async for line in proc.stdout:
-                print(line.decode())
-                await ws.send_str(line.decode())
+                print('.', end='', flush=True)
+                await ws.send_json(dict(type='stdout',
+                                        text=line.decode()))
 
         print('end of stdout, closing ws ...')
         await ws.close()
