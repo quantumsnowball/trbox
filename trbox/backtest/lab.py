@@ -3,6 +3,7 @@ from asyncio import Future
 from threading import Thread
 from typing import Any
 
+import aiohttp
 import click
 import pandas as pd
 from aiohttp import web
@@ -14,6 +15,7 @@ from typing_extensions import override
 from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
+from trbox.common.types import WebSocketMessage
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
@@ -148,6 +150,19 @@ class Lab(Thread):
                                                      stderr=asyncio.subprocess.PIPE)
         print(f'created subprocess, executing: {cmd}')
 
+        async def listen_to_message():
+            print('listening to ws message from client')
+            async for raw in ws:
+                if raw.type == aiohttp.WSMsgType.TEXT:
+                    msg: WebSocketMessage = json.loads(raw.data)
+                    print(msg)
+                    if msg['type'] == 'system' and msg['text'] == 'stop':
+                        await ws.close()
+                        print('client requested to exit')
+                elif raw.type == aiohttp.WSMsgType.ERROR:
+                    print('ws connection closed with exception %s' %
+                          ws.exception())
+
         async def read_stdout():
             if proc.stdout:
                 print('stdout is ready')
@@ -170,7 +185,7 @@ class Lab(Thread):
             else:
                 print('stderr is unavailable')
 
-        await asyncio.gather(read_stdout(), read_stderr())
+        await asyncio.gather(listen_to_message(), read_stdout(), read_stderr())
 
         await ws.send_json(dict(type='system', text='exit'))
         await ws.close()
