@@ -141,12 +141,12 @@ class Lab(Thread):
         path = request.match_info['path']
         ws = web.WebSocketResponse()
         await ws.prepare(request)
-        print('Something has connected')
+        print('A client has connected')
         cmd = f'python {path}'
         proc = await asyncio.create_subprocess_shell(cmd,
                                                      stdout=asyncio.subprocess.PIPE,
                                                      stderr=asyncio.subprocess.PIPE)
-        print(f'executing: {cmd}')
+        print(f'created subprocess, executing: {cmd}')
 
         async def read_stdout():
             if proc.stdout:
@@ -156,6 +156,8 @@ class Lab(Thread):
                     await ws.send_json(dict(type='stdout',
                                             text=line.decode()))
                 print('stdout has ended')
+            else:
+                print('stdout is unavailable')
 
         async def read_stderr():
             if proc.stderr:
@@ -165,10 +167,12 @@ class Lab(Thread):
                     await ws.send_json(dict(type='stderr',
                                             text=line.decode()))
                 print('stderr has ended')
+            else:
+                print('stderr is unavailable')
 
         await asyncio.gather(read_stdout(), read_stderr())
 
-        # await ws.send_json(dict(type='stdout', text='finished, exiting'))
+        await ws.send_json(dict(type='system', text='exit'))
         await ws.close()
         print('ws connection closed')
         return ws
