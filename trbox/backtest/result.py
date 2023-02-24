@@ -42,6 +42,24 @@ class Result:
     # save
     #
     def save(self, script_path: str) -> None:
+        def save_meta(target_dir: str, timestamp: str) -> None:
+            save_path = f'{target_dir}/meta.json'
+            json.dump(dict(
+                timestamp=timestamp,
+                source=os.path.basename(script_path),
+            ), open(save_path, 'w'), indent=4)
+            print(f'SAVED: {save_path}', flush=True)
+
+        def save_metrics(target_dir: str) -> None:
+            save_path = f'{ target_dir }/metrics.pkl'
+            self.metrics.to_pickle(save_path)
+            print(f'SAVED: {save_path}', flush=True)
+
+        def save_equity(target_dir: str) -> None:
+            save_path = f'{ target_dir }/equity.pkl'
+            concat(list(self.equity.values()), axis=1).to_pickle(save_path)
+            print(f'SAVED: {save_path}', flush=True)
+
         try:
             # prepare directory
             base_dir = os.path.relpath(os.path.dirname(script_path))
@@ -49,19 +67,12 @@ class Result:
             target_dir = f'{base_dir}/.result_{timestamp}'
             os.makedirs(target_dir)
             # save meta
-            json.dump(dict(
-                timestamp=timestamp,
-                source=os.path.basename(script_path),
-            ), open(f'{target_dir}/meta.json', 'w'), indent=4)
+            save_meta(target_dir, timestamp)
             # save source
 
             # save metrics
-            fn_metrics = f'{ target_dir }/metrics.pkl'
-            self.metrics.to_pickle(fn_metrics)
-            print(f'SAVED: {fn_metrics}', flush=True)
+            save_metrics(target_dir)
             # save equity
-            fn_equity = f'{ target_dir }/equity.pkl'
-            concat(list(self.equity.values()), axis=1).to_pickle(fn_equity)
-            print(f'SAVED: {fn_equity}', flush=True)
+            save_equity(target_dir)
         except Exception as e:
             Log.exception(e)
