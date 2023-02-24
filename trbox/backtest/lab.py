@@ -49,9 +49,11 @@ def scan_for_result(parent: Node,
             if m.name.startswith(prefix):
                 # prefixed dir should contain run info
                 meta_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
+                source_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
                 metrics_path = f'{basepath}/{parent.path}/{m.name}/metrics.pkl'
                 equity_path = f'{basepath}/{parent.path}/{m.name}/equity.pkl'
                 if (os.path.isfile(meta_path) or
+                    os.path.isfile(source_path) or
                     os.path.isfile(metrics_path) or
                         os.path.isfile(equity_path)):
                     # meta.json should exist in a valid result dir
@@ -87,6 +89,9 @@ class Lab(Thread):
             web.route('GET',
                       '/api/result/{path:.+}/metrics',
                       self.get_result_metrics),
+            web.route('GET',
+                      '/api/result/{path:.+}/equity',
+                      self.get_result_equity),
             # then serve index and all other statics
             web.route('GET', '/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
@@ -121,6 +126,11 @@ class Lab(Thread):
         path = request.match_info['path']
         df = pd.read_pickle(f'{path}/metrics.pkl')
         return web.json_response(df, dumps=lambda df: df.to_json(orient='split', indent=4))
+
+    async def get_result_equity(self, request) -> web.Response:
+        path = request.match_info['path']
+        df = pd.read_pickle(f'{path}/equity.pkl')
+        return web.json_response(df, dumps=lambda df: df.to_json(orient='columns', indent=4))
 
     async def run_source(self, request) -> web.Response:
         async def exec(cmd: str) -> tuple[str, str]:

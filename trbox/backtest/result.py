@@ -63,7 +63,9 @@ class Result:
 
         def save_equity(target_dir: str) -> None:
             save_path = f'{ target_dir }/equity.pkl'
-            concat(list(self.equity.values()), axis=1).to_pickle(save_path)
+            df = concat(tuple(self.equity.values()), axis=1)
+            df.columns = tuple(self.equity.keys())
+            df.to_pickle(save_path)
             print(f'SAVED: {save_path}', flush=True)
 
         try:
