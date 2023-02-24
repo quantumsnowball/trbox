@@ -3,6 +3,7 @@ from asyncio import Future
 from threading import Thread
 from typing import Any
 
+import aiohttp
 import click
 import pandas as pd
 from aiohttp import web
@@ -82,18 +83,16 @@ class Lab(Thread):
         self._app = web.Application(middlewares=[self.on_request_error, ])
         self._app.add_routes([
             # match api first
-            web.route('GET', '/api/tree/source', self.ls_source),
-            web.route('GET', '/api/tree/result', self.ls_result),
-            web.route('GET', '/api/run/{path:.+}', self.run_source),
-            web.route('GET', '/api/source/{path:.+}', self.get_source),
-            web.route('GET',
-                      '/api/result/{path:.+}/metrics',
-                      self.get_result_metrics),
-            web.route('GET',
-                      '/api/result/{path:.+}/equity',
-                      self.get_result_equity),
+            web.get('/api/tree/source', self.ls_source),
+            web.get('/api/tree/result', self.ls_result),
+            web.get('/api/run/{path:.+}', self.run_source),
+            web.get('/api/wsinit', self.run_ws_init),
+            web.get('/api/ws', self.run_ws),
+            web.get('/api/source/{path:.+}', self.get_source),
+            web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
+            web.get('/api/result/{path:.+}/equity', self.get_result_equity),
             # then serve index and all other statics
-            web.route('GET', '/', self.index),
+            web.get('/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
         ])
         self._runner = web.AppRunner(self._app)
@@ -153,6 +152,30 @@ class Lab(Thread):
             }
             return web.json_response(result, dumps=lambda s: json.dumps(s, indent=4))
 
+    async def run_ws_init(self, request):
+        return web.json_response(['first  message'])
+
+    async def run_ws(self, request):
+        ws = web.WebSocketResponse()
+        await ws.prepare(request)
+        print('Something has connected')
+        await ws.send_str(
+            'Welcome to ws channel, gonna update you when stdout prints!')
+
+        async for msg in ws:
+            if msg.type == aiohttp.WSMsgType.TEXT:
+                print(msg)
+                if msg.data == 'close':
+                    await ws.close()
+                else:
+                    await ws.send_str(msg.data + '/answer')
+            elif msg.type == aiohttp.WSMsgType.ERROR:
+                print('ws connection closed with exception %s' %
+                      ws.exception())
+
+        print('websocket connection closed')
+
+        return ws
     #
     # error handling
     #
