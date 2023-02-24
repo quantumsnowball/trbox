@@ -85,7 +85,8 @@ class Lab(Thread):
             # match api first
             web.get('/api/tree/source', self.ls_source),
             web.get('/api/tree/result', self.ls_result),
-            web.get('/api/run/{path:.+}', self.run_source),
+            web.get('/api/run/init/{path:.+}', self.run_source),
+            web.get('/api/run/output/{path:.+}', self.run_source_output),
             web.get('/api/wsinit', self.run_ws_init),
             web.get('/api/ws', self.run_ws),
             web.get('/api/source/{path:.+}', self.get_source),
@@ -135,6 +136,10 @@ class Lab(Thread):
                                                                  indent=4))
 
     async def run_source(self, request) -> web.Response:
+        path = request.match_info['path']
+        return web.json_response([f'executing {path}'])
+
+    async def run_source_output(self, request) -> web.Response:
         async def exec(cmd: str) -> tuple[str, str]:
             proc = await asyncio.create_subprocess_shell(cmd,
                                                          stdout=asyncio.subprocess.PIPE,
@@ -143,14 +148,25 @@ class Lab(Thread):
             return stdout.decode(), stderr.decode()
 
         path = request.match_info['path']
-        with open(path) as f:
-            Log.critical(path)
-            stdout, stderr = await exec(f'python {path}')
-            result = {
-                'stderr': stderr,
-                'stdout': stdout,
-            }
-            return web.json_response(result, dumps=lambda s: json.dumps(s, indent=4))
+        ws = web.WebSocketResponse()
+        await ws.prepare(request)
+        print('Something has connected')
+        cmd = f'python {path}'
+        proc = await asyncio.create_subprocess_shell(cmd,
+                                                     stdout=asyncio.subprocess.PIPE,
+                                                     stderr=asyncio.subprocess.PIPE)
+        print(f'executing: {cmd}')
+        if proc.stdout:
+            print('stdout is ready')
+            async for line in proc.stdout:
+                print(line)
+                await ws.send_str(line.decode())
+        # stdout, stderr = await exec(f'python {path}')
+        # result = {
+        #     'stderr': stderr,
+        #     'stdout': stdout,
+        # }
+        # return web.json_response(result, dumps=lambda s: json.dumps(s, indent=4))
 
     async def run_ws_init(self, request):
         return web.json_response(['first  message'])
@@ -161,6 +177,10 @@ class Lab(Thread):
         print('Something has connected')
         await ws.send_str(
             'Welcome to ws channel, gonna update you when stdout prints!')
+
+        for i in range(10):
+            await ws.send_str(f'{i}')
+            await asyncio.sleep(1)
 
         async for msg in ws:
             if msg.type == aiohttp.WSMsgType.TEXT:
