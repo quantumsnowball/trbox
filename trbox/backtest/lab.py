@@ -153,8 +153,15 @@ class Lab(Thread):
                 print('.', end='', flush=True)
                 await ws.send_json(dict(type='stdout',
                                         text=line.decode()))
+        if proc.stderr:
+            print('stderr is ready')
+            async for line in proc.stderr:
+                print('x', flush=True)
+                await ws.send_json(dict(type='stderr',
+                                        text=line.decode()))
 
-        print('end of stdout, closing ws ...')
+        print('end of stdout / stderr, closing ws ...')
+        # await ws.send_json(dict(type='stdout', text='finished, exiting'))
         await ws.close()
         return ws
 
