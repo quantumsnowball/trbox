@@ -125,12 +125,15 @@ class Lab(Thread):
     async def get_result_metrics(self, request) -> web.Response:
         path = request.match_info['path']
         df = pd.read_pickle(f'{path}/metrics.pkl')
-        return web.json_response(df, dumps=lambda df: df.to_json(orient='split', indent=4))
+        return web.json_response(df, dumps=lambda df: df.to_json(orient='split',
+                                                                 indent=4))
 
     async def get_result_equity(self, request) -> web.Response:
         path = request.match_info['path']
         df = pd.read_pickle(f'{path}/equity.pkl')
-        return web.json_response(df, dumps=lambda df: df.to_json(orient='columns', indent=4))
+        return web.json_response(df, dumps=lambda df: df.to_json(date_format='iso',
+                                                                 orient='columns',
+                                                                 indent=4))
 
     async def run_source(self, request) -> web.Response:
         async def exec(cmd: str) -> tuple[str, str]:
