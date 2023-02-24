@@ -147,21 +147,26 @@ class Lab(Thread):
                                                      stdout=asyncio.subprocess.PIPE,
                                                      stderr=asyncio.subprocess.PIPE)
         print(f'executing: {cmd}')
-        if proc.stdout:
-            print('stdout is ready')
-            async for line in proc.stdout:
-                print('.', end='', flush=True)
-                await ws.send_json(dict(type='stdout',
-                                        text=line.decode()))
-            print('stdout has ended')
 
-        if proc.stderr:
-            print('stderr is ready')
-            async for line in proc.stderr:
-                print('x', flush=True)
-                await ws.send_json(dict(type='stderr',
-                                        text=line.decode()))
-            print('stderr has ended')
+        async def read_stdout():
+            if proc.stdout:
+                print('stdout is ready')
+                async for line in proc.stdout:
+                    print('.', end='', flush=True)
+                    await ws.send_json(dict(type='stdout',
+                                            text=line.decode()))
+                print('stdout has ended')
+
+        async def read_stderr():
+            if proc.stderr:
+                print('stderr is ready')
+                async for line in proc.stderr:
+                    print('x', flush=True)
+                    await ws.send_json(dict(type='stderr',
+                                            text=line.decode()))
+                print('stderr has ended')
+
+        await asyncio.gather(read_stdout(), read_stderr())
 
         # await ws.send_json(dict(type='stdout', text='finished, exiting'))
         await ws.close()

@@ -22,7 +22,7 @@ def main():
             if my.count.every(30):
                 my.portfolio.rebalance(SYMBOL, pct_target, my.event.close)
             print('routine done, sleeping ...', flush=True)
-            time.sleep(1)
+            time.sleep(.1)
         return routine
 
     bt = Backtest(
