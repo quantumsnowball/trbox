@@ -137,7 +137,7 @@ class Lab(Thread):
     async def run_source(self, request) -> web.Response:
         path = request.match_info['path']
         return web.json_response([dict(type='stdout',
-                                       text=f'executing {path}'), ])
+                                       text=f'executing `{path}`\n'), ])
 
     async def run_source_output(self, request) -> web.WebSocketResponse:
         path = request.match_info['path']
@@ -172,7 +172,7 @@ class Lab(Thread):
                 print('stdout has ended')
                 await ws.send_json(dict(
                     type='stdout',
-                    text=f'execution finished: return code = {proc.returncode}'))
+                    text=f'executing `{path}` finished: return code = {proc.returncode}'))
                 await ws.close()
                 print('ws connection closed')
 
