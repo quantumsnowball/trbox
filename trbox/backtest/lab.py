@@ -51,7 +51,9 @@ def scan_for_result(parent: Node,
                 meta_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
                 metrics_path = f'{basepath}/{parent.path}/{m.name}/metrics.pkl'
                 equity_path = f'{basepath}/{parent.path}/{m.name}/equity.pkl'
-                if os.path.isfile(meta_path) or os.path.isfile(metrics_path):
+                if (os.path.isfile(meta_path) or
+                    os.path.isfile(metrics_path) or
+                        os.path.isfile(equity_path)):
                     # meta.json should exist in a valid result dir
                     parent.add(scan_for_result(Node(m.name, 'folder', parent, []),
                                                basepath=basepath))

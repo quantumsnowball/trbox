@@ -48,6 +48,13 @@ class Result:
             timestamp = Timestamp.now().isoformat().replace(':', '.')
             target_dir = f'{base_dir}/.result_{timestamp}'
             os.makedirs(target_dir)
+            # save meta
+            json.dump(dict(
+                timestamp=timestamp,
+                source=os.path.basename(script_path),
+            ), open(f'{target_dir}/meta.json', 'w'), indent=4)
+            # save source
+
             # save metrics
             fn_metrics = f'{ target_dir }/metrics.pkl'
             self.metrics.to_pickle(fn_metrics)
