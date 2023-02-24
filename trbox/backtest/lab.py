@@ -1,9 +1,10 @@
 import os
 from asyncio import Future
 from threading import Thread
-from typing import Any, Union
+from typing import Any
 
 import click
+import pandas as pd
 from aiohttp import web
 from aiohttp.typedefs import Handler
 from binance.websocket.binance_socket_manager import json
@@ -48,7 +49,8 @@ def scan_for_result(parent: Node,
             if m.name.startswith(prefix):
                 # prefixed dir should contain run info
                 meta_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
-                metrics_path = f'{basepath}/{parent.path}/{m.name}/metrics.json'
+                metrics_path = f'{basepath}/{parent.path}/{m.name}/metrics.pkl'
+                equity_path = f'{basepath}/{parent.path}/{m.name}/equity.pkl'
                 if os.path.isfile(meta_path) or os.path.isfile(metrics_path):
                     # meta.json should exist in a valid result dir
                     parent.add(scan_for_result(Node(m.name, 'folder', parent, []),
@@ -80,7 +82,9 @@ class Lab(Thread):
             web.route('GET', '/api/tree/result', self.ls_result),
             web.route('GET', '/api/run/{path:.+}', self.run_source),
             web.route('GET', '/api/source/{path:.+}', self.get_source),
-            web.route('GET', '/api/result/{path:.+}', self.get_result),
+            web.route('GET',
+                      '/api/result/{path:.+}/metrics',
+                      self.get_result_metrics),
             # then serve index and all other statics
             web.route('GET', '/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
@@ -111,11 +115,10 @@ class Lab(Thread):
             t = f.read()
             return web.Response(text=t)
 
-    async def get_result(self, request) -> web.Response:
+    async def get_result_metrics(self, request) -> web.Response:
         path = request.match_info['path']
-        with open(path) as f:
-            txt = json.load(f)
-            return web.json_response(txt, dumps=lambda s: json.dumps(s, indent=4))
+        df = pd.read_pickle(f'{path}/metrics.pkl')
+        return web.json_response(df, dumps=lambda df: df.to_json(orient='split', indent=4))
 
     async def run_source(self, request) -> web.Response:
         async def exec(cmd: str) -> tuple[str, str]:

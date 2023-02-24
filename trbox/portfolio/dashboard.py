@@ -50,9 +50,18 @@ class Dashboard:
             return Series(self._navs, dtype=float).sort_index()
 
     @property
+    def equity(self) -> Series:
+        return self.navs
+
+    @property
     def trade_records(self) -> DataFrame:
         with self._lock_trade_records:
             return DataFrame([asdict(r) for r in self._trade_records]).set_index('Date')
+
+    @property
+    def trades(self) -> DataFrame:
+        return self.trade_records
+
     #
     # updating
     #
