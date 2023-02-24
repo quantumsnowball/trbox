@@ -153,16 +153,19 @@ class Lab(Thread):
                 print('.', end='', flush=True)
                 await ws.send_json(dict(type='stdout',
                                         text=line.decode()))
+            print('stdout has ended')
+
         if proc.stderr:
             print('stderr is ready')
             async for line in proc.stderr:
                 print('x', flush=True)
                 await ws.send_json(dict(type='stderr',
                                         text=line.decode()))
+            print('stderr has ended')
 
-        print('end of stdout / stderr, closing ws ...')
         # await ws.send_json(dict(type='stdout', text='finished, exiting'))
         await ws.close()
+        print('ws connection closed')
         return ws
 
     # async def run_ws(self, request):
