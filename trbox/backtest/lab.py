@@ -153,15 +153,14 @@ class Lab(Thread):
         async def listen_to_message():
             print('listening to ws message from client')
             async for raw in ws:
+                print('still listening ... forever')
                 if raw.type == aiohttp.WSMsgType.TEXT:
                     msg: WebSocketMessage = json.loads(raw.data)
-                    print(msg)
                     if msg['type'] == 'system' and msg['text'] == 'stop':
-                        await ws.close()
                         print('client requested to exit')
-                elif raw.type == aiohttp.WSMsgType.ERROR:
-                    print('ws connection closed with exception %s' %
-                          ws.exception())
+                        proc.terminate()
+                        print('terminated process')
+                        return
 
         async def read_stdout():
             if proc.stdout:
@@ -171,8 +170,11 @@ class Lab(Thread):
                     await ws.send_json(dict(type='stdout',
                                             text=line.decode()))
                 print('stdout has ended')
-            else:
-                print('stdout is unavailable')
+                await ws.send_json(dict(
+                    type='stdout',
+                    text=f'execution finished: return code = {proc.returncode}'))
+                await ws.close()
+                print('ws connection closed')
 
         async def read_stderr():
             if proc.stderr:
@@ -182,41 +184,13 @@ class Lab(Thread):
                     await ws.send_json(dict(type='stderr',
                                             text=line.decode()))
                 print('stderr has ended')
-            else:
-                print('stderr is unavailable')
 
-        await asyncio.gather(listen_to_message(), read_stdout(), read_stderr())
+        await asyncio.gather(listen_to_message(),
+                             read_stdout(),
+                             read_stderr())
 
-        await ws.send_json(dict(type='system', text='exit'))
-        await ws.close()
-        print('ws connection closed')
         return ws
 
-    # async def run_ws(self, request):
-    #     ws = web.WebSocketResponse()
-    #     await ws.prepare(request)
-    #     print('Something has connected')
-    #     await ws.send_str(
-    #         'Welcome to ws channel, gonna update you when stdout prints!')
-    #
-    #     for i in range(10):
-    #         await ws.send_str(f'{i}')
-    #         await asyncio.sleep(1)
-    #
-    #     async for msg in ws:
-    #         if msg.type == aiohttp.WSMsgType.TEXT:
-    #             print(msg)
-    #             if msg.data == 'close':
-    #                 await ws.close()
-    #             else:
-    #                 await ws.send_str(msg.data + '/answer')
-    #         elif msg.type == aiohttp.WSMsgType.ERROR:
-    #             print('ws connection closed with exception %s' %
-    #                   ws.exception())
-    #
-    #     print('websocket connection closed')
-    #
-    #     return ws
     #
     # error handling
     #
