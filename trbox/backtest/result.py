@@ -52,6 +52,7 @@ class Result:
             json.dump(dict(
                 timestamp=timestamp,
                 source=os.path.basename(script_path),
+                strategies=[s.strategy.name for s in self._portfolios],
             ), open(save_path, 'w'), indent=4)
             print(f'SAVED: {save_path}', flush=True)
 
