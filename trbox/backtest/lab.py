@@ -92,6 +92,7 @@ class Lab(Thread):
             web.get('/api/result/{path:.+}/source', self.get_result_source),
             web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
             web.get('/api/result/{path:.+}/equity', self.get_result_equity),
+            web.get('/api/result/{path:.+}/trades', self.get_result_trades),
             # then serve index and all other statics
             web.get('/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
@@ -140,6 +141,14 @@ class Lab(Thread):
         return web.json_response(df, dumps=lambda df: df.to_json(date_format='iso',
                                                                  orient='columns',
                                                                  indent=4))
+
+    async def get_result_trades(self, request: web.Request) -> web.Response:
+        path = request.match_info['path']
+        strategy = request.query['strategy']
+        df = pd.read_pickle(f'{path}/trades.pkl')
+        return web.json_response(df.loc[strategy], dumps=lambda df: df.to_json(date_format='iso',
+                                                                               orient='table',
+                                                                               indent=4))
 
     async def run_source(self, request) -> web.Response:
         path = request.match_info['path']
