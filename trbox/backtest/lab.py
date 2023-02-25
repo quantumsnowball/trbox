@@ -89,6 +89,7 @@ class Lab(Thread):
             web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
             web.get('/api/source/{path:.+}', self.get_source),
+            web.get('/api/result/{path:.+}/source', self.get_result_source),
             web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
             web.get('/api/result/{path:.+}/equity', self.get_result_equity),
             # then serve index and all other statics
@@ -118,6 +119,12 @@ class Lab(Thread):
     async def get_source(self, request) -> web.Response:
         path = request.match_info['path']
         with open(f'{path}') as f:
+            t = f.read()
+            return web.Response(text=t)
+
+    async def get_result_source(self, request) -> web.Response:
+        path = request.match_info['path']
+        with open(f'{path}/source.py') as f:
             t = f.read()
             return web.Response(text=t)
 
