@@ -1,0 +1,15 @@
+{
+    "timestamp": "2023-02-26T14.40.24.849336",
+    "source": "historical.py",
+    "params": {
+        "SYMBOL": "BTC",
+        "SYMBOLS": "('BTC',)",
+        "START": "2021-07-01",
+        "END": "2021-12-31",
+        "LENGTH": "30"
+    },
+    "strategies": [
+        "Benchmark",
+        "basic"
+    ]
+}
