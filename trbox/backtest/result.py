@@ -31,6 +31,10 @@ class Result:
     @property
     def equity(self) -> dict[str, Series]:
         return {p.strategy.name: p.dashboard.equity for p in self._portfolios}
+
+    @property
+    def trades(self):
+        return {p.strategy.name: p.dashboard.trades for p in self._portfolios}
     #
     # presenting
     #
@@ -48,6 +52,7 @@ class Result:
             json.dump(dict(
                 timestamp=timestamp,
                 source=os.path.basename(script_path),
+                strategies=[s.strategy.name for s in self._portfolios],
             ), open(save_path, 'w'), indent=4)
             print(f'SAVED: {save_path}', flush=True)
 
@@ -68,6 +73,15 @@ class Result:
             df.to_pickle(save_path)
             print(f'SAVED: {save_path}', flush=True)
 
+        def save_trades(target_dir: str) -> None:
+            save_path = f'{ target_dir }/trades.pkl'
+            df = concat(tuple(self.trades.values()),
+                        keys=tuple(self.trades.keys()),
+                        names=('Strategy', 'Date'),
+                        axis=0,)
+            df.to_pickle(save_path)
+            print(f'SAVED: {save_path}', flush=True)
+
         try:
             # prepare directory
             base_dir = os.path.relpath(os.path.dirname(script_path))
@@ -79,5 +93,6 @@ class Result:
             save_source(target_dir)
             save_metrics(target_dir)
             save_equity(target_dir)
+            save_trades(target_dir)
         except Exception as e:
             Log.exception(e)

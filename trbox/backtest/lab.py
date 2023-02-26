@@ -3,6 +3,7 @@ from asyncio import Future
 from threading import Thread
 from typing import Any
 
+import aiohttp
 import click
 import pandas as pd
 from aiohttp import web
@@ -14,6 +15,7 @@ from typing_extensions import override
 from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
+from trbox.common.types import WebSocketMessage
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
@@ -82,18 +84,18 @@ class Lab(Thread):
         self._app = web.Application(middlewares=[self.on_request_error, ])
         self._app.add_routes([
             # match api first
-            web.route('GET', '/api/tree/source', self.ls_source),
-            web.route('GET', '/api/tree/result', self.ls_result),
-            web.route('GET', '/api/run/{path:.+}', self.run_source),
-            web.route('GET', '/api/source/{path:.+}', self.get_source),
-            web.route('GET',
-                      '/api/result/{path:.+}/metrics',
-                      self.get_result_metrics),
-            web.route('GET',
-                      '/api/result/{path:.+}/equity',
-                      self.get_result_equity),
+            web.get('/api/tree/source', self.ls_source),
+            web.get('/api/tree/result', self.ls_result),
+            web.get('/api/run/init/{path:.+}', self.run_source),
+            web.get('/api/run/output/{path:.+}', self.run_source_output),
+            web.get('/api/source/{path:.+}', self.get_source),
+            web.get('/api/result/{path:.+}/meta', self.get_result_meta),
+            web.get('/api/result/{path:.+}/source', self.get_result_source),
+            web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
+            web.get('/api/result/{path:.+}/equity', self.get_result_equity),
+            web.get('/api/result/{path:.+}/trades', self.get_result_trades),
             # then serve index and all other statics
-            web.route('GET', '/', self.index),
+            web.get('/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
         ])
         self._runner = web.AppRunner(self._app)
@@ -122,6 +124,17 @@ class Lab(Thread):
             t = f.read()
             return web.Response(text=t)
 
+    async def get_result_meta(self, request) -> web.Response:
+        path = request.match_info['path']
+        meta = open(f'{path}/meta.json').read()
+        return web.json_response(text=meta)
+
+    async def get_result_source(self, request) -> web.Response:
+        path = request.match_info['path']
+        with open(f'{path}/source.py') as f:
+            t = f.read()
+            return web.Response(text=t)
+
     async def get_result_metrics(self, request) -> web.Response:
         path = request.match_info['path']
         df = pd.read_pickle(f'{path}/metrics.pkl')
@@ -135,23 +148,70 @@ class Lab(Thread):
                                                                  orient='columns',
                                                                  indent=4))
 
-    async def run_source(self, request) -> web.Response:
-        async def exec(cmd: str) -> tuple[str, str]:
-            proc = await asyncio.create_subprocess_shell(cmd,
-                                                         stdout=asyncio.subprocess.PIPE,
-                                                         stderr=asyncio.subprocess.PIPE)
-            stdout, stderr = await proc.communicate()
-            return stdout.decode(), stderr.decode()
-
+    async def get_result_trades(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
-        with open(path) as f:
-            Log.critical(path)
-            stdout, stderr = await exec(f'python {path}')
-            result = {
-                'stderr': stderr,
-                'stdout': stdout,
-            }
-            return web.json_response(result, dumps=lambda s: json.dumps(s, indent=4))
+        strategy = request.query['strategy']
+        df = pd.read_pickle(f'{path}/trades.pkl')
+        return web.json_response(df.loc[strategy], dumps=lambda df: df.to_json(date_format='iso',
+                                                                               orient='table',
+                                                                               indent=4))
+
+    async def run_source(self, request) -> web.Response:
+        path = request.match_info['path']
+        return web.json_response([dict(type='stdout',
+                                       text=f'executing `{path}`\n'), ])
+
+    async def run_source_output(self, request) -> web.WebSocketResponse:
+        path = request.match_info['path']
+        ws = web.WebSocketResponse()
+        await ws.prepare(request)
+        print('A client has connected')
+        cmd = f'python {path}'
+        proc = await asyncio.create_subprocess_shell(cmd,
+                                                     stdout=asyncio.subprocess.PIPE,
+                                                     stderr=asyncio.subprocess.PIPE)
+        print(f'created subprocess, executing: {cmd}')
+
+        async def listen_to_message():
+            print('listening to ws message from client')
+            async for raw in ws:
+                print('still listening ... forever')
+                if raw.type == aiohttp.WSMsgType.TEXT:
+                    msg: WebSocketMessage = json.loads(raw.data)
+                    if msg['type'] == 'system' and msg['text'] == 'stop':
+                        print('client requested to exit')
+                        proc.terminate()
+                        print('terminated process')
+                        return
+
+        async def read_stdout():
+            if proc.stdout:
+                print('stdout is ready')
+                async for line in proc.stdout:
+                    print('.', end='', flush=True)
+                    await ws.send_json(dict(type='stdout',
+                                            text=line.decode()))
+                print('stdout has ended')
+                await ws.send_json(dict(
+                    type='stdout',
+                    text=f'executing `{path}` finished: return code = {proc.returncode}'))
+                await ws.close()
+                print('ws connection closed')
+
+        async def read_stderr():
+            if proc.stderr:
+                print('stderr is ready')
+                async for line in proc.stderr:
+                    print('x', flush=True)
+                    await ws.send_json(dict(type='stderr',
+                                            text=line.decode()))
+                print('stderr has ended')
+
+        await asyncio.gather(listen_to_message(),
+                             read_stdout(),
+                             read_stderr())
+
+        return ws
 
     #
     # error handling
@@ -171,13 +231,6 @@ class Lab(Thread):
             # any other errors
             Log.exception(e)
             return web.FileResponse(ENTRY_POINT)
-
-    # TODO: propose definition of a `lab` dir:
-    # 1. contains a single *.py file
-    # 2. can have subdir or any other files
-    # TODO: to create a lab in frontend:
-    # 1. cwd for a selected *.py
-    # 2. copy to new subdir and copy the original *.py into it
 
     #
     # main loop

@@ -1,3 +1,5 @@
+import time
+
 from trbox import Strategy, Trader
 from trbox.backtest import Backtest
 from trbox.broker.paper import PaperEX
@@ -19,6 +21,8 @@ def rebalance(pct_target: float):
         assert isinstance(my.event, OhlcvWindow)
         if my.count.every(30):
             my.portfolio.rebalance(SYMBOL, pct_target, my.event.close)
+        print('routine done, sleeping ...', flush=True)
+        time.sleep(.1)
     return routine
 
 
