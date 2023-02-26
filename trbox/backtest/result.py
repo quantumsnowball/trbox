@@ -47,17 +47,18 @@ class Result:
     #
     # save
     #
-    def save(self, script_path: str = None) -> None:
-        def save_meta(target_dir: str, timestamp: str) -> None:
+    def save(self) -> None:
+        def save_meta(script_path: str, target_dir: str, timestamp: str, params: dict[str, str]) -> None:
             save_path = f'{target_dir}/meta.json'
             json.dump(dict(
                 timestamp=timestamp,
                 source=os.path.basename(script_path),
+                params=params,
                 strategies=[s.strategy.name for s in self._portfolios],
             ), open(save_path, 'w'), indent=4)
             print(f'SAVED: {save_path}', flush=True)
 
-        def save_source(target_dir: str) -> None:
+        def save_source(script_path: str, target_dir: str) -> None:
             save_path = f'{target_dir}/source.py'
             shutil.copy(script_path, save_path)
             print(f'SAVED: {save_path}', flush=True)
@@ -88,19 +89,17 @@ class Result:
             frame = currentframe()
             caller_frame = frame.f_back if frame else None
             globals = caller_frame.f_globals if caller_frame else None
-            caller_path = str(globals['__file__']) if globals else ''
+            script_path = str(globals['__file__']) if globals else ''
             caller_consts = {k: str(v) for k, v in globals.items()
                              if k.isupper()} if globals else {}
             # prepare directory
-            if not script_path:
-                script_path = caller_path
             base_dir = os.path.relpath(os.path.dirname(script_path))
             timestamp = Timestamp.now().isoformat().replace(':', '.')
             target_dir = f'{base_dir}/.result_{timestamp}'
             os.makedirs(target_dir)
             # save
-            save_meta(target_dir, timestamp)
-            save_source(target_dir)
+            save_meta(script_path, target_dir, timestamp, caller_consts)
+            save_source(script_path, target_dir)
             save_metrics(target_dir)
             save_equity(target_dir)
             save_trades(target_dir)
