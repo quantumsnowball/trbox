@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 from dataclasses import dataclass
+from inspect import currentframe
 
 from pandas import DataFrame, Series, Timestamp, concat
 
@@ -83,6 +84,15 @@ class Result:
             print(f'SAVED: {save_path}', flush=True)
 
         try:
+            # prepare caller info
+            frame = currentframe()
+            caller_frame = frame.f_back if frame else None
+            globals = caller_frame.f_globals if caller_frame else None
+            caller_path = str(globals['__file__']) if globals else ''
+            caller_consts = {k: str(v) for k, v in globals.items()
+                             if k.isupper()} if globals else {}
+            print(caller_path)
+            print(caller_consts)
             # prepare directory
             base_dir = os.path.relpath(os.path.dirname(script_path))
             timestamp = Timestamp.now().isoformat().replace(':', '.')
@@ -94,5 +104,10 @@ class Result:
             save_metrics(target_dir)
             save_equity(target_dir)
             save_trades(target_dir)
+            # import inspect
+            # frame = inspect.currentframe()
+            # if frame:
+            #     caller = frame.f_back
+            #     print(caller.f_globals if caller else None)
         except Exception as e:
             Log.exception(e)
