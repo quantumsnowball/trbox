@@ -1,4 +1,5 @@
 import os
+import shutil
 from asyncio import Future
 from threading import Thread
 from typing import Any
@@ -218,7 +219,9 @@ class Lab(Thread):
         path = request.match_info['path']
         if os.path.isfile(path):
             os.remove(path)
-            print(f'deleted {path}')
+        elif os.path.isdir(path):
+            shutil.rmtree(path)
+        print(f'deleted {path}')
         return web.Response()
 
     #
