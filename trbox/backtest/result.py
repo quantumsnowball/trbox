@@ -47,7 +47,7 @@ class Result:
     #
     # save
     #
-    def save(self, script_path: str) -> None:
+    def save(self, script_path: str = None) -> None:
         def save_meta(target_dir: str, timestamp: str) -> None:
             save_path = f'{target_dir}/meta.json'
             json.dump(dict(
@@ -91,9 +91,9 @@ class Result:
             caller_path = str(globals['__file__']) if globals else ''
             caller_consts = {k: str(v) for k, v in globals.items()
                              if k.isupper()} if globals else {}
-            print(caller_path)
-            print(caller_consts)
             # prepare directory
+            if not script_path:
+                script_path = caller_path
             base_dir = os.path.relpath(os.path.dirname(script_path))
             timestamp = Timestamp.now().isoformat().replace(':', '.')
             target_dir = f'{base_dir}/.result_{timestamp}'

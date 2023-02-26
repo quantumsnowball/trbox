@@ -49,4 +49,4 @@ print('Started backtest')
 bt.run(parallel=False)
 print('Finished backtest')
 
-bt.result.save(__file__)
+bt.result.save()
