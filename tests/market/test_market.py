@@ -11,8 +11,8 @@ from trbox.common.logger.parser import Memo
 from trbox.common.utils import ppf
 from trbox.console.dashboard import TrboxDashboard
 from trbox.event.market import Candlestick, Kline
-from trbox.market.binance.kline import BinanceKlineStreaming
-from trbox.market.binance.trade import BinanceTradeStreaming
+from trbox.market.binance.streaming.klines import BinanceStreamingKlines
+from trbox.market.binance.streaming.trades import BinanceStreamingTrades
 from trbox.strategy import Strategy
 from trbox.strategy.context import Context
 from trbox.trader import Trader
@@ -40,9 +40,10 @@ def test_binance_trade_streaming():
                      .by(my.strategy).tag('period', 'regular', f'bar{INTERVAL}').sparse())
 
     Trader(
-        strategy=Strategy()
+        strategy=Strategy(
+            name='test-trade-streaming')
         .on(SYMBOL, Candlestick, do=handle),
-        market=BinanceTradeStreaming(symbol=SYMBOL),
+        market=BinanceStreamingTrades(symbol=SYMBOL),
         broker=PaperEX(SYMBOL),
         console=TrboxDashboard()
     ).run()
@@ -62,8 +63,9 @@ def test_binance_kline_streaming():
                 my.strategy).tag('trade').sparse())
 
     Trader(
-        strategy=Strategy()
+        strategy=Strategy(
+            name='test-kline-streaming')
         .on(SYMBOL, Kline, do=handle),
-        market=BinanceKlineStreaming(symbol=SYMBOL, interval='1m'),
+        market=BinanceStreamingKlines(symbol=SYMBOL, interval='1m'),
         broker=BinanceTestnet()
     ).run()

@@ -10,7 +10,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console.dashboard import TrboxDashboard
 from trbox.event.market import Candlestick
-from trbox.market.dummy import DummyPrice
+from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
 from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy import Context
 
@@ -47,7 +47,7 @@ def test_dev(name, live):
         live=live,
         strategy=Strategy(name=name,)
         .on('BTC', Candlestick, do=dummy_action),
-        market=DummyPrice(SYMBOL, n=N),
+        market=GeneratedHistoricalTrades(SYMBOL, n=N),
         broker=PaperEX(SYMBOL),
         console=TrboxDashboard()
     )

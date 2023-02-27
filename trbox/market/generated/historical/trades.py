@@ -1,4 +1,4 @@
-from pandas import Timedelta, Timestamp, to_datetime
+from pandas import Timedelta, to_datetime
 from typing_extensions import override
 
 from trbox.common.logger import Log
@@ -13,7 +13,7 @@ DEFAULT_PRICE = 20000
 DEFAULT_N = 30
 
 
-class DummyPrice(MarketWorker):
+class GeneratedHistoricalTrades(MarketWorker):
     '''
     This is a streaming price tick simulator.
     Upon start, it push event automatically to Strategy.
@@ -43,7 +43,7 @@ class DummyPrice(MarketWorker):
                               .by(self).tag('timeout'))
 
             e = Candlestick(timestamp=to_datetime(self._since) + Timedelta(days=i),
-                            symbol=self._symbol, 
+                            symbol=self._symbol,
                             price=self._price + i)
             self.strategy.put(e)
             self.broker.put(e)

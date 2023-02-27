@@ -1,7 +1,7 @@
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.market.localcsv import RollingWindow
+from trbox.market.local.historical.windows import LocalHistoricalWindows
 from trbox.strategy.presets.benchmark import BuyAndHold
 from trbox.trader import Trader
 
@@ -14,7 +14,7 @@ def test_benchmark():
 
     t = Trader(
         strategy=BuyAndHold(SYMBOL, 1.0, name='Benchmark'),
-        market=RollingWindow(
+        market=LocalHistoricalWindows(
             symbols=(SYMBOL,),
             source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=START,

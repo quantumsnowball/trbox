@@ -1,44 +1,33 @@
 from threading import Event
+from typing import Callable
 
-import yfinance as yf
-from pandas import DataFrame, Timestamp, to_datetime
+from pandas import Timestamp, to_datetime
 from typing_extensions import override
 
-from trbox.common.constants import OHLCV_COLUMN_NAMES
 from trbox.common.types import Symbols
 from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.broker import AuditRequest
 from trbox.event.market import OhlcvWindow
 from trbox.market import MarketWorker
-from trbox.market.utils import make_combined_rolling_windows
+from trbox.market.utils import import_yahoo_csv, make_combined_rolling_windows
 
 
-def yfinance_download(symbol: str, interval: str) -> DataFrame:
-    ticker = yf.Ticker(symbol)
-    df = ticker.history(period='max',
-                        interval=interval)
-    df.index = df.index.tz_localize(None)
-    df = df[OHLCV_COLUMN_NAMES]
-    print(f'downloaded ohlcv, symbol="{symbol}", shape={df.shape}', flush=True)
-    return df
-
-
-class YahooDL(MarketWorker):
+class LocalHistoricalWindows(MarketWorker):
     def __init__(self, *,
+                 source: Callable[[str], str],
                  symbols: Symbols,
                  start: Timestamp | str,
                  end: Timestamp | str | None = None,
-                 interval: str = '1d',
                  length: int) -> None:
         super().__init__()
         self._symbols = symbols
+        self._source = {s: source(s) for s in self._symbols}
         self._start = to_datetime(start)
         self._end = to_datetime(end)
-        self._interval = interval
         self._length = length
         # data preprocessing
-        self._dfs = {s: yfinance_download(
-            s, self._interval) for s in self._symbols}
+        self._dfs = {s: import_yahoo_csv(self._source[s])
+                     for s in self._symbols}
         # data validation
         self._dfs = {s: trim_ohlcv_by_range_length(df, self._start, self._end, self._length)
                      for s, df in self._dfs.items()}

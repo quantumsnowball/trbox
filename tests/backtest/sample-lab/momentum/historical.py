@@ -2,7 +2,7 @@ from trbox import Strategy, Trader
 from trbox.backtest import Backtest
 from trbox.broker.paper import PaperEX
 from trbox.event.market import OhlcvWindow
-from trbox.market.localcsv import RollingWindow
+from trbox.market.local.historical.windows import LocalHistoricalWindows
 from trbox.strategy.context import Context
 
 
@@ -25,7 +25,7 @@ def main():
         Trader(
             strategy=Strategy(name='Benchmark')
             .on(SYMBOL, OhlcvWindow, do=rebalance(1)),
-            market=RollingWindow(
+            market=LocalHistoricalWindows(
                 symbols=SYMBOLS,
                 source=lambda s: f'.data/{s}_bar1day.csv',
                 start=START,
@@ -35,7 +35,7 @@ def main():
         Trader(
             strategy=Strategy(name='basic')
             .on(SYMBOL, OhlcvWindow, do=rebalance(0.5)),
-            market=RollingWindow(
+            market=LocalHistoricalWindows(
                 symbols=SYMBOLS,
                 source=lambda s: f'.data/{s}_bar1day.csv',
                 start=START,
@@ -48,7 +48,7 @@ def main():
     bt.run(parallel=False)
     print('Finished backtest')
 
-    bt.result.save(__file__)
+    bt.result.save()
 
 
 if __name__ == '__main__':
