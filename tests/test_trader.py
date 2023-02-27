@@ -12,7 +12,7 @@ from trbox.common.logger.parser import Memo
 from trbox.console.dashboard import TrboxDashboard
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
-from trbox.market.localcsv import RollingWindow
+from trbox.market.local.windows.historical import LocalWindowsHistorical
 from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy import Context
 from trbox.strategy.types import Memroy
@@ -109,7 +109,7 @@ def test_historical_data(start: Timestamp | str,
         strategy=Strategy(name='historical')
         .on(TARGET, OhlcvWindow, do=for_target)
         .on(REF[0], OhlcvWindow, do=for_ref),
-        market=RollingWindow(
+        market=LocalWindowsHistorical(
             symbols=SYMBOLS,
             source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=start,

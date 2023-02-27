@@ -5,7 +5,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
 from trbox.market.dummy import DummyPrice
-from trbox.market.localcsv import RollingWindow
+from trbox.market.local.windows.historical import LocalWindowsHistorical
 from trbox.strategy import Strategy
 from trbox.strategy.context import Context
 from trbox.trader import Trader
@@ -29,7 +29,7 @@ def test_account_trade():
         strategy=Strategy(
             name='TestAccountTrade')
         .on(SYMBOL, OhlcvWindow, do=on_window),
-        market=RollingWindow(
+        market=LocalWindowsHistorical(
             symbols=(SYMBOL, ),
             source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=START,

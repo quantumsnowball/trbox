@@ -12,7 +12,7 @@ from trbox.market import MarketWorker
 from trbox.market.utils import import_yahoo_csv, make_combined_rolling_windows
 
 
-class RollingWindow(MarketWorker):
+class LocalWindowsHistorical(MarketWorker):
     def __init__(self, *,
                  source: Callable[[str], str],
                  symbols: Symbols,
