@@ -23,7 +23,7 @@ def yfinance_download(symbol: str, interval: str) -> DataFrame:
     return df
 
 
-class YahooDL(MarketWorker):
+class YahooWindowsHistorical(MarketWorker):
     def __init__(self, *,
                  symbols: Symbols,
                  start: Timestamp | str,

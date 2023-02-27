@@ -43,7 +43,7 @@ class DummyPrice(MarketWorker):
                               .by(self).tag('timeout'))
 
             e = Candlestick(timestamp=to_datetime(self._since) + Timedelta(days=i),
-                            symbol=self._symbol, 
+                            symbol=self._symbol,
                             price=self._price + i)
             self.strategy.put(e)
             self.broker.put(e)

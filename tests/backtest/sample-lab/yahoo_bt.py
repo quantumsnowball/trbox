@@ -2,7 +2,7 @@ from trbox import Strategy, Trader
 from trbox.backtest import Backtest
 from trbox.broker.paper import PaperEX
 from trbox.event.market import OhlcvWindow
-from trbox.market.yahoofinance import YahooDL
+from trbox.market.yahoo.windows.historical import YahooWindowsHistorical
 from trbox.strategy.context import Context
 
 SYMBOL = 'BTC-USD'
@@ -26,7 +26,7 @@ bt = Backtest(
     Trader(
         strategy=Strategy(name='Benchmark')
         .on(SYMBOL, OhlcvWindow, do=rebalance(1)),
-        market=YahooDL(
+        market=YahooWindowsHistorical(
             symbols=SYMBOLS,
             start=START,
             end=END,
@@ -35,7 +35,7 @@ bt = Backtest(
     Trader(
         strategy=Strategy(name='basic')
         .on(SYMBOL, OhlcvWindow, do=rebalance(0.5)),
-        market=YahooDL(
+        market=YahooWindowsHistorical(
             symbols=SYMBOLS,
             start=START,
             end=END,
@@ -47,4 +47,4 @@ print('Started backtest')
 bt.run(parallel=False)
 print('Finished backtest')
 
-bt.result.save(__file__)
+bt.result.save()
