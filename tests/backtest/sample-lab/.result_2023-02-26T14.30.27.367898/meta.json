@@ -1,8 +1,0 @@
-{
-    "timestamp": "2023-02-26T14.30.27.367898",
-    "source": "historical.py",
-    "strategies": [
-        "Benchmark",
-        "basic"
-    ]
-}

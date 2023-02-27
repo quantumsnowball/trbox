@@ -1,4 +1,5 @@
 import os
+import shutil
 from asyncio import Future
 from threading import Thread
 from typing import Any
@@ -94,6 +95,7 @@ class Lab(Thread):
             web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
             web.get('/api/result/{path:.+}/equity', self.get_result_equity),
             web.get('/api/result/{path:.+}/trades', self.get_result_trades),
+            web.delete('/api/operation/{path:.+}', self.delete_resource),
             # then serve index and all other statics
             web.get('/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
@@ -212,6 +214,15 @@ class Lab(Thread):
                              read_stderr())
 
         return ws
+
+    async def delete_resource(self, request):
+        path = request.match_info['path']
+        if os.path.isfile(path):
+            os.remove(path)
+        elif os.path.isdir(path):
+            shutil.rmtree(path)
+        print(f'deleted {path}')
+        return web.Response()
 
     #
     # error handling
