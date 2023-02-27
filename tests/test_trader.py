@@ -41,8 +41,8 @@ def test_dummy(name, live):
         if my.count.every(250):
             assert_valid_metrics(my)
         # can also access dashboard when still trading
-        assert isinstance(my.trader.dashboard, Dashboard)
-        Log.info(Memo('anytime get', dashboard=my.trader.dashboard)
+        assert isinstance(my.trader.portfolio.dashboard, Dashboard)
+        Log.info(Memo('anytime get', dashboard=my.trader.portfolio.dashboard)
                  .by(my.strategy).tag('dashboard'))
         sleep(DELAY)
 
@@ -56,12 +56,12 @@ def test_dummy(name, live):
     )
     t.run()
     # up to here the market data terminated, simular to user termination
-    Log.info(Memo(str(t.dashboard)).by(t).tag('dashboard'))
-    assert isinstance(t.dashboard, Dashboard)
-    assert isinstance(t.dashboard.navs, Series)
+    Log.info(Memo(str(t.portfolio.dashboard)).by(t).tag('dashboard'))
+    assert isinstance(t.portfolio.dashboard, Dashboard)
+    assert isinstance(t.portfolio.dashboard.navs, Series)
     if not live:
-        assert len(t.dashboard.navs) > 0
-        assert isinstance(t.dashboard.navs.index[-1], datetime)
+        assert len(t.portfolio.dashboard.navs) > 0
+        assert isinstance(t.portfolio.dashboard.navs.index[-1], datetime)
 
 
 @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
@@ -106,7 +106,7 @@ def test_historical_data(start: Timestamp | str,
             assert_valid_metrics(my)
 
     t = Trader(
-        strategy=Strategy()
+        strategy=Strategy(name='historical')
         .on(TARGET, OhlcvWindow, do=for_target)
         .on(REF[0], OhlcvWindow, do=for_ref),
         market=RollingWindow(
@@ -120,4 +120,4 @@ def test_historical_data(start: Timestamp | str,
 
     t.run()
 
-    assert len(t.dashboard.navs) >= 10
+    assert len(t.portfolio.dashboard.navs) >= 10

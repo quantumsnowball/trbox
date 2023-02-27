@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import Any
 
 from trbox.common.types import Symbol
 from trbox.event.market import OhlcvWindow
@@ -18,6 +19,8 @@ def regular_rebalance(symbol: Symbol, pct_target: float) -> Hook:
 class BuyAndHold(Strategy):
     def __init__(self,
                  symbol: Symbol,
-                 pct_target: float = 1.0) -> None:
-        super().__init__()
+                 pct_target: float = 1.0,
+                 *args: Any,
+                 **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self.on(symbol, OhlcvWindow, do=regular_rebalance(symbol, pct_target))

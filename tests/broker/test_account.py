@@ -26,7 +26,8 @@ def test_account_trade():
                  .by(my.strategy).tag(SYMBOL).sparse())
 
     Trader(
-        strategy=Strategy()
+        strategy=Strategy(
+            name='TestAccountTrade')
         .on(SYMBOL, OhlcvWindow, do=on_window),
         market=RollingWindow(
             symbols=(SYMBOL, ),
@@ -49,7 +50,8 @@ def test_account_cash(cash: float):
                  .by(my.strategy).tag('initial', 'cash'))
 
     Trader(
-        strategy=Strategy()
+        strategy=Strategy(
+            name='TestAccountCash')
         .on(SYMBOL, Candlestick, do=on_tick),
         market=DummyPrice(SYMBOL),
         broker=PaperEX(SYMBOL,

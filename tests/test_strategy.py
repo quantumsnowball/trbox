@@ -13,7 +13,7 @@ def test_benchmark():
     LENGTH = 200
 
     t = Trader(
-        strategy=BuyAndHold(SYMBOL, 1.0),
+        strategy=BuyAndHold(SYMBOL, 1.0, name='Benchmark'),
         market=RollingWindow(
             symbols=(SYMBOL,),
             source=lambda s: f'tests/_data_/{s}_bar1day.csv',
@@ -25,8 +25,8 @@ def test_benchmark():
 
     t.run()
 
-    assert len(t.dashboard.navs) >= 10
+    assert len(t.portfolio.dashboard.navs) >= 10
 
     Log.warning(Memo('Order Result',
-                     navs=t.dashboard.navs)
+                     navs=t.portfolio.dashboard.navs)
                 .tag('dashboard').sparse())

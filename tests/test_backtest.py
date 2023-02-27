@@ -39,8 +39,9 @@ def test_dummy(name, parallel):
     bt.run(parallel=parallel)
     # for backtesting, up to here means market data finished, simular to user termination
     for trader in bt.traders:
-        Log.info(Memo(str(trader.dashboard)).by(trader).tag('dashboard'))
-        assert isinstance(trader.dashboard, Dashboard)
+        Log.info(Memo(str(trader.portfolio.dashboard)).by(
+            trader).tag('dashboard'))
+        assert isinstance(trader.portfolio.dashboard, Dashboard)
     # TODO result should contain all the backtest info for review
     Log.info(Memo(str(bt.result)).by(bt).tag('result'))
     assert isinstance(bt.result, Result)
@@ -86,11 +87,11 @@ def test_historical_data(start: Timestamp | str,
     bt.run()
 
     for t in bt.traders:
-        assert isinstance(t.dashboard, Dashboard)
-        assert isinstance(t.dashboard.navs, Series)
-        assert len(t.dashboard.navs) >= 10
-        Log.warning(Memo(t.dashboard.navs.head(20),
-                         shape=t.dashboard.navs.shape)
+        assert isinstance(t.portfolio.dashboard, Dashboard)
+        assert isinstance(t.portfolio.dashboard.navs, Series)
+        assert len(t.portfolio.dashboard.navs) >= 10
+        Log.warning(Memo(t.portfolio.dashboard.navs.head(20),
+                         shape=t.portfolio.dashboard.navs.shape)
                     .by(t).tag('navs', 'tail'))
     Log.info(Memo(str(bt.result)).by(bt).tag('result'))
     assert isinstance(bt.result, Result)
