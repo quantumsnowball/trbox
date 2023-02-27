@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from typing import Iterable
 
 from trbox.backtest.result import Result
@@ -54,6 +55,7 @@ class Backtest(BatchRunner):
         for trader in traders:
             assert trader.backtesting
         self._runners: tuple[Trader, ...] = traders
+        self._portfolios = [t.portfolio for t in traders]
 
     @property
     def traders(self) -> tuple[Trader, ...]:
@@ -61,4 +63,4 @@ class Backtest(BatchRunner):
 
     @property
     def result(self) -> Result:
-        return Result()
+        return Result(*self._portfolios)

@@ -22,7 +22,7 @@ API_KEY = os.getenv('API_KEY')
 API_SECRET = os.getenv('API_SECRET')
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_binance_trade_streaming():
     SYMBOL = 'BTCUSDT'
     INTERVAL = 2000
@@ -48,7 +48,7 @@ def test_binance_trade_streaming():
     ).run()
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_binance_kline_streaming():
     SYMBOL = 'BTCUSDT'
     QUANTITY = 0.1

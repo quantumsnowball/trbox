@@ -12,7 +12,7 @@ API_KEY = os.getenv('API_KEY')
 API_SECRET = os.getenv('API_SECRET')
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_ccxt():
     # info(pp(ccxt.exchanges))
     binance = ccxt.binance()

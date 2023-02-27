@@ -30,7 +30,7 @@ def client() -> Spot:
                 api_secret=API_SECRET)
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_exchange_info(client: Spot):
     ex_info = client.exchange_info()
     rate_limit = ex_info['rateLimits']
@@ -38,12 +38,12 @@ def test_exchange_info(client: Spot):
     Log.info(Memo(ppf(rate_limit)).sparse())
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_account_balance(client: Spot):
     Log.info(Memo(ppf(client.account())).sparse())
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_account_worth(client: Spot):
     CURRENCY = 'USDT'
 
@@ -71,7 +71,7 @@ def test_account_worth(client: Spot):
     Log.info(Memo(total_worth=total))
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_market_order(client: Spot):
     SYMBOL1 = 'BTC'
     SYMBOL2 = 'USDT'
@@ -100,7 +100,7 @@ def test_market_order(client: Spot):
     Log.info(Memo('After:', ppf(get_balance(SYMBOLS))).sparse())
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_limit_order(client: Spot):
     SYMBOL1 = 'BTC'
     SYMBOL2 = 'USDT'
@@ -137,7 +137,7 @@ def test_limit_order(client: Spot):
     # order is filled. You have to actively check the order status.
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_current_open_order(client: Spot):
     SYMBOL1 = 'BTC'
     SYMBOL2 = 'USDT'
@@ -147,7 +147,7 @@ def test_current_open_order(client: Spot):
     Log.info(Memo('Current open orders:', ppf(orders)).sparse())
 
 
-@pytest.mark.lab()
+@pytest.mark.playground()
 def test_cancel_all_open_order(client: Spot):
     SYMBOL1 = 'BTC'
     SYMBOL2 = 'USDT'

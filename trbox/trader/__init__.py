@@ -111,7 +111,11 @@ class Trader(Runner):
     def backtesting(self) -> bool:
         return not self._live
 
-    # dashboard
+    # portfolio
     @property
-    def dashboard(self) -> Dashboard:
-        return self._portfolio.dashboard
+    def name(self) -> str:
+        return self._strategy.name
+
+    @property
+    def portfolio(self) -> Portfolio:
+        return self._portfolio

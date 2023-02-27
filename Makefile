@@ -6,7 +6,7 @@
 # DEV_FILE=market/test_market.py
 # DEV_FUNCTION=test_binance_trade_streaming
 # DEV_FUNCTION=test_binance_kline_streaming
-DEV_FILE=lab/test_dev.py
+DEV_FILE=playground/test_dev.py
 # DEV_FILE=test_trader.py
 # DEV_FILE=test_backtest.py
 # DEV_FILE=strategy/test_count.py
@@ -34,44 +34,44 @@ dev-debug-log:
 	@pytest "./tests/${DEV_FILE}::${DEV_FUNCTION}" --pdb --log-cli-level DEBUG --log-file log/dev-debug.log
 
 #
-# lab
+# playground
 #
-# dev lab playground
-dev-lab-ccxt:
-	@pytest "./tests/lab/test_ccxt.py::test_ccxt" --pdb --log-cli-level INFO
-dev-lab-binance-restful:
-	@pytest "./tests/lab/test_python_binance::test_binance_restful" --pdb --log-cli-level INFO
-dev-lab-binance-websocket:
-	@pytest "./tests/lab/test_python_binance.py::test_binance_websocket" --pdb --log-cli-level INFO
-dev-lab-binance-connector-python-restful:
-	@pytest "./tests/lab/test_binance_connector_python.py::test_restful" --pdb --log-cli-level INFO
-dev-lab-binance-connector-python-websocket:
-	@pytest "./tests/lab/test_binance_connector_python.py::test_websocket" --pdb --log-cli-level INFO
-dev-lab-binance-testnet-exchange-info:
-	@pytest "./tests/lab/binance_testnet/test_restful.py::test_exchange_info" --pdb --log-cli-level INFO
-dev-lab-binance-testnet-account-balance:
-	@pytest "./tests/lab/binance_testnet/test_restful.py::test_account_balance" --pdb --log-cli-level INFO
-dev-lab-binance-testnet-account-worth:
-	@pytest "./tests/lab/binance_testnet/test_restful.py::test_account_worth" --pdb --log-cli-level INFO
-dev-lab-binance-testnet-market-order:
-	@pytest "./tests/lab/binance_testnet/test_restful.py::test_market_order" --pdb --log-cli-level INFO
-dev-lab-binance-testnet-limit-order:
-	@pytest "./tests/lab/binance_testnet/test_restful.py::test_binance_testnet.py::test_limit_order" --pdb --log-cli-level INFO
-dev-lab-binance-testnet-cancel-all-open-order:
-	@pytest "./tests/lab/binance_testnet/test_restful.py::test_cancel_all_open_order" --pdb --log-cli-level INFO
-dev-lab-binance-testnet-current-open-order:
-	@pytest "./tests/lab/binance_testnet/test_restful.py::test_current_open_order" --pdb --log-cli-level INFO
+# dev playground
+dev-playground-ccxt:
+	@pytest "./tests/playground/test_ccxt.py::test_ccxt" --pdb --log-cli-level INFO
+dev-playground-binance-restful:
+	@pytest "./tests/playground/test_python_binance::test_binance_restful" --pdb --log-cli-level INFO
+dev-playground-binance-websocket:
+	@pytest "./tests/playground/test_python_binance.py::test_binance_websocket" --pdb --log-cli-level INFO
+dev-playground-binance-connector-python-restful:
+	@pytest "./tests/playground/test_binance_connector_python.py::test_restful" --pdb --log-cli-level INFO
+dev-playground-binance-connector-python-websocket:
+	@pytest "./tests/playground/test_binance_connector_python.py::test_websocket" --pdb --log-cli-level INFO
+dev-playground-binance-testnet-exchange-info:
+	@pytest "./tests/playground/binance_testnet/test_restful.py::test_exchange_info" --pdb --log-cli-level INFO
+dev-playground-binance-testnet-account-balance:
+	@pytest "./tests/playground/binance_testnet/test_restful.py::test_account_balance" --pdb --log-cli-level INFO
+dev-playground-binance-testnet-account-worth:
+	@pytest "./tests/playground/binance_testnet/test_restful.py::test_account_worth" --pdb --log-cli-level INFO
+dev-playground-binance-testnet-market-order:
+	@pytest "./tests/playground/binance_testnet/test_restful.py::test_market_order" --pdb --log-cli-level INFO
+dev-playground-binance-testnet-limit-order:
+	@pytest "./tests/playground/binance_testnet/test_restful.py::test_binance_testnet.py::test_limit_order" --pdb --log-cli-level INFO
+dev-playground-binance-testnet-cancel-all-open-order:
+	@pytest "./tests/playground/binance_testnet/test_restful.py::test_cancel_all_open_order" --pdb --log-cli-level INFO
+dev-playground-binance-testnet-current-open-order:
+	@pytest "./tests/playground/binance_testnet/test_restful.py::test_current_open_order" --pdb --log-cli-level INFO
 
 #
 # Testing
 #
 # run all test cases with all debug message 
 test:
-	@pytest . -k 'not lab' --pdb
+	@pytest . -k 'not playground' --pdb
 test-debug:
-	@pytest . -k 'not lab' --pdb --log-cli-level DEBUG
+	@pytest . -k 'not playground' --pdb --log-cli-level DEBUG
 test-parallel:
-	@pytest . -k 'not lab' --workers auto
+	@pytest . -k 'not playground' --workers auto
 
 #
 # Typecheck
@@ -105,7 +105,7 @@ change-pytest-log-format:
 demo:
 	@python tests/demo.py
 demo-websocket-chat:
-	@python tests/lab/websocket/socket-chat.py
+	@python tests/playground/websocket/socket-chat.py
 demo-gunicorn:
 	@gunicorn -b 127.0.0.1:5000 --workers 4 --threads 4 trbox.console.flask_sock:app
 
