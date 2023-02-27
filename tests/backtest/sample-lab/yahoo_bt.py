@@ -2,7 +2,7 @@ from trbox import Strategy, Trader
 from trbox.backtest import Backtest
 from trbox.broker.paper import PaperEX
 from trbox.event.market import OhlcvWindow
-from trbox.market.yahoo.windows.historical import YahooWindowsHistorical
+from trbox.market.yahoo.historical.windows import YahooHistoricalWindows
 from trbox.strategy.context import Context
 
 SYMBOL = 'BTC-USD'
@@ -26,7 +26,7 @@ bt = Backtest(
     Trader(
         strategy=Strategy(name='Benchmark')
         .on(SYMBOL, OhlcvWindow, do=rebalance(1)),
-        market=YahooWindowsHistorical(
+        market=YahooHistoricalWindows(
             symbols=SYMBOLS,
             start=START,
             end=END,
@@ -35,7 +35,7 @@ bt = Backtest(
     Trader(
         strategy=Strategy(name='basic')
         .on(SYMBOL, OhlcvWindow, do=rebalance(0.5)),
-        market=YahooWindowsHistorical(
+        market=YahooHistoricalWindows(
             symbols=SYMBOLS,
             start=START,
             end=END,
