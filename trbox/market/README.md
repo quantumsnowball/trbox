@@ -1,5 +1,16 @@
 # Market
 
+## folder structure
+- Level 1: by source [local, generated, binance, yahoo, ...]
+    - Level 2: by nature [historical, streaming, ...]
+      historical:
+          * these event has happened already, suitable for backtest
+          * has end of data event, will terminate program
+      streaming:
+          * these event are live generated, suitable for paper/live trading
+          * no end of data event, program runs forever
+        - Level 3: by data structure [trade, kline, windows, ...]
+
 ## basic structure of market data
 
 - kline: single point ohlcv
