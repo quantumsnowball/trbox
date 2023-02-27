@@ -11,7 +11,7 @@ from trbox.event.market import Kline
 from trbox.market.binance import BinanceWebsocket
 
 
-class BinanceKlineStreaming(BinanceWebsocket):
+class BinanceStreamingKlines(BinanceWebsocket):
     def __init__(self,
                  *args: Any,
                  interval: str = '1m',

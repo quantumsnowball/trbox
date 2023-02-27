@@ -11,7 +11,7 @@ from trbox.event.market import Candlestick
 from trbox.market.binance import BinanceWebsocket
 
 
-class BinanceTradeStreaming(BinanceWebsocket):
+class BinanceStreamingTrades(BinanceWebsocket):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
