@@ -2,7 +2,7 @@ from trbox import Strategy, Trader
 from trbox.backtest import Backtest
 from trbox.broker.paper import PaperEX
 from trbox.event.market import Candlestick
-from trbox.market.dummy import DummyPrice
+from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
 from trbox.strategy.context import Context
 
 SYMBOL = 'BTC'
@@ -21,12 +21,12 @@ bt = Backtest(
     Trader(
         strategy=Strategy(name='Benchmark')
         .on(SYMBOL, Candlestick, do=dummy_action),
-        market=DummyPrice(SYMBOL),
+        market=GeneratedHistoricalTrades(SYMBOL),
         broker=PaperEX(SYMBOL)),
     Trader(
         strategy=Strategy(name='basic')
         .on(SYMBOL, Candlestick, do=dummy_action),
-        market=DummyPrice(SYMBOL),
+        market=GeneratedHistoricalTrades(SYMBOL),
         broker=PaperEX(SYMBOL))
 )
 

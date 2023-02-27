@@ -4,8 +4,8 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
-from trbox.market.dummy import DummyPrice
-from trbox.market.local.windows.historical import LocalWindowsHistorical
+from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
+from trbox.market.local.historical.windows import LocalHistoricalWindows
 from trbox.strategy import Strategy
 from trbox.strategy.context import Context
 from trbox.trader import Trader
@@ -29,7 +29,7 @@ def test_account_trade():
         strategy=Strategy(
             name='TestAccountTrade')
         .on(SYMBOL, OhlcvWindow, do=on_window),
-        market=LocalWindowsHistorical(
+        market=LocalHistoricalWindows(
             symbols=(SYMBOL, ),
             source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=START,
@@ -53,7 +53,7 @@ def test_account_cash(cash: float):
         strategy=Strategy(
             name='TestAccountCash')
         .on(SYMBOL, Candlestick, do=on_tick),
-        market=DummyPrice(SYMBOL),
+        market=GeneratedHistoricalTrades(SYMBOL),
         broker=PaperEX(SYMBOL,
                        initial_fund=cash)
     ).run()

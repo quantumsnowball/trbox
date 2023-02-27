@@ -11,8 +11,8 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console.dashboard import TrboxDashboard
 from trbox.event.market import Candlestick, OhlcvWindow
-from trbox.market.dummy import DummyPrice
-from trbox.market.local.windows.historical import LocalWindowsHistorical
+from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
+from trbox.market.local.historical.windows import LocalHistoricalWindows
 from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy import Context
 from trbox.strategy.types import Memroy
@@ -50,7 +50,7 @@ def test_dummy(name, live):
         live=live,
         strategy=Strategy(name=name,)
         .on('BTC', Candlestick, do=dummy_action),
-        market=DummyPrice(SYMBOL, n=N),
+        market=GeneratedHistoricalTrades(SYMBOL, n=N),
         broker=PaperEX(SYMBOL),
         console=TrboxDashboard()
     )
@@ -109,7 +109,7 @@ def test_historical_data(start: Timestamp | str,
         strategy=Strategy(name='historical')
         .on(TARGET, OhlcvWindow, do=for_target)
         .on(REF[0], OhlcvWindow, do=for_ref),
-        market=LocalWindowsHistorical(
+        market=LocalHistoricalWindows(
             symbols=SYMBOLS,
             source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=start,

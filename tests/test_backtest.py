@@ -8,8 +8,8 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import Candlestick, OhlcvWindow
-from trbox.market.dummy import DummyPrice
-from trbox.market.local.windows.historical import LocalWindowsHistorical
+from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
+from trbox.market.local.historical.windows import LocalHistoricalWindows
 from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy.context import Context
 
@@ -28,12 +28,12 @@ def test_dummy(name, parallel):
         Trader(
             strategy=Strategy(name='Benchmark')
             .on(SYMBOL, Candlestick, do=dummy_action),
-            market=DummyPrice(SYMBOL),
+            market=GeneratedHistoricalTrades(SYMBOL),
             broker=PaperEX(SYMBOL)),
         Trader(
             strategy=Strategy(name=name)
             .on(SYMBOL, Candlestick, do=dummy_action),
-            market=DummyPrice(SYMBOL),
+            market=GeneratedHistoricalTrades(SYMBOL),
             broker=PaperEX(SYMBOL))
     )
     bt.run(parallel=parallel)
@@ -72,7 +72,7 @@ def test_historical_data(start: Timestamp | str,
         return Trader(
             strategy=Strategy(name=name)
             .on(SYMBOL, OhlcvWindow, do=dummy_action),
-            market=LocalWindowsHistorical(
+            market=LocalHistoricalWindows(
                 symbols=SYMBOLS,
                 source=lambda s: f'tests/_data_/{s}_bar1day.csv',
                 start=start,

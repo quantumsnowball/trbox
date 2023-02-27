@@ -5,7 +5,7 @@ from trbox import Strategy, Trader
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log, set_log_level
 from trbox.event.market import Candlestick
-from trbox.market.dummy import DummyPrice
+from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
 
 set_log_level('DEBUG')
 
@@ -23,7 +23,7 @@ def test_dummy():
         live=False,
         strategy=Strategy(
             on_tick=dummy_action),
-        market=DummyPrice(SYMBOL),
+        market=GeneratedHistoricalTrades(SYMBOL),
         broker=PaperEX(SYMBOL)
     ).run()
 

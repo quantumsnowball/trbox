@@ -13,7 +13,7 @@ DEFAULT_PRICE = 20000
 DEFAULT_N = 30
 
 
-class DummyPrice(MarketWorker):
+class GeneratedHistoricalTrades(MarketWorker):
     '''
     This is a streaming price tick simulator.
     Upon start, it push event automatically to Strategy.
