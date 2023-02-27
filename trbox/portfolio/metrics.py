@@ -7,8 +7,9 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
-from btbox.share import RISK_FREE_RATE
 from pandas import DataFrame, DatetimeIndex, Series, Timedelta, to_datetime
+
+from trbox.common.constants import RISK_FREE_RATE
 
 if TYPE_CHECKING:
     from trbox.portfolio import Portfolio

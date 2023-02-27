@@ -1,4 +1,4 @@
-from pandas import Timedelta, Timestamp, to_datetime
+from pandas import Timedelta, to_datetime
 from typing_extensions import override
 
 from trbox.common.logger import Log

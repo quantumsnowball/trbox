@@ -1,5 +1,6 @@
 from threading import Event
 
+import pandas as pd
 import yfinance as yf
 from pandas import DataFrame, Timestamp, to_datetime
 from typing_extensions import override
@@ -15,9 +16,9 @@ from trbox.market.utils import make_combined_rolling_windows
 
 def yfinance_download(symbol: str, interval: str) -> DataFrame:
     ticker = yf.Ticker(symbol)
-    df = ticker.history(period='max',
-                        interval=interval)
-    df.index = df.index.tz_localize(None)
+    df: DataFrame = ticker.history(period='max',
+                                   interval=interval)
+    df = DataFrame(df.tz_localize(None))
     df = df[OHLCV_COLUMN_NAMES]
     print(f'downloaded ohlcv, symbol="{symbol}", shape={df.shape}', flush=True)
     return df

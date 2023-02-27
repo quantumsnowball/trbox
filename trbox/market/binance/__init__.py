@@ -1,14 +1,9 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from binance.websocket.spot.websocket_client import SpotWebsocketClient
-from pandas import to_datetime
 from typing_extensions import override
 
-from trbox.common.logger import Log
-from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
-from trbox.common.utils import cln, ppf
-from trbox.event.market import Candlestick
 from trbox.market import Market
 
 

@@ -12,7 +12,7 @@ QUANTITY = 0.2
 
 
 def dummy_action(my: Context):
-    result = my.portfolio.trade(SYMBOL, QUANTITY)
+    my.portfolio.trade(SYMBOL, QUANTITY)
     # Log.critical(Memo('see me ?').by(my.strategy))
     print(my.count._i[1])
 
@@ -34,4 +34,4 @@ print('Started backtest')
 bt.run(parallel=False)
 print('Finished backtest')
 
-bt.result.save(__file__)
+bt.result.save()

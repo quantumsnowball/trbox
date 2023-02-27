@@ -1,3 +1,4 @@
+import asyncio
 import os
 import shutil
 from asyncio import Future
@@ -10,7 +11,6 @@ import pandas as pd
 from aiohttp import web
 from aiohttp.typedefs import Handler
 from binance.websocket.binance_socket_manager import json
-from socketio.asyncio_client import asyncio
 from typing_extensions import override
 
 from trbox.backtest.utils import Node
@@ -77,8 +77,8 @@ class Lab(Thread):
                  port: int,
                  **kwargs: Any) -> None:
         super().__init__(*args,
-                         name='Lab',
                          **kwargs)
+        self.name = 'Lab'
         self._path = path
         self._host = host
         self._port = port
@@ -108,62 +108,62 @@ class Lab(Thread):
     async def index(self, _: web.Request) -> web.FileResponse:
         return web.FileResponse(ENTRY_POINT)
 
-    async def ls_source(self, _) -> web.Response:
+    async def ls_source(self, _: web.Request) -> web.Response:
         node = scan_for_source(Node('', 'folder', None, []),
                                basepath=self._path)
         return web.json_response(node.dict,
-                                 dumps=lambda s: json.dumps(s, indent=4))
+                                 dumps=lambda s: str(json.dumps(s, indent=4)))
 
-    async def ls_result(self, _) -> web.Response:
+    async def ls_result(self, _: web.Request) -> web.Response:
         node = scan_for_result(Node('', 'folder', None, []),
                                basepath=self._path)
         return web.json_response(node.dict,
-                                 dumps=lambda s: json.dumps(s, indent=4))
+                                 dumps=lambda s: str(json.dumps(s, indent=4)))
 
-    async def get_source(self, request) -> web.Response:
+    async def get_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         with open(f'{path}') as f:
             t = f.read()
             return web.Response(text=t)
 
-    async def get_result_meta(self, request) -> web.Response:
+    async def get_result_meta(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         meta = open(f'{path}/meta.json').read()
         return web.json_response(text=meta)
 
-    async def get_result_source(self, request) -> web.Response:
+    async def get_result_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         with open(f'{path}/source.py') as f:
             t = f.read()
             return web.Response(text=t)
 
-    async def get_result_metrics(self, request) -> web.Response:
+    async def get_result_metrics(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         df = pd.read_pickle(f'{path}/metrics.pkl')
-        return web.json_response(df, dumps=lambda df: df.to_json(orient='split',
-                                                                 indent=4))
+        return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
+                                                                     indent=4)))
 
-    async def get_result_equity(self, request) -> web.Response:
+    async def get_result_equity(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         df = pd.read_pickle(f'{path}/equity.pkl')
-        return web.json_response(df, dumps=lambda df: df.to_json(date_format='iso',
-                                                                 orient='columns',
-                                                                 indent=4))
+        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                     orient='columns',
+                                                                     indent=4)))
 
     async def get_result_trades(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         strategy = request.query['strategy']
         df = pd.read_pickle(f'{path}/trades.pkl')
-        return web.json_response(df.loc[strategy], dumps=lambda df: df.to_json(date_format='iso',
-                                                                               orient='table',
-                                                                               indent=4))
+        return web.json_response(df.loc[strategy], dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                                   orient='table',
+                                                                                   indent=4)))
 
-    async def run_source(self, request) -> web.Response:
+    async def run_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         return web.json_response([dict(type='stdout',
                                        text=f'executing `{path}`\n'), ])
 
-    async def run_source_output(self, request) -> web.WebSocketResponse:
+    async def run_source_output(self, request: web.Request) -> web.WebSocketResponse:
         path = request.match_info['path']
         ws = web.WebSocketResponse()
         await ws.prepare(request)
@@ -174,7 +174,7 @@ class Lab(Thread):
                                                      stderr=asyncio.subprocess.PIPE)
         print(f'created subprocess, executing: {cmd}')
 
-        async def listen_to_message():
+        async def listen_to_message() -> None:
             print('listening to ws message from client')
             async for raw in ws:
                 print('still listening ... forever')
@@ -186,7 +186,7 @@ class Lab(Thread):
                         print('terminated process')
                         return
 
-        async def read_stdout():
+        async def read_stdout() -> None:
             if proc.stdout:
                 print('stdout is ready')
                 async for line in proc.stdout:
@@ -200,7 +200,7 @@ class Lab(Thread):
                 await ws.close()
                 print('ws connection closed')
 
-        async def read_stderr():
+        async def read_stderr() -> None:
             if proc.stderr:
                 print('stderr is ready')
                 async for line in proc.stderr:
@@ -215,7 +215,7 @@ class Lab(Thread):
 
         return ws
 
-    async def delete_resource(self, request):
+    async def delete_resource(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         if os.path.isfile(path):
             os.remove(path)

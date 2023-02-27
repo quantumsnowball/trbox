@@ -1,5 +1,3 @@
-from trbox.common.logger import Log
-from trbox.common.logger.parser import Memo
 from trbox.portfolio.metrics import DrawdownResult
 from trbox.strategy.context import Context
 

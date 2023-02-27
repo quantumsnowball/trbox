@@ -34,7 +34,7 @@ class Result:
         return {p.strategy.name: p.dashboard.equity for p in self._portfolios}
 
     @property
-    def trades(self):
+    def trades(self) -> dict[str, DataFrame]:
         return {p.strategy.name: p.dashboard.trades for p in self._portfolios}
     #
     # presenting
