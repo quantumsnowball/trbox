@@ -33,7 +33,7 @@ async def fetch_sqlite(symbol: str,
         cursor = await db.execute('SELECT Source FROM ohlcv')
         sources = await cursor.fetchall()
         cursor = await db.execute('PRAGMA table_info(ohlcv)')
-        columns = cursor.fetchall()
+        columns = await cursor.fetchall()
         # download and cache the missing source
         missing = [date for date in dates if date not in list(sources)]
         if len(missing) > 0:
@@ -49,7 +49,8 @@ async def fetch_sqlite(symbol: str,
                         unzipped = zipped.open(f'{download_fname}.csv').read()
                         csv = unzipped.decode()
                         entries = [tuple((date, *(v for v in l.split(','))))
-                                   for l in csv.split('\n')]
+                                   for l in csv.split('\n')
+                                   if len(l) > 0]
                         await db.executemany('INSERT INTO ohlcv VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', entries)
                         await db.commit()
 
