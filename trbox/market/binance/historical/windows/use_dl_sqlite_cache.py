@@ -26,8 +26,9 @@ async def fetch_sqlite(symbol: str,
                        data_type: DataType = 'klines',
                        retry: int = 10,
                        timeout: int = 5) -> DataFrame:
-
-    dates = [str(d.date()) for d in date_range(start, end, freq='D')]
+    # create db dir if not exist
+    dates = [str(d.date())
+             for d in date_range(start, end, freq='D')]
     cache_dir = f'{CACHE_DIR}/binance/historical/windows/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
     cache_url = f'{cache_dir}/db.sqlite'
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
@@ -35,9 +36,12 @@ async def fetch_sqlite(symbol: str,
         # assert the table exists
         await db.execute(f"CREATE TABLE IF NOT EXISTS ohlcv({','.join(['Source', *RAW_COLUMNS])})")
         # check what source is already cached
-        sources = [r[0] for r in await db.execute_fetchall('SELECT Source FROM ohlcv')]
+        sources = [r[0]
+                   for r in await db.execute_fetchall('SELECT Source FROM ohlcv')]
+        missing = [date
+                   for date in dates
+                   if date not in list(sources)]
         # download and cache the missing source
-        missing = [date for date in dates if date not in list(sources)]
         if len(missing) > 0:
             async with aiohttp.ClientSession() as session:
                 async def download(date) -> None:
@@ -48,23 +52,27 @@ async def fetch_sqlite(symbol: str,
                         try:
                             async with session.get(download_url,
                                                    timeout=aiohttp.ClientTimeout(timeout)) as res:
+                                # download
                                 assert res.status == 200
                                 print(f'downloaded: {download_url}')
+                                # unzip
                                 zipped = ZipFile(BytesIO(await res.content.read()))
                                 unzipped = zipped.open(
                                     f'{download_fname}.csv').read()
                                 csv = unzipped.decode()
+                                # insert
                                 entries = [tuple((date, *(v for v in l.split(','))))
                                            for l in csv.split('\n')
                                            if len(l) > 0]
                                 await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', entries)
                                 await db.commit()
+                                # successfully done
                                 break
                         except Exception as e:
+                            # will retry download and insert on Exception
                             Log.exception(e)
-
+                # download all missed data async
                 await asyncio.gather(*[download(missed) for missed in missing])
-
         # read the requested data
         data = await db.execute_fetchall(f"SELECT {','.join(SELECTED_COLUMNS)} FROM ohlcv")
         df = DataFrame(data, columns=SELECTED_COLUMNS)
