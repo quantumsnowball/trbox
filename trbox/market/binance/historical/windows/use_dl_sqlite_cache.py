@@ -8,6 +8,7 @@ import aiosqlite
 from pandas import DataFrame, date_range, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
+from trbox.common.logger import Log
 from trbox.market.binance.historical.windows import (ARCHIVE_BASE, CACHE_DIR,
                                                      RAW_COLUMNS,
                                                      SELECTED_COLUMNS,
@@ -22,7 +23,9 @@ async def fetch_sqlite(symbol: str,
                        *,
                        market_type: MarketType = 'spot',
                        update_freq: UpdateFreq = 'daily',
-                       data_type: DataType = 'klines',):
+                       data_type: DataType = 'klines',
+                       retry: int = 10,
+                       timeout: int = 5) -> DataFrame:
 
     dates = [str(d.date()) for d in date_range(start, end, freq='D')]
     cache_dir = f'{CACHE_DIR}/binance/historical/windows/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
@@ -41,17 +44,24 @@ async def fetch_sqlite(symbol: str,
                     download_path = f'{ARCHIVE_BASE}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
                     download_fname = f'{symbol}-{freq}-{date}'
                     download_url = f'{download_path}/{download_fname}.zip'
-                    async with session.get(download_url) as res:
-                        assert res.status == 200
-                        print(f'downloaded: {download_url}')
-                        zipped = ZipFile(BytesIO(await res.content.read()))
-                        unzipped = zipped.open(f'{download_fname}.csv').read()
-                        csv = unzipped.decode()
-                        entries = [tuple((date, *(v for v in l.split(','))))
-                                   for l in csv.split('\n')
-                                   if len(l) > 0]
-                        await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', entries)
-                        await db.commit()
+                    for _ in range(retry):
+                        try:
+                            async with session.get(download_url,
+                                                   timeout=aiohttp.ClientTimeout(timeout)) as res:
+                                assert res.status == 200
+                                print(f'downloaded: {download_url}')
+                                zipped = ZipFile(BytesIO(await res.content.read()))
+                                unzipped = zipped.open(
+                                    f'{download_fname}.csv').read()
+                                csv = unzipped.decode()
+                                entries = [tuple((date, *(v for v in l.split(','))))
+                                           for l in csv.split('\n')
+                                           if len(l) > 0]
+                                await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', entries)
+                                await db.commit()
+                                break
+                        except Exception as e:
+                            Log.exception(e)
 
                 await asyncio.gather(*[download(missed) for missed in missing])
 
@@ -68,6 +78,6 @@ async def fetch_sqlite(symbol: str,
 
 if __name__ == '__main__':
     async def main():
-        df = await fetch_sqlite('SOLUSDT', '1h', '2022-12-01', '2023-01-31')
+        df = await fetch_sqlite('MATICUSDT', '1h', '2022-12-01', '2023-01-31')
         print(df)
     asyncio.run(main())
