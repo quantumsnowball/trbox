@@ -49,7 +49,7 @@ async def fetch_zip(symbol: str,
                     data_type: DataType = 'klines',):
     async with aiohttp.ClientSession() as session:
         # get file from cache if exists, else download and cache
-        async def get_file(date: str):
+        async def get_part(date: str):
             date = str(to_datetime(date).date())
             cache_dir = f'{CACHE_DIR}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
             cache_name = f'{symbol}-{freq}-{date}'
@@ -73,9 +73,9 @@ async def fetch_zip(symbol: str,
                     df = read_csv(zipped, header=None, names=RAW_COLUMNS)
                     return df
 
-        segments = await asyncio.gather(*[get_file(date)
-                                          for date in date_range(start, end, freq='D')])
-        df = concat(segments, axis=0)
+        dates = date_range(start, end, freq='D')
+        parts = await asyncio.gather(*[get_part(date) for date in dates])
+        df = concat(parts, axis=0)
         print(df)
 
 
