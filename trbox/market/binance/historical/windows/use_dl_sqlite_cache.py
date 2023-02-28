@@ -5,12 +5,14 @@ from zipfile import ZipFile
 
 import aiohttp
 import aiosqlite
-from pandas import date_range
+from pandas import DataFrame, date_range, to_datetime
 
+from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.market.binance.historical.windows import (ARCHIVE_BASE, CACHE_DIR,
-                                                     RAW_COLUMNS, DataType,
-                                                     Freq, MarketType,
-                                                     UpdateFreq)
+                                                     RAW_COLUMNS,
+                                                     SELECTED_COLUMNS,
+                                                     DataType, Freq,
+                                                     MarketType, UpdateFreq)
 
 
 async def fetch_sqlite(symbol: str,
@@ -31,9 +33,7 @@ async def fetch_sqlite(symbol: str,
         await db.execute(f"CREATE TABLE IF NOT EXISTS ohlcv({','.join(['Source', *RAW_COLUMNS])})")
         # check what source is already cached
         cursor = await db.execute('SELECT Source FROM ohlcv')
-        sources = await cursor.fetchall()
-        cursor = await db.execute('PRAGMA table_info(ohlcv)')
-        columns = await cursor.fetchall()
+        sources = [r[0] for r in await cursor.fetchall()]
         # download and cache the missing source
         missing = [date for date in dates if date not in list(sources)]
         if len(missing) > 0:
@@ -51,18 +51,24 @@ async def fetch_sqlite(symbol: str,
                         entries = [tuple((date, *(v for v in l.split(','))))
                                    for l in csv.split('\n')
                                    if len(l) > 0]
-                        await db.executemany('INSERT INTO ohlcv VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', entries)
+                        await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', entries)
                         await db.commit()
 
                 await asyncio.gather(*[download(missed) for missed in missing])
 
         # read the requested data
-        cursor = await cursor.execute('SELECT * FROM ohlcv')
-        selected = await cursor.fetchall()
-        print(selected)
+        cursor = await cursor.execute(f"SELECT {','.join(SELECTED_COLUMNS)} FROM ohlcv")
+        data = await cursor.fetchall()
+        df = DataFrame(data, columns=SELECTED_COLUMNS)
+        df = df.rename(columns={'CloseTime': OHLCV_INDEX_NAME})
+        df = df.set_index(OHLCV_INDEX_NAME)
+        df.index = to_datetime(df.index.values, unit='ms').round('S')
+        df = df.sort_index()
+        return df
 
 
 if __name__ == '__main__':
     async def main():
-        await fetch_sqlite('BTCUSDT', '1h', '2023-01-01', '2023-01-31')
+        df = await fetch_sqlite('BTCUSDT', '1h', '2023-01-01', '2023-01-31')
+        print(df)
     asyncio.run(main())
