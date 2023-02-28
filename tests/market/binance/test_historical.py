@@ -2,7 +2,7 @@ import asyncio
 import time
 
 from trbox.common.logger import Log
-from trbox.market.binance.historical.windows import fetch_zip
+from trbox.market.binance.historical.windows.use_dl_zip_cache import fetch_zip
 
 
 def test_fetch_zip():
