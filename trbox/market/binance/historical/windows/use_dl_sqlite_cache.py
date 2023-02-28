@@ -1,6 +1,7 @@
 import asyncio
 from io import BytesIO
 from pathlib import Path
+from sqlite3 import Timestamp
 from zipfile import ZipFile
 
 import aiohttp
@@ -9,17 +10,15 @@ from pandas import DataFrame, date_range, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
-from trbox.market.binance.historical.windows import (ARCHIVE_BASE, CACHE_DIR,
-                                                     RAW_COLUMNS,
-                                                     SELECTED_COLUMNS,
-                                                     DataType, Freq,
-                                                     MarketType, UpdateFreq)
+from trbox.market.binance.historical.windows.constants import (
+    ARCHIVE_BASE, CACHE_DIR, RAW_COLUMNS, SELECTED_COLUMNS, DataType, Freq,
+    MarketType, UpdateFreq)
 
 
 async def fetch_sqlite(symbol: str,
                        freq: Freq,
-                       start: str,
-                       end: str,
+                       start: str | Timestamp,
+                       end: str | Timestamp,
                        *,
                        market_type: MarketType = 'spot',
                        update_freq: UpdateFreq = 'daily',
@@ -79,6 +78,7 @@ async def fetch_sqlite(symbol: str,
         df = df.rename(columns={'CloseTime': OHLCV_INDEX_NAME})
         df = df.set_index(OHLCV_INDEX_NAME)
         df.index = to_datetime(df.index.values, unit='ms').round('S')
+        df.index.name = OHLCV_INDEX_NAME
         df = df.astype('float')
         df = df.sort_index()
         return df

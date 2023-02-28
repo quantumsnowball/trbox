@@ -9,11 +9,9 @@ import aiohttp
 from pandas import concat, date_range, read_csv, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
-from trbox.market.binance.historical.windows import (ARCHIVE_BASE, CACHE_DIR,
-                                                     RAW_COLUMNS,
-                                                     SELECTED_COLUMNS,
-                                                     DataType, Freq,
-                                                     MarketType, UpdateFreq)
+from trbox.market.binance.historical.windows.constants import (
+    ARCHIVE_BASE, CACHE_DIR, RAW_COLUMNS, SELECTED_COLUMNS, DataType, Freq,
+    MarketType, UpdateFreq)
 
 
 async def fetch_zip(symbol: str,
