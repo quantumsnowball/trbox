@@ -1,10 +1,12 @@
 import asyncio
+import io
 import json
 import os
 from pathlib import Path
 from typing import Literal
 from zipfile import ZipFile
 
+import aiofiles
 import aiohttp
 from pandas import DataFrame, concat, date_range, read_csv, to_datetime
 from typing_extensions import override
@@ -66,13 +68,17 @@ async def fetch_zip(symbol: str,
                     assert res.status == 200
                     print(f'downloaded: {download_url}')
                     Path(cache_dir).mkdir(parents=True, exist_ok=True)
-                    with open(cache_url, 'wb') as cache_file:
+                    async with aiofiles.open(cache_url, 'wb') as cache_file:
+                        # with open(cache_url, 'wb') as cache_file:
                         async for chunk in res.content.iter_chunked(1024):
-                            cache_file.write(chunk)
+                            await cache_file.write(chunk)
+                            # cache_file.write(chunk)
                         print(f'written: {cache_url}')
             # open the cache and read as dataframe
-            with open(cache_url, 'rb') as cache_file:
-                with ZipFile(cache_file).open(f'{cache_name}.csv') as zipped:
+            async with aiofiles.open(cache_url, 'rb') as cache_file:
+                # with open(cache_url, 'rb') as cache_file:
+                with ZipFile(io.BytesIO(await cache_file.read())).open(f'{cache_name}.csv') as zipped:
+                    # with ZipFile(cache_file).open(f'{cache_name}.csv') as zipped:
                     df = read_csv(zipped, header=None, names=RAW_COLUMNS)
                     df = df[SELECTED_COLUMNS]
                     df = df.rename(columns={'CloseTime': OHLCV_INDEX_NAME})
