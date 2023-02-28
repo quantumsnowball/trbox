@@ -23,6 +23,22 @@ def test_fetch_sqlite(symbol, freq, start, end):
     asyncio.run(main())
 
 
+"""
+time
+run: await fetch_zip('BTCUSDT', '1h', '2023-01-01', '2023-03-31')
+  sync: ~0.1368s (cached)
+  async: ~0.17 (cached)
+run: await fetch_zip('BTCUSDT', '1h', '2022-01-01', '2023-01-31')
+  sync: ~1.44s (cached)
+  async: ~1.95s (cached)
+conclusion: sync open is slightly faster than async
+
+run: await fetch_zip('BTCUSDT', '1h', '2022-01-01', '2023-01-31')
+  async: 0.101s (cached)
+conclusion: use a database is significantly faster (~20 times)
+"""
+
+
 @pytest.mark.playground()
 def test_compare():
     async def main():
