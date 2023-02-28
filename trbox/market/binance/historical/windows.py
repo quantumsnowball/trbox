@@ -46,15 +46,8 @@ async def fetch_zip(symbol: str,
                     market_type: MarketType = 'spot',
                     update_freq: UpdateFreq = 'daily',
                     data_type: DataType = 'klines',):
-    # generate urls
-    # def make_url(date: str) -> str:
-    #     date = str(to_datetime(date).date())
-    #     path = f'{ARCHIVE_BASE}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
-    #     fname = f'{symbol}-{freq}-{date}.zip'
-    #     url = f'{path}/{fname}'
-    #     return url
-    # https://data.binance.vision/data/spot/daily/klines/BTCUSDT/1h/BTCUSDT-1h-2023-02-26.zip
     async with aiohttp.ClientSession() as session:
+        # get file from cache if exists, else download and cache
         async def get_file(date: str):
             date = str(to_datetime(date).date())
             cache_dir = f'{CACHE_DIR}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
@@ -75,33 +68,14 @@ async def fetch_zip(symbol: str,
                         print(f'written: {cache_url}')
             # open the cache and read as dataframe
             with open(cache_url, 'rb') as cache_file:
-                zipped = ZipFile(cache_file)
-                csv = zipped.open(f'{cache_name}.csv').read().decode()
-                print(csv)
+                with ZipFile(cache_file).open(f'{cache_name}.csv') as zipped:
+                    df = read_csv(zipped)
+                    return df
 
         segments = await asyncio.gather(*[get_file(date)
                                           for date in date_range(start, end, freq='D')])
-
-    # download to cache if not exist
-    # read, unzip, combine, verify, return
-
-    # params = dict(symbol=symbol,
-    #               interval=freq,
-    #               startTime=int(to_datetime(start).value/1e6),
-    #               endTime=int(to_datetime(end).value/1e6),)
-    # async def fetch(url: str,
-    #                 session: aiohttp.ClientSession) -> DataFrame:
-    #     async with session.get(url) as res:
-    #         zipped = ZipFile(BytesIO(await res.content.read()))
-    #         csv = zipped.open()
-    #         segment = read_csv(csv)
-    #         return segment
-    #
-    # async with aiohttp.ClientSession() as session:
-    #     segments: list[DataFrame] = await asyncio.gather(*[fetch(url, session)
-    #                                                        for url in urls])
-    #     df = concat(segments)
-    #     return df
+        df = concat(segments, axis=0)
+        print(df)
 
 
 async def fetch_api(symbol: str,
