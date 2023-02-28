@@ -9,6 +9,7 @@ import aiohttp
 from pandas import DataFrame, concat, date_range, read_csv, to_datetime
 from typing_extensions import override
 
+from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.types import Symbols
 from trbox.market import MarketWorker
 
@@ -37,6 +38,8 @@ Freq = Literal['1s',
 
 RAW_COLUMNS = ['OpenTime', 'Open', 'High', 'Low', 'Close', 'Volume', 'CloseTime',
                'AssetVolume', 'NumberOfTrades', 'TakerBaseAssetVolume', 'TakerQuoteAssetVolume', 'Unused']
+SELECTED_COLUMNS = ['Open', 'High', 'Low',
+                    'Close', 'Volume', 'CloseTime']
 
 
 async def fetch_zip(symbol: str,
@@ -71,11 +74,17 @@ async def fetch_zip(symbol: str,
             with open(cache_url, 'rb') as cache_file:
                 with ZipFile(cache_file).open(f'{cache_name}.csv') as zipped:
                     df = read_csv(zipped, header=None, names=RAW_COLUMNS)
+                    df = df[SELECTED_COLUMNS]
+                    df = df.rename(columns={'CloseTime': OHLCV_INDEX_NAME})
+                    df = df.set_index(OHLCV_INDEX_NAME)
+                    df.index = to_datetime(df.index.values*1e6).round('S')
+                    df = df.sort_index()
                     return df
 
         dates = date_range(start, end, freq='D')
         parts = await asyncio.gather(*[get_part(date) for date in dates])
         df = concat(parts, axis=0)
+        df = df.sort_index()
         print(df)
 
 
