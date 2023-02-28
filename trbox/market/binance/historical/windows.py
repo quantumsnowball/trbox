@@ -1,8 +1,6 @@
 import asyncio
 import json
 import os
-from io import BytesIO
-from os.path import isfile
 from pathlib import Path
 from typing import Literal
 from zipfile import ZipFile
@@ -69,7 +67,7 @@ async def fetch_zip(symbol: str,
             # open the cache and read as dataframe
             with open(cache_url, 'rb') as cache_file:
                 with ZipFile(cache_file).open(f'{cache_name}.csv') as zipped:
-                    df = read_csv(zipped)
+                    df = read_csv(zipped, header=None)
                     return df
 
         segments = await asyncio.gather(*[get_file(date)
