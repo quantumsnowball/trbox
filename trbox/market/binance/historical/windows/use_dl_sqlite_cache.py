@@ -86,6 +86,6 @@ async def fetch_sqlite(symbol: str,
 
 if __name__ == '__main__':
     async def main():
-        df = await fetch_sqlite('MATICUSDT', '1h', '2022-12-01', '2023-01-31')
+        df = await fetch_sqlite('BTCUSDT', '1m', '2022-12-01', '2023-01-31')
         print(df)
     asyncio.run(main())
