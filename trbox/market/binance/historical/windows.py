@@ -107,13 +107,12 @@ async def fetch_api(symbol: str,
     async with aiohttp.ClientSession() as session:
         async with session.get(url, params=params) as res:
             content = json.loads((await res.content.read()).decode())
-            df = DataFrame(content, columns=[
-                'OpenTime', 'Open', 'High', 'Low', 'Close', 'Volume', 'CloseTime',
-                'AssetVolume', 'NumberOfTrades', 'TakerBaseAssetVolume', 'TakerQuoteAssetVolume', 'Unused'])
-            df = df[['Open', 'High', 'Low', 'Close', 'Volume', 'CloseTime']]
-            df = df.rename(columns={'CloseTime': 'Date'})
-            df['Date'] = to_datetime(df['Date']*1e6).round('S')
-            df = df.set_index('Date')
+            df = DataFrame(content, columns=RAW_COLUMNS)
+            df = df[SELECTED_COLUMNS]
+            df = df.rename(columns={'CloseTime': OHLCV_INDEX_NAME})
+            df = df.set_index(OHLCV_INDEX_NAME)
+            df.index = to_datetime(df.index.values*1e6).round('S')
+            df = df.sort_index()
             return df
 
 
