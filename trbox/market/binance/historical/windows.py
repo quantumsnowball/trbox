@@ -35,6 +35,9 @@ Freq = Literal['1s',
                '1h', '2h', '4h', '6h', '8h', '12h',
                '1d', ]
 
+RAW_COLUMNS = ['OpenTime', 'Open', 'High', 'Low', 'Close', 'Volume', 'CloseTime',
+               'AssetVolume', 'NumberOfTrades', 'TakerBaseAssetVolume', 'TakerQuoteAssetVolume', 'Unused']
+
 
 async def fetch_zip(symbol: str,
                     freq: Freq,
@@ -67,7 +70,7 @@ async def fetch_zip(symbol: str,
             # open the cache and read as dataframe
             with open(cache_url, 'rb') as cache_file:
                 with ZipFile(cache_file).open(f'{cache_name}.csv') as zipped:
-                    df = read_csv(zipped, header=None)
+                    df = read_csv(zipped, header=None, names=RAW_COLUMNS)
                     return df
 
         segments = await asyncio.gather(*[get_file(date)
