@@ -1,18 +1,23 @@
 import asyncio
 import json
+import os
 from io import BytesIO
+from os.path import isfile
+from pathlib import Path
 from typing import Literal
 from zipfile import ZipFile
 
 import aiohttp
-from pandas import DataFrame, concat, read_csv, to_datetime
+from pandas import DataFrame, concat, date_range, read_csv, to_datetime
 from typing_extensions import override
 
 from trbox.common.types import Symbols
 from trbox.market import MarketWorker
 
+CACHE_DIR = f'{Path.home()}/.local/share/trbox'
+
 API_BASE = 'https://api.binance.com'
-ARCHIVE_BASE = 'https://data.binance.vision/?prefix=data'
+ARCHIVE_BASE = 'https://data.binance.vision/data'
 
 MarketType = Literal[
     'spot',
@@ -41,14 +46,45 @@ async def fetch_zip(symbol: str,
                     market_type: MarketType = 'spot',
                     update_freq: UpdateFreq = 'daily',
                     data_type: DataType = 'klines',):
-    def make_url(date: str) -> str:
-        date = str(to_datetime(date).date())
-        path = f'{API_BASE}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
-        fname = f'{symbol}-{freq}-{date}.zip'
-        url = f'{path}/{fname}'
-        return url
-    url = make_url(start)
-    print()
+    # generate urls
+    # def make_url(date: str) -> str:
+    #     date = str(to_datetime(date).date())
+    #     path = f'{ARCHIVE_BASE}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
+    #     fname = f'{symbol}-{freq}-{date}.zip'
+    #     url = f'{path}/{fname}'
+    #     return url
+    # https://data.binance.vision/data/spot/daily/klines/BTCUSDT/1h/BTCUSDT-1h-2023-02-26.zip
+    async with aiohttp.ClientSession() as session:
+        async def get_file(date: str):
+            date = str(to_datetime(date).date())
+            cache_dir = f'{CACHE_DIR}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
+            cache_name = f'{symbol}-{freq}-{date}'
+            cache_url = f'{cache_dir}/{cache_name}.zip'
+            # check if file exist in cache, if not, download first
+            if not os.path.isfile(cache_url):
+                download_path = f'{ARCHIVE_BASE}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
+                download_fname = f'{symbol}-{freq}-{date}.zip'
+                download_url = f'{download_path}/{download_fname}'
+                async with session.get(download_url) as res:
+                    assert res.status == 200
+                    print(f'downloaded: {download_url}')
+                    Path(cache_dir).mkdir(parents=True, exist_ok=True)
+                    with open(cache_url, 'wb') as cache_file:
+                        async for chunk in res.content.iter_chunked(1024):
+                            cache_file.write(chunk)
+                        print(f'written: {cache_url}')
+            # open the cache and read as dataframe
+            with open(cache_url, 'rb') as cache_file:
+                zipped = ZipFile(cache_file)
+                csv = zipped.open(f'{cache_name}.csv').read().decode()
+                print(csv)
+
+        segments = await asyncio.gather(*[get_file(date)
+                                          for date in date_range(start, end, freq='D')])
+
+    # download to cache if not exist
+    # read, unzip, combine, verify, return
+
     # params = dict(symbol=symbol,
     #               interval=freq,
     #               startTime=int(to_datetime(start).value/1e6),
