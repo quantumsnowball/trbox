@@ -32,8 +32,7 @@ async def fetch_sqlite(symbol: str,
         # assert the table exists
         await db.execute(f"CREATE TABLE IF NOT EXISTS ohlcv({','.join(['Source', *RAW_COLUMNS])})")
         # check what source is already cached
-        cursor = await db.execute('SELECT Source FROM ohlcv')
-        sources = [r[0] for r in await cursor.fetchall()]
+        sources = [r[0] for r in await db.execute_fetchall('SELECT Source FROM ohlcv')]
         # download and cache the missing source
         missing = [date for date in dates if date not in list(sources)]
         if len(missing) > 0:
@@ -57,18 +56,18 @@ async def fetch_sqlite(symbol: str,
                 await asyncio.gather(*[download(missed) for missed in missing])
 
         # read the requested data
-        cursor = await cursor.execute(f"SELECT {','.join(SELECTED_COLUMNS)} FROM ohlcv")
-        data = await cursor.fetchall()
+        data = await db.execute_fetchall(f"SELECT {','.join(SELECTED_COLUMNS)} FROM ohlcv")
         df = DataFrame(data, columns=SELECTED_COLUMNS)
         df = df.rename(columns={'CloseTime': OHLCV_INDEX_NAME})
         df = df.set_index(OHLCV_INDEX_NAME)
         df.index = to_datetime(df.index.values, unit='ms').round('S')
+        df = df.astype('float')
         df = df.sort_index()
         return df
 
 
 if __name__ == '__main__':
     async def main():
-        df = await fetch_sqlite('BTCUSDT', '1h', '2023-01-01', '2023-01-31')
+        df = await fetch_sqlite('SOLUSDT', '1h', '2022-12-01', '2023-01-31')
         print(df)
     asyncio.run(main())
