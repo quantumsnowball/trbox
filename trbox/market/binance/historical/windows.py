@@ -34,13 +34,17 @@ async def fetch_zip(urls: list[str]) -> DataFrame:
         df = concat(segments)
         return df
 
-# max 1000 entries
-
 
 async def fetch_api(symbol: str,
                     freq: Freq,
                     start: str,
                     end: str):
+
+    '''
+    can only draw max 1000 entries, 
+    useless for backtest,
+    only useful when fetch some short history data just before live trading to init the startegy
+    '''
     path = '/api/v3/klines'
     url = f'{BASE_ENDPOINT}{path}'
     params = dict(symbol=symbol,
@@ -81,6 +85,6 @@ class BinanceHistoricalWindows(MarketWorker):
 
 if __name__ == '__main__':
     async def main():
-        df = await fetch_api('BTCUSDT', '1h', '2023-01-01', '2023-01-10')
+        df = await fetch_api('BTCUSDT', '1s', '2023-01-01', '2023-01-10')
         print(df)
     asyncio.run(main())
