@@ -10,9 +10,11 @@ from pandas import DataFrame, date_range, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
-from trbox.market.binance.historical.windows.constants import (
-    ARCHIVE_BASE, CACHE_DIR, RAW_COLUMNS, SELECTED_COLUMNS, DataType, Freq,
-    MarketType, UpdateFreq)
+from trbox.market.binance.historical.windows.constants import (ARCHIVE_BASE,
+                                                               CACHE_DIR,
+                                                               DataType, Freq,
+                                                               MarketType,
+                                                               UpdateFreq)
 
 
 async def fetch_sqlite(symbol: str,
@@ -26,6 +28,8 @@ async def fetch_sqlite(symbol: str,
                        retry: int = 10,
                        timeout: int = 5) -> DataFrame:
     # create db dir if not exist
+    start_: Timestamp = to_datetime(start)
+    end_: Timestamp = to_datetime(end if end else Timestamp.now())
     dates = [str(d.date())
              for d in date_range(start, end, freq='D')]
     cache_dir = f'{CACHE_DIR}/binance/historical/windows/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
@@ -33,7 +37,15 @@ async def fetch_sqlite(symbol: str,
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
     async with aiosqlite.connect(cache_url) as db:
         # assert the table exists
-        await db.execute(f"CREATE TABLE IF NOT EXISTS ohlcv({','.join(['Source', *RAW_COLUMNS])})")
+        sql_create_table = ('CREATE TABLE IF NOT EXISTS ohlcv('
+                            'Source TEXT, '
+                            'Open NUMERIC, '
+                            'High NUMERIC, '
+                            'Low NUMERIC, '
+                            'Close NUMERIC, '
+                            'Volume NUMERIC, '
+                            'CloseTime INT PRIMARY KEY)')
+        await db.execute(sql_create_table)
         # check what source is already cached
         sources = [r[0]
                    for r in await db.execute_fetchall('SELECT Source FROM ohlcv')]
@@ -60,10 +72,10 @@ async def fetch_sqlite(symbol: str,
                                     f'{download_fname}.csv').read()
                                 csv = unzipped.decode()
                                 # insert
-                                entries = [tuple((date, *(v for v in l.split(','))))
+                                entries = [tuple((date, *([v for v in l.split(',')][1:7])))
                                            for l in csv.split('\n')
                                            if len(l) > 0]
-                                await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', entries)
+                                await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?, ?)', entries)
                                 await db.commit()
                                 # successfully done
                                 break
@@ -73,8 +85,13 @@ async def fetch_sqlite(symbol: str,
                 # download all missed data async
                 await asyncio.gather(*[download(missed) for missed in missing])
         # read the requested data
-        data = await db.execute_fetchall(f"SELECT {','.join(SELECTED_COLUMNS)} FROM ohlcv")
-        df = DataFrame(data, columns=SELECTED_COLUMNS)
+        sql_select = ('SELECT Open,High,Low,Close,Volume,CloseTime '
+                      'FROM ohlcv WHERE '
+                      f'CloseTime >= {start_.timestamp()*1e3} AND '
+                      f'CloseTime <= {end_.timestamp()*1e3};')
+        data = await db.execute_fetchall(sql_select)
+        df = DataFrame(
+            data, columns='Open,High,Low,Close,Volume,CloseTime'.split(','))
         df = df.rename(columns={'CloseTime': OHLCV_INDEX_NAME})
         df = df.set_index(OHLCV_INDEX_NAME)
         df.index = to_datetime(df.index.values, unit='ms').round('S')
@@ -86,6 +103,6 @@ async def fetch_sqlite(symbol: str,
 
 if __name__ == '__main__':
     async def main():
-        df = await fetch_sqlite('BTCUSDT', '1m', '2022-12-01', '2023-01-31')
+        df = await fetch_sqlite('BTCUSDT', '1m', '2023-01-15', '2023-01-31')
         print(df)
     asyncio.run(main())
