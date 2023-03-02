@@ -55,7 +55,7 @@ async def fetch_sqlite(symbol: str,
         # download and cache the missing source
         if len(missing) > 0:
             async with aiohttp.ClientSession() as session:
-                async def download(date) -> None:
+                async def download(date: str) -> None:
                     download_path = f'{ARCHIVE_BASE}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
                     download_fname = f'{symbol}-{freq}-{date}'
                     download_url = f'{download_path}/{download_fname}.zip'
@@ -102,7 +102,7 @@ async def fetch_sqlite(symbol: str,
 
 
 if __name__ == '__main__':
-    async def main():
+    async def main() -> None:
         df = await fetch_sqlite('BTCUSDT', '1m', '2023-01-15', '2023-01-31')
         print(df)
     asyncio.run(main())

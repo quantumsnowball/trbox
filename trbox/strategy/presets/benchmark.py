@@ -9,7 +9,7 @@ from trbox.strategy.types import Hook
 
 
 def regular_rebalance(symbol: Symbol, pct_target: float) -> Hook:
-    def do_rebalance(my: Context) -> None:
+    def do_rebalance(my: Context[OhlcvWindow]) -> None:
         e = my.event
         assert isinstance(e, OhlcvWindow)
         my.portfolio.rebalance(symbol, pct_target, e.close)

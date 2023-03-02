@@ -1,4 +1,5 @@
 import threading
+from typing import TypeVar
 
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
@@ -9,6 +10,8 @@ from trbox.event.broker import OrderResult
 from trbox.event.handler import CounterParty
 from trbox.strategy.context import Context, Count
 from trbox.strategy.types import DataHandler, DataHandlers, Heartbeats, Hook
+
+T = TypeVar('T', bound=MarketEvent)
 
 
 class Strategy(CounterParty):
@@ -33,9 +36,9 @@ class Strategy(CounterParty):
 
     def on(self,
            symbol: Symbol,
-           MarketEventClass: type[MarketEvent],
+           MarketEventClass: type[T],
            *,
-           do: Hook) -> 'Strategy':
+           do: Hook[T]) -> 'Strategy':
         # uniquely identify a data handler
         index = (symbol, MarketEventClass)
         assert index not in self._datahandlers, 'Duplicated hook'

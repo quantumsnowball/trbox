@@ -43,14 +43,14 @@ class Count:
         return False
 
 
-T_co = TypeVar('T_co', bound=MarketEvent, covariant=True)
+T_contra = TypeVar('T_contra', bound=MarketEvent, contravariant=True)
 
 
 @dataclass
-class Context(Generic[T_co]):
+class Context(Generic[T_contra]):
     strategy: Strategy
     count: Count
-    event: T_co = field(init=False)
+    event: T_contra = field(init=False)
     memory: Memroy = field(init=False, kw_only=True)
 
     def __post_init__(self) -> None:
