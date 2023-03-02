@@ -90,4 +90,4 @@ def test_historical_data(start: str | Timestamp,
 
     t.run()
 
-    assert len(t.portfolio.dashboard.navs) >= 10
+    assert len(t.dashboard.navs) >= 10

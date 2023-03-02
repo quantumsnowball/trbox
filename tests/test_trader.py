@@ -56,12 +56,12 @@ def test_dummy(name, live):
     )
     t.run()
     # up to here the market data terminated, simular to user termination
-    Log.info(Memo(str(t.portfolio.dashboard)).by(t).tag('dashboard'))
-    assert isinstance(t.portfolio.dashboard, Dashboard)
-    assert isinstance(t.portfolio.dashboard.navs, Series)
+    Log.info(Memo(str(t.dashboard)).by(t).tag('dashboard'))
+    assert isinstance(t.dashboard, Dashboard)
+    assert isinstance(t.dashboard.navs, Series)
     if not live:
-        assert len(t.portfolio.dashboard.navs) > 0
-        assert isinstance(t.portfolio.dashboard.navs.index[-1], datetime)
+        assert len(t.dashboard.navs) > 0
+        assert isinstance(t.dashboard.navs.index[-1], datetime)
 
 
 @pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
@@ -120,4 +120,4 @@ def test_historical_data(start: Timestamp | str,
 
     t.run()
 
-    assert len(t.portfolio.dashboard.navs) >= 10
+    assert len(t.dashboard.navs) >= 10

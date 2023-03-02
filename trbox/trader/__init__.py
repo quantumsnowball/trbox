@@ -119,3 +119,7 @@ class Trader(Runner):
     @property
     def portfolio(self) -> Portfolio:
         return self._portfolio
+
+    @property
+    def dashboard(self) -> Dashboard:
+        return self._portfolio.dashboard
