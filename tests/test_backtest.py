@@ -21,7 +21,7 @@ def test_dummy(name, parallel):
     QUANTITY = 0.2
 
     # on_tick
-    def dummy_action(my: Context):
+    def dummy_action(my: Context[Candlestick]):
         my.portfolio.trade(SYMBOL, QUANTITY)
 
     bt = Backtest(
@@ -60,9 +60,8 @@ def test_historical_data(start: Timestamp | str,
     QUANTITY = 0.2
 
     # on_window
-    def dummy_action(my: Context):
+    def dummy_action(my: Context[OhlcvWindow]):
         e = my.event
-        assert isinstance(e, OhlcvWindow)
         assert e.win.shape == (length, 5)
         my.portfolio.trade(SYMBOL, QUANTITY)
         Log.info(Memo(date=e.datetime, shape=e.ohlcv.shape, close=e.close)

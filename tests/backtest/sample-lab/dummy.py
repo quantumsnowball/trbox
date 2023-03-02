@@ -11,7 +11,7 @@ QUANTITY = 0.2
 # on_tick
 
 
-def dummy_action(my: Context):
+def dummy_action(my: Context[Candlestick]):
     my.portfolio.trade(SYMBOL, QUANTITY)
     # Log.critical(Memo('see me ?').by(my.strategy))
     print(my.count._i[1])

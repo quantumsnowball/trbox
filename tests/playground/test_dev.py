@@ -26,7 +26,7 @@ def test_dev(name, live):
     DELAY = 0.5
 
     # on_tick
-    def dummy_action(my: Context):
+    def dummy_action(my: Context[Candlestick]):
         assert live == (not my.trader.backtesting)
         assert my.event is not None
         assert my.event.symbol == SYMBOL

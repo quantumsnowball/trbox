@@ -1,8 +1,9 @@
+from trbox.event import MarketEvent
 from trbox.portfolio.metrics import DrawdownResult
 from trbox.strategy.context import Context
 
 
-def assert_valid_metrics(my: Context):
+def assert_valid_metrics(my: Context[MarketEvent]):
     assert isinstance(my.portfolio.metrics.total_return, float)
     assert isinstance(my.portfolio.metrics.cagr, float)
     assert isinstance(my.portfolio.metrics.mu_sigma, tuple)

@@ -69,8 +69,7 @@ def test_historical_data(start: str | Timestamp,
     SYMBOLS = (TARGET, *REF)
     FREQ = '1h'
 
-    def for_target(my: Context):
-        assert isinstance(my.event, OhlcvWindow)
+    def for_target(my: Context[OhlcvWindow]):
         if my.count.every(24):
             my.portfolio.rebalance(SYMBOLS[0], 0.5, my.event.close)
         if my.count.every(250):

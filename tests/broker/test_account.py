@@ -17,7 +17,7 @@ def test_account_trade():
     END = '2021-04-01'
     LENGTH = 200
 
-    def on_window(my: Context):
+    def on_window(my: Context[OhlcvWindow]):
         my.portfolio.trade(SYMBOL, +0.2)
         Log.info(Memo('trading',
                       cash=my.portfolio.cash,
@@ -44,7 +44,7 @@ def test_account_trade():
 def test_account_cash(cash: float):
     SYMBOL = 'CASH'
 
-    def on_tick(my: Context):
+    def on_tick(my: Context[Candlestick]):
         assert my.portfolio.cash == cash
         Log.info(Memo(cash=my.portfolio.cash)
                  .by(my.strategy).tag('initial', 'cash'))

@@ -15,8 +15,7 @@ def main():
 
     # on_window
     def rebalance(pct_target: float):
-        def routine(my: Context):
-            assert isinstance(my.event, OhlcvWindow)
+        def routine(my: Context[OhlcvWindow]):
             if my.count.every(30):
                 my.portfolio.rebalance(SYMBOL, pct_target, my.event.close)
         return routine

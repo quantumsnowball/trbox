@@ -16,8 +16,7 @@ LENGTH = 200
 INTERVAL = 24
 
 
-def buy_hold(my: Context):
-    assert isinstance(my.event, OhlcvWindow)
+def buy_hold(my: Context[OhlcvWindow]):
     if my.count.every(INTERVAL):
         my.portfolio.rebalance(SYMBOL, 1.0, my.event.close)
 
@@ -27,9 +26,8 @@ def pnl_ratio(win: Series) -> float:
     return pnlr[-1]
 
 
-def follow_pnl(my: Context):
+def follow_pnl(my: Context[OhlcvWindow]):
     if my.count.every(INTERVAL):
-        assert isinstance(my.event, OhlcvWindow)
         win = my.event.win['Close']
         pnlr = pnl_ratio(win)
         weight = pnlr

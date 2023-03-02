@@ -27,9 +27,8 @@ def test_binance_trade_streaming():
     SYMBOL = 'BTCUSDT'
     INTERVAL = 2000
 
-    def handle(my: Context):
+    def handle(my: Context[Candlestick]):
         # dummy trade
-        assert isinstance(my.event, Candlestick)
         price = my.event.price
         win = my.memory['rolling2000'][2000]
         win.append(my.event.price)
@@ -54,13 +53,12 @@ def test_binance_kline_streaming():
     SYMBOL = 'BTCUSDT'
     QUANTITY = 0.1
 
-    def handle(my: Context):
+    def handle(my: Context[Kline]):
         # buy/sell on every minute on Binance testnet
-        if isinstance(my.event, Kline):
-            quantity = +QUANTITY if my.event.timestamp.minute % 2 == 0 else -QUANTITY
-            result = my.portfolio.trade(SYMBOL, quantity)
-            Log.warning(Memo(ppf(result)).by(
-                my.strategy).tag('trade').sparse())
+        quantity = +QUANTITY if my.event.timestamp.minute % 2 == 0 else -QUANTITY
+        result = my.portfolio.trade(SYMBOL, quantity)
+        Log.warning(Memo(ppf(result)).by(
+            my.strategy).tag('trade').sparse())
 
     Trader(
         strategy=Strategy(

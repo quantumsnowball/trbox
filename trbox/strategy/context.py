@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from trbox.event import MarketEvent
 from trbox.portfolio.dashboard import Dashboard
@@ -43,11 +43,14 @@ class Count:
         return False
 
 
+T_co = TypeVar('T_co', bound=MarketEvent, covariant=True)
+
+
 @dataclass
-class Context:
+class Context(Generic[T_co]):
     strategy: Strategy
     count: Count
-    event: MarketEvent | None = None
+    event: T_co = field(init=False)
     memory: Memroy = field(init=False, kw_only=True)
 
     def __post_init__(self) -> None:

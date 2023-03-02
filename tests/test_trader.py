@@ -29,7 +29,7 @@ def test_dummy(name, live):
     DELAY = 0.0
 
     # on_tick
-    def dummy_action(my: Context):
+    def dummy_action(my: Context[Candlestick]):
         assert live == (not my.trader.backtesting)
         assert my.event is not None
         assert my.event.symbol == SYMBOL
@@ -85,8 +85,7 @@ def test_historical_data(start: Timestamp | str,
                 return False
         return True
 
-    def for_target(my: Context):
-        assert isinstance(my.event, OhlcvWindow)
+    def for_target(my: Context[OhlcvWindow]):
         assert my.event.symbol == TARGET
         assert my.event.win.shape == (length, 5)
         my.portfolio.trade(TARGET, QUANTITY)
@@ -95,8 +94,7 @@ def test_historical_data(start: Timestamp | str,
         if my.count.every(250):
             assert_valid_metrics(my)
 
-    def for_ref(my: Context):
-        assert isinstance(my.event, OhlcvWindow)
+    def for_ref(my: Context[OhlcvWindow]):
         assert my.event.symbol == REF[0]
         assert my.event.win.shape == (length, 5)
         my.portfolio.trade(REF[0], QUANTITY)
