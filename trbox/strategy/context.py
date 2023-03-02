@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from trbox.event import MarketEvent
+from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy.types import MemoryCell, MemorySized, Memroy
 from trbox.trader import Trader
 
@@ -67,3 +68,7 @@ class Context:
     @property
     def portfolio(self) -> Portfolio:
         return self.strategy.portfolio
+
+    @property
+    def dashboard(self) -> Dashboard:
+        return self.portfolio.dashboard

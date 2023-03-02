@@ -41,8 +41,8 @@ def test_dummy(name, live):
         if my.count.every(250):
             assert_valid_metrics(my)
         # can also access dashboard when still trading
-        assert isinstance(my.trader.portfolio.dashboard, Dashboard)
-        Log.info(Memo('anytime get', dashboard=my.trader.portfolio.dashboard)
+        assert isinstance(my.dashboard, Dashboard)
+        Log.info(Memo('anytime get', dashboard=my.dashboard)
                  .by(my.strategy).tag('dashboard'))
         sleep(DELAY)
 
