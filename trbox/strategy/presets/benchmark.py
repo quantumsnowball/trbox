@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from typing import Any
 
 from trbox.common.types import Symbol
@@ -8,10 +7,9 @@ from trbox.strategy.context import Context
 from trbox.strategy.types import Hook
 
 
-def regular_rebalance(symbol: Symbol, pct_target: float) -> Hook:
+def regular_rebalance(symbol: Symbol, pct_target: float) -> Hook[OhlcvWindow]:
     def do_rebalance(my: Context[OhlcvWindow]) -> None:
         e = my.event
-        assert isinstance(e, OhlcvWindow)
         my.portfolio.rebalance(symbol, pct_target, e.close)
     return do_rebalance
 

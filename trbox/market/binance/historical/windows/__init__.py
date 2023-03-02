@@ -1,10 +1,10 @@
 import asyncio
 from threading import Event
 
-from pandas import Timedelta, Timestamp, to_datetime
+from pandas import DataFrame, Timedelta, Timestamp, to_datetime
 from typing_extensions import override
 
-from trbox.common.types import Symbols
+from trbox.common.types import Symbol, Symbols
 from trbox.event.broker import AuditRequest
 from trbox.event.market import OhlcvWindow
 from trbox.market import MarketWorker
@@ -51,7 +51,7 @@ class BinanceHistoricalWindows(MarketWorker):
     @ override
     def working(self) -> None:
         # gather dfs
-        async def gather_dfs():
+        async def gather_dfs() -> dict[Symbol, DataFrame]:
             results = await asyncio.gather(*self._dfs_coros.values())
             return dict(zip(self._symbols, results))
         self._dfs = asyncio.run(gather_dfs())

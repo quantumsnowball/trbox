@@ -4,14 +4,14 @@ import aiohttp
 from pandas import DataFrame, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
-from trbox.market.binance.historical.windows import (API_BASE, RAW_COLUMNS,
-                                                     SELECTED_COLUMNS, Freq)
+from trbox.market.binance.historical.windows.constants import (
+    API_BASE, RAW_COLUMNS, SELECTED_COLUMNS, Freq)
 
 
 async def fetch_api(symbol: str,
                     freq: Freq,
                     start: str,
-                    end: str):
+                    end: str) -> DataFrame:
     '''
     can only draw max 1000 entries, 
     useless for backtest,
