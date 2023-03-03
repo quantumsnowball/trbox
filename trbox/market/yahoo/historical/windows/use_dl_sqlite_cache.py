@@ -53,7 +53,11 @@ async def fetch_sqlite(symbol: str,
         df = download(symbol)
         df_tuples = list(df.itertuples(index=True))
         entries = [tuple((t[0].isoformat(), *t[1:])) for t in df_tuples]
-        print(entries)
+        await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?)', entries)
+        await db.commit()
+        #
+        tmp = await db.execute_fetchall('SELECT * FROM ohlcv')
+        print(tmp)
 
 
 if __name__ == '__main__':
