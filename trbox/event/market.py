@@ -70,13 +70,13 @@ class KlineTick(KlineEvent):
     bar_finished: bool
 
 
-class OhlcvWindow(PriceEvent):
+class OhlcvWindow(KlineEvent):
     def __init__(self,
                  timestamp: Timestamp,
                  symbol: Symbol,
                  win: DataFrame) -> None:
         self.win = verify_ohlcv(win)
         self.datetime = self.win.index[-1]
-        self.ohlcv = self.win.iloc[-1]
-        self.close = self.ohlcv.loc['Close']
-        super().__init__(timestamp, symbol, self.close)
+        open, high, low, close, volume = self.win.iloc[-1][[
+            'Open', 'High', 'Low', 'Close', 'Volume']]
+        super().__init__(timestamp, symbol, open, high, low, close, volume)

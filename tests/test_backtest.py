@@ -7,7 +7,7 @@ from trbox.backtest.result import Result
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.event.market import TradeTick, OhlcvWindow
+from trbox.event.market import OhlcvWindow, TradeTick
 from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
 from trbox.market.local.historical.windows import LocalHistoricalWindows
 from trbox.portfolio.dashboard import Dashboard
@@ -62,7 +62,7 @@ def test_historical_data(start: Timestamp | str,
         e = my.event
         assert e.win.shape == (length, 5)
         my.portfolio.trade(SYMBOL, QUANTITY)
-        Log.info(Memo(date=e.datetime, shape=e.ohlcv.shape, close=e.close)
+        Log.info(Memo(date=e.datetime, shape=e.win.shape, close=e.close)
                  .by(my.strategy))
 
     def trader(name: str):
