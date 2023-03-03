@@ -18,7 +18,7 @@ INTERVAL = 24
 
 def buy_hold(my: Context[OhlcvWindow]):
     if my.count.every(INTERVAL):
-        my.portfolio.rebalance(SYMBOL, 1.0, my.event.close)
+        my.portfolio.rebalance(SYMBOL, 1.0, my.event.price)
 
 
 def pnl_ratio(win: Series) -> float:
@@ -31,7 +31,7 @@ def follow_pnl(my: Context[OhlcvWindow]):
         win = my.event.win['Close']
         pnlr = pnl_ratio(win)
         weight = pnlr
-        my.portfolio.rebalance(SYMBOL, weight, my.event.close)
+        my.portfolio.rebalance(SYMBOL, weight, my.event.price)
 
 
 bt = Backtest(
