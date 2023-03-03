@@ -13,9 +13,8 @@ class PriceEvent(MarketEvent):
 
 
 @ dataclass
-class Candlestick(MarketEvent):
-    # TODO data structure need to be fine tuned
-    price: float
+class Candlestick(PriceEvent):
+    pass
 
 
 @ dataclass
