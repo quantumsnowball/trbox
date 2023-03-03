@@ -39,11 +39,15 @@ async def fetch_sqlite(symbol: str,
         tmp = await db.execute_fetchall('PRAGMA table_info(ohlcv);')
         print(tmp)
         # download and cache the missing period
+        sources = [str(to_datetime(r[0]).date())
+                   for r in await db.execute_fetchall('SELECT Date FROM ohlcv')]
+        missing = [date
+                   for date in dates
+                   if date not in list(sources)]
 
         def download(symbol: str) -> DataFrame:
             ticker = yf.Ticker(symbol)
-            df: DataFrame = ticker.history(start=start,
-                                           end=end,
+            df: DataFrame = ticker.history(start=start_,
                                            interval=freq)
             df = DataFrame(df.tz_localize(None))
             df = df[OHLCV_COLUMN_NAMES]
