@@ -83,8 +83,6 @@ class Runner:
                 raise e
 
         Log.info(Memo('Runner has completed').by(self))
-        # TODO but what about live trading? how to get some report without
-        # terminating the Trader?
 
 
 class Trader(Runner):

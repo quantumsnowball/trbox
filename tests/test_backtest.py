@@ -42,11 +42,9 @@ def test_dummy(name, parallel):
         Log.info(Memo(str(trader.portfolio.dashboard)).by(
             trader).tag('dashboard'))
         assert isinstance(trader.portfolio.dashboard, Dashboard)
-    # TODO result should contain all the backtest info for review
+    # result contains all the backtest info for review
     Log.info(Memo(str(bt.result)).by(bt).tag('result'))
     assert isinstance(bt.result, Result)
-    # TODO but what about live trading? how to get some report without
-    # terminating the Trader?
 
 
 @pytest.mark.parametrize('start', [Timestamp(2022, 1, 1), '2022-01-01'])

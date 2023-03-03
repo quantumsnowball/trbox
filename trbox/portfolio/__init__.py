@@ -49,9 +49,6 @@ class Portfolio(CounterParty, ABC):
     @property
     def dashboard(self) -> Dashboard:
         return self._dashboard
-        # TODO I think user should be able to request the dashboard as long as
-        # the Trader is still running. It should contain the lastest trading
-        # result regardless live trading or backtesting.
 
     #
     # analysis
