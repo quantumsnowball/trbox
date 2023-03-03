@@ -1,9 +1,15 @@
 from dataclasses import dataclass
 
-from pandas import DataFrame
+from pandas import DataFrame, Timestamp
 
+from trbox.common.types import Symbol
 from trbox.common.utils import verify_ohlcv
 from trbox.event import MarketEvent
+
+
+@ dataclass
+class PriceEvent(MarketEvent):
+    price: float
 
 
 @ dataclass
@@ -51,14 +57,13 @@ class Kline(MarketEvent):
     bar_finished: bool
 
 
-@dataclass
-class OhlcvWindow(MarketEvent):
-    # TODO data structure need to be fine tuned
-    win: DataFrame
-
-    def __post_init__(self) -> None:
-        self.win = verify_ohlcv(self.win)
+class OhlcvWindow(PriceEvent):
+    def __init__(self,
+                 timestamp: Timestamp,
+                 symbol: Symbol,
+                 win: DataFrame) -> None:
+        self.win = verify_ohlcv(win)
         self.datetime = self.win.index[-1]
         self.ohlcv = self.win.iloc[-1]
         self.close = self.ohlcv.loc['Close']
-        # BUG why exception is silent here?
+        super().__init__(timestamp, symbol, self.close)
