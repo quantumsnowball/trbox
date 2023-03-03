@@ -2,9 +2,11 @@
 from pathlib import Path
 
 import aiosqlite
+import yfinance as yf
 from pandas import DataFrame, Timestamp, date_range, to_datetime
 from socketio.asyncio_client import asyncio
 
+from trbox.common.constants import OHLCV_COLUMN_NAMES
 from trbox.market.yahoo.historical.windows.constants import CACHE_DIR, Freq
 
 
@@ -26,16 +28,32 @@ async def fetch_sqlite(symbol: str,
     async with aiosqlite.connect(cache_url) as db:
         # assert the table exists
         sql_create_table = ('CREATE TABLE IF NOT EXISTS ohlcv('
+                            'Date TEXT PRIMARY KEY, '
                             'Open NUMERIC, '
                             'High NUMERIC, '
                             'Low NUMERIC, '
                             'Close NUMERIC, '
-                            'Volume NUMERIC, '
-                            'Date TEXT PRIMARY KEY)')
+                            'Volume NUMERIC)')
         await db.execute(sql_create_table)
         #
         tmp = await db.execute_fetchall('PRAGMA table_info(ohlcv);')
         print(tmp)
+        # download and cache the missing period
+
+        def download(symbol: str) -> DataFrame:
+            ticker = yf.Ticker(symbol)
+            df: DataFrame = ticker.history(start=start,
+                                           end=end,
+                                           interval=freq)
+            df = DataFrame(df.tz_localize(None))
+            df = df[OHLCV_COLUMN_NAMES]
+            print(
+                f'downloaded ohlcv, symbol="{symbol}", shape={df.shape}', flush=True)
+            return df
+        df = download(symbol)
+        df_tuples = list(df.itertuples(index=True))
+        entries = [tuple((t[0].isoformat(), *t[1:])) for t in df_tuples]
+        print(entries)
 
 
 if __name__ == '__main__':
