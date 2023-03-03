@@ -6,19 +6,6 @@ from trbox.common.utils import verify_ohlcv
 from trbox.event import MarketEvent
 
 
-@dataclass
-class OhlcvWindow(MarketEvent):
-    # TODO data structure need to be fine tuned
-    win: DataFrame
-
-    def __post_init__(self) -> None:
-        self.win = verify_ohlcv(self.win)
-        self.datetime = self.win.index[-1]
-        self.ohlcv = self.win.iloc[-1]
-        self.close = self.ohlcv.loc['Close']
-        # BUG why exception is silent here?
-
-
 @ dataclass
 class Candlestick(MarketEvent):
     # TODO data structure need to be fine tuned
@@ -62,3 +49,16 @@ class Kline(MarketEvent):
     volume: float
     value_traded: float
     bar_finished: bool
+
+
+@dataclass
+class OhlcvWindow(MarketEvent):
+    # TODO data structure need to be fine tuned
+    win: DataFrame
+
+    def __post_init__(self) -> None:
+        self.win = verify_ohlcv(self.win)
+        self.datetime = self.win.index[-1]
+        self.ohlcv = self.win.iloc[-1]
+        self.close = self.ohlcv.loc['Close']
+        # BUG why exception is silent here?
