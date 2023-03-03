@@ -7,18 +7,37 @@ from trbox.common.utils import verify_ohlcv
 from trbox.event import MarketEvent
 
 
+#
+# interfaces
+#
 @ dataclass
 class PriceEvent(MarketEvent):
     price: float
 
 
+@dataclass
+class KlineEvent(PriceEvent):
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+    price: float = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.price = self.close
+
+
+#
+# implementations
+#
 @ dataclass
 class TradeTick(PriceEvent):
     pass
 
 
 @ dataclass
-class KlineTick(PriceEvent):
+class KlineTick(KlineEvent):
     """
     raw data structure:
 
@@ -47,17 +66,8 @@ class KlineTick(PriceEvent):
       }
     }
     """
-    open: float
-    high: float
-    low: float
-    close: float
-    volume: float
     value_traded: float
     bar_finished: bool
-    price: float = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.price = self.close
 
 
 class OhlcvWindow(PriceEvent):
