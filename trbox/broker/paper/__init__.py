@@ -9,7 +9,7 @@ from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol, Symbols
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import Order
-from trbox.event.market import Candlestick, OhlcvWindow
+from trbox.event.market import TradeTick, OhlcvWindow
 
 DEFAULT_INITIAL_FUND = 1e6
 
@@ -76,7 +76,7 @@ class PaperEX(Broker):
         timestamp = None
         price = None
 
-        if isinstance(e, Candlestick):
+        if isinstance(e, TradeTick):
             timestamp = e.timestamp
             price = e.price
         elif isinstance(e, OhlcvWindow):

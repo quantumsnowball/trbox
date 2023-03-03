@@ -13,7 +13,7 @@ class PriceEvent(MarketEvent):
 
 
 @ dataclass
-class Candlestick(PriceEvent):
+class TradeTick(PriceEvent):
     pass
 
 

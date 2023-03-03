@@ -10,7 +10,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import ppf
 from trbox.console.dashboard import TrboxDashboard
-from trbox.event.market import Candlestick, Kline
+from trbox.event.market import TradeTick, Kline
 from trbox.market.binance.streaming.klines import BinanceStreamingKlines
 from trbox.market.binance.streaming.trades import BinanceStreamingTrades
 from trbox.strategy import Strategy
@@ -27,7 +27,7 @@ def test_binance_trade_streaming():
     SYMBOL = 'BTCUSDT'
     INTERVAL = 2000
 
-    def handle(my: Context[Candlestick]):
+    def handle(my: Context[TradeTick]):
         # dummy trade
         price = my.event.price
         win = my.memory['rolling2000'][2000]
@@ -41,7 +41,7 @@ def test_binance_trade_streaming():
     Trader(
         strategy=Strategy(
             name='test-trade-streaming')
-        .on(SYMBOL, Candlestick, do=handle),
+        .on(SYMBOL, TradeTick, do=handle),
         market=BinanceStreamingTrades(symbol=SYMBOL),
         broker=PaperEX(SYMBOL),
         console=TrboxDashboard()

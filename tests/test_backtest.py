@@ -7,7 +7,7 @@ from trbox.backtest.result import Result
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.event.market import Candlestick, OhlcvWindow
+from trbox.event.market import TradeTick, OhlcvWindow
 from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
 from trbox.market.local.historical.windows import LocalHistoricalWindows
 from trbox.portfolio.dashboard import Dashboard
@@ -21,18 +21,18 @@ def test_dummy(name, parallel):
     QUANTITY = 0.2
 
     # on_tick
-    def dummy_action(my: Context[Candlestick]):
+    def dummy_action(my: Context[TradeTick]):
         my.portfolio.trade(SYMBOL, QUANTITY)
 
     bt = Backtest(
         Trader(
             strategy=Strategy(name='Benchmark')
-            .on(SYMBOL, Candlestick, do=dummy_action),
+            .on(SYMBOL, TradeTick, do=dummy_action),
             market=GeneratedHistoricalTrades(SYMBOL),
             broker=PaperEX(SYMBOL)),
         Trader(
             strategy=Strategy(name=name)
-            .on(SYMBOL, Candlestick, do=dummy_action),
+            .on(SYMBOL, TradeTick, do=dummy_action),
             market=GeneratedHistoricalTrades(SYMBOL),
             broker=PaperEX(SYMBOL))
     )

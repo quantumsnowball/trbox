@@ -14,11 +14,11 @@
 ## basic structure of market data
 
 - kline: single point ohlcv
-    - CandleStick(time,o,h,l,c,v,)
+    - TradeTick(time,o,h,l,c,v,)
 - trade: single point trade
     - Trade(time,price)
 - historical: multiple points ohlcv window
-    - CandleStick[] / Rolling[CandleStick]
+    - TradeTick[] / Rolling[TradeTick]
 
 ## backtest
 - local: one time fetch, then generate multiple

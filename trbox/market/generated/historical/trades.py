@@ -5,7 +5,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import Symbol
 from trbox.event.broker import AuditRequest
-from trbox.event.market import Candlestick
+from trbox.event.market import TradeTick
 from trbox.market import MarketWorker
 
 DEFAULT_SINCE = '2018-01-01'
@@ -35,16 +35,16 @@ class GeneratedHistoricalTrades(MarketWorker):
         # gen random price to simulate live market
         for i in range(self._n):
             hb = self.strategy.heartbeats.get((
-                self._symbol, Candlestick), None)
+                self._symbol, TradeTick), None)
             if hb:
                 intime = hb.wait(5)
                 if not intime:
                     Log.error(Memo('timeout waiting for heartbeat')
                               .by(self).tag('timeout'))
 
-            e = Candlestick(timestamp=to_datetime(self._since) + Timedelta(days=i),
-                            symbol=self._symbol,
-                            price=self._price + i)
+            e = TradeTick(timestamp=to_datetime(self._since) + Timedelta(days=i),
+                          symbol=self._symbol,
+                          price=self._price + i)
             self.strategy.put(e)
             self.broker.put(e)
             self.portfolio.put(e)
