@@ -18,7 +18,7 @@ class TradeTick(PriceEvent):
 
 
 @ dataclass
-class Kline(PriceEvent):
+class KlineTick(PriceEvent):
     """
     raw data structure:
 

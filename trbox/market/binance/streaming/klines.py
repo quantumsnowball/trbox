@@ -7,7 +7,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln, ppf
 from trbox.event.broker import AuditRequest
-from trbox.event.market import Kline
+from trbox.event.market import KlineTick
 from trbox.market.binance import BinanceWebsocket
 
 
@@ -22,7 +22,7 @@ class BinanceStreamingKlines(BinanceWebsocket):
     def on_data(self, d: dict[str, Any]) -> None:
         try:
             k = d['k']
-            e = Kline(
+            e = KlineTick(
                 timestamp=to_datetime(int(k['T'])*1e6),
                 symbol=d['s'],
                 open=float(k['o']),

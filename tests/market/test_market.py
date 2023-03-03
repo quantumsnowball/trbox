@@ -10,7 +10,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import ppf
 from trbox.console.dashboard import TrboxDashboard
-from trbox.event.market import TradeTick, Kline
+from trbox.event.market import TradeTick, KlineTick
 from trbox.market.binance.streaming.klines import BinanceStreamingKlines
 from trbox.market.binance.streaming.trades import BinanceStreamingTrades
 from trbox.strategy import Strategy
@@ -53,7 +53,7 @@ def test_binance_kline_streaming():
     SYMBOL = 'BTCUSDT'
     QUANTITY = 0.1
 
-    def handle(my: Context[Kline]):
+    def handle(my: Context[KlineTick]):
         # buy/sell on every minute on Binance testnet
         quantity = +QUANTITY if my.event.timestamp.minute % 2 == 0 else -QUANTITY
         result = my.portfolio.trade(SYMBOL, quantity)
@@ -63,7 +63,7 @@ def test_binance_kline_streaming():
     Trader(
         strategy=Strategy(
             name='test-kline-streaming')
-        .on(SYMBOL, Kline, do=handle),
+        .on(SYMBOL, KlineTick, do=handle),
         market=BinanceStreamingKlines(symbol=SYMBOL, interval='1m'),
         broker=BinanceTestnet()
     ).run()
