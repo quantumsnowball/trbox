@@ -3,11 +3,10 @@ from __future__ import annotations
 import threading
 from collections import deque
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Generic, Protocol, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 from trbox.common.types import Symbol
 from trbox.event import MarketEvent
-from trbox.event.market import Candlestick, Kline, OhlcvWindow
 
 if TYPE_CHECKING:
     from trbox.strategy.context import Context

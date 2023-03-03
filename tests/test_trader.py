@@ -10,7 +10,7 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console.dashboard import TrboxDashboard
-from trbox.event.market import Candlestick, OhlcvWindow
+from trbox.event.market import TradeTick, OhlcvWindow
 from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
 from trbox.market.local.historical.windows import LocalHistoricalWindows
 from trbox.portfolio.dashboard import Dashboard
@@ -29,7 +29,7 @@ def test_dummy(name, live):
     DELAY = 0.0
 
     # on_tick
-    def dummy_action(my: Context[Candlestick]):
+    def dummy_action(my: Context[TradeTick]):
         assert live == (not my.trader.backtesting)
         assert my.event is not None
         assert my.event.symbol == SYMBOL
@@ -49,7 +49,7 @@ def test_dummy(name, live):
     t = Trader(
         live=live,
         strategy=Strategy(name=name,)
-        .on('BTC', Candlestick, do=dummy_action),
+        .on('BTC', TradeTick, do=dummy_action),
         market=GeneratedHistoricalTrades(SYMBOL, n=N),
         broker=PaperEX(SYMBOL),
         console=TrboxDashboard()

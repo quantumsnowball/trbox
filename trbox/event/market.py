@@ -1,32 +1,43 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from pandas import DataFrame
+from pandas import DataFrame, Timestamp
 
+from trbox.common.types import Symbol
 from trbox.common.utils import verify_ohlcv
 from trbox.event import MarketEvent
 
 
-@dataclass
-class OhlcvWindow(MarketEvent):
-    # TODO data structure need to be fine tuned
-    win: DataFrame
-
-    def __post_init__(self) -> None:
-        self.win = verify_ohlcv(self.win)
-        self.datetime = self.win.index[-1]
-        self.ohlcv = self.win.iloc[-1]
-        self.close = self.ohlcv.loc['Close']
-        # BUG why exception is silent here?
-
-
+#
+# interfaces
+#
 @ dataclass
-class Candlestick(MarketEvent):
-    # TODO data structure need to be fine tuned
+class PriceEvent(MarketEvent):
     price: float
 
 
+@dataclass
+class KlineEvent(PriceEvent):
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+    price: float = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.price = self.close
+
+
+#
+# implementations
+#
 @ dataclass
-class Kline(MarketEvent):
+class TradeTick(PriceEvent):
+    pass
+
+
+@ dataclass
+class KlineTick(KlineEvent):
     """
     raw data structure:
 
@@ -55,10 +66,17 @@ class Kline(MarketEvent):
       }
     }
     """
-    open: float
-    high: float
-    low: float
-    close: float
-    volume: float
     value_traded: float
     bar_finished: bool
+
+
+class OhlcvWindow(KlineEvent):
+    def __init__(self,
+                 timestamp: Timestamp,
+                 symbol: Symbol,
+                 win: DataFrame) -> None:
+        self.win = verify_ohlcv(win)
+        self.datetime = self.win.index[-1]
+        open, high, low, close, volume = self.win.iloc[-1][[
+            'Open', 'High', 'Low', 'Close', 'Volume']]
+        super().__init__(timestamp, symbol, open, high, low, close, volume)

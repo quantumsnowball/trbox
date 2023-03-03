@@ -3,7 +3,7 @@ import pytest
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.event.market import Candlestick, OhlcvWindow
+from trbox.event.market import TradeTick, OhlcvWindow
 from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
 from trbox.market.local.historical.windows import LocalHistoricalWindows
 from trbox.strategy import Strategy
@@ -44,7 +44,7 @@ def test_account_trade():
 def test_account_cash(cash: float):
     SYMBOL = 'CASH'
 
-    def on_tick(my: Context[Candlestick]):
+    def on_tick(my: Context[TradeTick]):
         assert my.portfolio.cash == cash
         Log.info(Memo(cash=my.portfolio.cash)
                  .by(my.strategy).tag('initial', 'cash'))
@@ -52,7 +52,7 @@ def test_account_cash(cash: float):
     Trader(
         strategy=Strategy(
             name='TestAccountCash')
-        .on(SYMBOL, Candlestick, do=on_tick),
+        .on(SYMBOL, TradeTick, do=on_tick),
         market=GeneratedHistoricalTrades(SYMBOL),
         broker=PaperEX(SYMBOL,
                        initial_fund=cash)

@@ -7,7 +7,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln, ppf
 from trbox.event.broker import AuditRequest
-from trbox.event.market import Candlestick
+from trbox.event.market import TradeTick
 from trbox.market.binance import BinanceWebsocket
 
 
@@ -19,7 +19,7 @@ class BinanceStreamingTrades(BinanceWebsocket):
         try:
             price = float(d['p'])
             datetime = to_datetime(int(d['E'])*1e6)
-            e = Candlestick(datetime, self._symbol, price)
+            e = TradeTick(datetime, self._symbol, price)
 
             self.strategy.put(e)
             # if backtesting, broker also receive MarketEvent to simulate quote

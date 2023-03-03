@@ -71,7 +71,7 @@ def test_historical_data(start: str | Timestamp,
 
     def for_target(my: Context[OhlcvWindow]):
         if my.count.every(24):
-            my.portfolio.rebalance(SYMBOLS[0], 0.5, my.event.close)
+            my.portfolio.rebalance(SYMBOLS[0], 0.5, my.event.price)
         if my.count.every(250):
             assert_valid_metrics(my)
 
