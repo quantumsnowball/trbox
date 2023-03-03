@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pandas import DataFrame, Timestamp
 
@@ -18,7 +18,7 @@ class TradeTick(PriceEvent):
 
 
 @ dataclass
-class Kline(MarketEvent):
+class Kline(PriceEvent):
     """
     raw data structure:
 
@@ -54,6 +54,10 @@ class Kline(MarketEvent):
     volume: float
     value_traded: float
     bar_finished: bool
+    price: float = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.price = self.close
 
 
 class OhlcvWindow(PriceEvent):
