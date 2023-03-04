@@ -1,5 +1,7 @@
 import asyncio
+import itertools
 import time
+from collections import namedtuple
 
 import pytest
 from pandas import DataFrame, Timestamp, to_datetime
@@ -17,11 +19,32 @@ from trbox.strategy import Strategy
 from trbox.strategy.context import Context
 from trbox.trader import Trader
 
+DateTestset = namedtuple('DateSet', 'start end')
 
-@pytest.mark.parametrize('symbol', ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'])
-@pytest.mark.parametrize('freq', ['1d', '4h', '2h', '1h', '5m', '1m'])
-@pytest.mark.parametrize('start', ['2022-12-01', '2022-12-15',])
-@pytest.mark.parametrize('end', ['2023-01-01', '2023-01-15',])
+DATES = DateTestset(
+    start=[
+        '2022-12-01',
+        '20221215',
+        to_datetime('20221217'),
+        '2022-12-19T00:00:00.000',
+    ],
+    end=[
+        '2023-01-01',
+        '20230115',
+        to_datetime('20230117'),
+        '2023-01-20T00:00:00.000',
+    ],
+)
+
+TESTSET = itertools.product(
+    ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'],
+    ['1d', '4h', '2h', '1h', '5m', '1m'],
+    DATES.start,
+    DATES.end
+)
+
+
+@pytest.mark.parametrize('symbol,freq,start,end', TESTSET)
 def test_fetch_sqlite(symbol: str,
                       freq: Freq,
                       start: str | Timestamp,
