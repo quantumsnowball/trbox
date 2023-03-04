@@ -45,7 +45,7 @@ async def fetch_sqlite(symbol: str,
         if len(missing) > 0:
             async with aiohttp.ClientSession() as session:
                 missing_start = int(min(missing))
-                missing_end = int(max(missing)) + 60*60*24
+                missing_end = int(max(missing))
                 for _ in range(retry):
                     try:
                         # download
