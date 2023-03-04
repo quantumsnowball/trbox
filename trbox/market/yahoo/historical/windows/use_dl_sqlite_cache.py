@@ -63,9 +63,12 @@ async def fetch_sqlite(symbol: str,
             entries = [tuple((t[0].isoformat(), *t[1:])) for t in df_tuples]
             await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?)', entries)
             await db.commit()
-        #
-        tmp = await db.execute_fetchall('SELECT * FROM ohlcv')
-        print(tmp)
+        # read the requested data
+        sql_select = ('SELECT Date,Open,High,Low,Close,Volume '
+                      'FROM ohlcv WHERE '
+                      f"Date BETWEEN '{start_.isoformat()}' AND '{end_.isoformat()}'")
+        data = await db.execute_fetchall(sql_select)
+        print(data)
 
 
 if __name__ == '__main__':
