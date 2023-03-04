@@ -1,22 +1,21 @@
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.market.local.historical.windows import LocalHistoricalWindows
+from trbox.market.yahoo.historical.windows import YahooHistoricalWindows
 from trbox.strategy.presets.benchmark import BuyAndHold
 from trbox.trader import Trader
 
 
 def test_benchmark():
-    SYMBOL = 'BTC'
+    SYMBOL = 'BTC-USD'
     START = '2021-01-01'
     END = '2021-12-31'
     LENGTH = 200
 
     t = Trader(
         strategy=BuyAndHold(SYMBOL, 1.0, name='Benchmark'),
-        market=LocalHistoricalWindows(
+        market=YahooHistoricalWindows(
             symbols=(SYMBOL,),
-            source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=START,
             end=END,
             length=LENGTH),

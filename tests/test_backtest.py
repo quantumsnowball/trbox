@@ -9,7 +9,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.event.market import OhlcvWindow, TradeTick
 from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
-from trbox.market.local.historical.windows import LocalHistoricalWindows
+from trbox.market.yahoo.historical.windows import YahooHistoricalWindows
 from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy.context import Context
 
@@ -53,7 +53,7 @@ def test_dummy(name, parallel):
 def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
-    SYMBOLS = ('BTC', 'ETH')
+    SYMBOLS = ('BTC-USD', 'ETH-USD')
     SYMBOL = SYMBOLS[0]
     QUANTITY = 0.2
 
@@ -69,9 +69,8 @@ def test_historical_data(start: Timestamp | str,
         return Trader(
             strategy=Strategy(name=name)
             .on(SYMBOL, OhlcvWindow, do=dummy_action),
-            market=LocalHistoricalWindows(
+            market=YahooHistoricalWindows(
                 symbols=SYMBOLS,
-                source=lambda s: f'tests/_data_/{s}_bar1day.csv',
                 start=start,
                 end=end,
                 length=length),
