@@ -3,7 +3,7 @@ from pathlib import Path
 
 import aiosqlite
 import yfinance as yf
-from pandas import DataFrame, Timestamp, date_range, to_datetime
+from pandas import DataFrame, Timedelta, Timestamp, date_range, to_datetime
 from socketio.asyncio_client import asyncio
 
 from trbox.common.constants import OHLCV_COLUMN_NAMES
@@ -41,24 +41,28 @@ async def fetch_sqlite(symbol: str,
         # download and cache the missing period
         sources = [str(to_datetime(r[0]).date())
                    for r in await db.execute_fetchall('SELECT Date FROM ohlcv')]
-        missing = [date
-                   for date in dates
-                   if date not in list(sources)]
+        missing = set(dates).difference(set(sources))
+        # download and cache the missing source
+        if len(missing) > 0:
+            missing_start = min(missing)
+            missing_end = str(to_datetime(
+                max(missing)).date() + Timedelta(days=1))
 
-        def download(symbol: str) -> DataFrame:
-            ticker = yf.Ticker(symbol)
-            df: DataFrame = ticker.history(start=start_,
-                                           interval=freq)
-            df = DataFrame(df.tz_localize(None))
-            df = df[OHLCV_COLUMN_NAMES]
-            print(
-                f'downloaded ohlcv, symbol="{symbol}", shape={df.shape}', flush=True)
-            return df
-        df = download(symbol)
-        df_tuples = list(df.itertuples(index=True))
-        entries = [tuple((t[0].isoformat(), *t[1:])) for t in df_tuples]
-        await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?)', entries)
-        await db.commit()
+            def download(symbol: str) -> DataFrame:
+                ticker = yf.Ticker(symbol)
+                df: DataFrame = ticker.history(start=missing_start,
+                                               end=missing_end,
+                                               interval=freq)
+                df = DataFrame(df.tz_localize(None))
+                df = df[OHLCV_COLUMN_NAMES]
+                return df
+            df = download(symbol)
+            print(f'downloaded ohlcv, symbol="{symbol}", shape={df.shape}',
+                  flush=True)
+            df_tuples = list(df.itertuples(index=True))
+            entries = [tuple((t[0].isoformat(), *t[1:])) for t in df_tuples]
+            await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?)', entries)
+            await db.commit()
         #
         tmp = await db.execute_fetchall('SELECT * FROM ohlcv')
         print(tmp)
