@@ -3,16 +3,16 @@ import pytest
 from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.event.market import TradeTick, OhlcvWindow
+from trbox.event.market import OhlcvWindow, TradeTick
 from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
-from trbox.market.local.historical.windows import LocalHistoricalWindows
+from trbox.market.yahoo.historical.windows import YahooHistoricalWindows
 from trbox.strategy import Strategy
 from trbox.strategy.context import Context
 from trbox.trader import Trader
 
 
 def test_account_trade():
-    SYMBOL = 'BTC'
+    SYMBOL = 'BTC-USD'
     START = '2021-01-01'
     END = '2021-04-01'
     LENGTH = 200
@@ -29,9 +29,8 @@ def test_account_trade():
         strategy=Strategy(
             name='TestAccountTrade')
         .on(SYMBOL, OhlcvWindow, do=on_window),
-        market=LocalHistoricalWindows(
+        market=YahooHistoricalWindows(
             symbols=(SYMBOL, ),
-            source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=START,
             end=END,
             length=LENGTH),

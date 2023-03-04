@@ -10,9 +10,9 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.console.dashboard import TrboxDashboard
-from trbox.event.market import TradeTick, OhlcvWindow
+from trbox.event.market import OhlcvWindow, TradeTick
 from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
-from trbox.market.local.historical.windows import LocalHistoricalWindows
+from trbox.market.yahoo.historical.windows import YahooHistoricalWindows
 from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy import Context
 from trbox.strategy.types import Memroy
@@ -64,15 +64,15 @@ def test_dummy(name, live):
         assert isinstance(t.dashboard.navs.index[-1], datetime)
 
 
-@pytest.mark.parametrize('start', [Timestamp(2021, 1, 1), '2021-01-01'])
-@pytest.mark.parametrize('end', [Timestamp(2021, 3, 31), '2021-3-31', None])
+@pytest.mark.parametrize('start', [Timestamp(2022, 1, 1), '2022-01-01'])
+@pytest.mark.parametrize('end', [Timestamp(2022, 3, 31), '2022-03-31', None])
 @pytest.mark.parametrize('length', [100, 200, 500])
 # @pytest.mark.parametrize('start, end, length', [('2021-01-01', '2021-03-31', 200)])
 def test_historical_data(start: Timestamp | str,
                          end: Timestamp | str | None,
                          length: int):
-    TARGET = 'BTC'
-    REF = ['ETH']
+    TARGET = 'BTC-USD'
+    REF = ['ETH-USD']
     SYMBOLS = (TARGET, *REF)
     QUANTITY = 0.2
 
@@ -107,9 +107,8 @@ def test_historical_data(start: Timestamp | str,
         strategy=Strategy(name='historical')
         .on(TARGET, OhlcvWindow, do=for_target)
         .on(REF[0], OhlcvWindow, do=for_ref),
-        market=LocalHistoricalWindows(
+        market=YahooHistoricalWindows(
             symbols=SYMBOLS,
-            source=lambda s: f'tests/_data_/{s}_bar1day.csv',
             start=start,
             end=end,
             length=length),
