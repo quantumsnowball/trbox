@@ -1,10 +1,10 @@
+import asyncio
 from io import BytesIO
 from pathlib import Path
 
 import aiohttp
 import aiosqlite
 from pandas import DataFrame, Timestamp, date_range, read_csv, to_datetime
-from socketio.asyncio_client import asyncio
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
@@ -52,7 +52,8 @@ async def fetch_sqlite(symbol: str,
                             base = 'https://query1.finance.yahoo.com/v7/finance/download'
                             other_params = 'interval=1d&events=history&includeAdjustedClose=true'
                             download_url = f'{base}/{symbol}?period1={missing_start}&period2={missing_end}&{other_params}'
-                            async with session.get(download_url) as res:
+                            async with session.get(download_url,
+                                                   timeout=aiohttp.ClientTimeout(timeout)) as res:
                                 assert res.status == 200
                                 csv = await res.content.read()
                                 df = read_csv(BytesIO(csv))
