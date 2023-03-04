@@ -26,7 +26,7 @@ def test_fetch_sqlite(symbol, freq, start, end):
         df = await fetch_sqlite(symbol, freq, start, end)
         assert isinstance(df, DataFrame)
         assert df.shape[1] == 5
-        assert df.index.is_monotonic
+        assert df.index.is_monotonic_increasing
         assert df.index[0] >= to_datetime(start)
         assert df.index[-1] <= to_datetime(end)
     asyncio.run(main())
