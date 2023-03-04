@@ -1,6 +1,7 @@
 import asyncio
 from io import BytesIO
 from pathlib import Path
+from urllib.parse import quote
 
 import aiohttp
 import aiosqlite
@@ -51,7 +52,7 @@ async def fetch_sqlite(symbol: str,
                         async def download() -> DataFrame:
                             base = 'https://query1.finance.yahoo.com/v7/finance/download'
                             other_params = 'interval=1d&events=history&includeAdjustedClose=true'
-                            download_url = f'{base}/{symbol}?period1={missing_start}&period2={missing_end}&{other_params}'
+                            download_url = f'{base}/{quote(symbol)}?period1={missing_start}&period2={missing_end}&{other_params}'
                             async with session.get(download_url,
                                                    timeout=aiohttp.ClientTimeout(timeout)) as res:
                                 assert res.status == 200
@@ -59,11 +60,18 @@ async def fetch_sqlite(symbol: str,
                                 df = read_csv(BytesIO(csv))
                                 df = df.set_index('Date')
                                 df.index = to_datetime(df.index.values)
+                                # adjust
                                 adj_ratio = df['Adj Close']/df['Close']
                                 df['Open'] *= adj_ratio
                                 df['High'] *= adj_ratio
                                 df['Low'] *= adj_ratio
                                 df['Volume'] /= adj_ratio
+                                # ensure min max
+                                df['High'] = df[['Open', 'High', 'Close']].apply(max,
+                                                                                 axis=1)
+                                df['Low'] = df[['Open', 'Low', 'Close']].apply(min,
+                                                                               axis=1)
+                                # trim and rename
                                 df = df.drop('Close', axis=1)
                                 df = df.rename(columns={'Adj Close': 'Close'})
                                 return df
