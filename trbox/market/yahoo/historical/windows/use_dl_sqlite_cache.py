@@ -6,7 +6,7 @@ import yfinance as yf
 from pandas import DataFrame, Timedelta, Timestamp, date_range, to_datetime
 from socketio.asyncio_client import asyncio
 
-from trbox.common.constants import OHLCV_COLUMN_NAMES
+from trbox.common.constants import OHLCV_COLUMN_NAMES, OHLCV_INDEX_NAME
 from trbox.market.yahoo.historical.windows.constants import CACHE_DIR, Freq
 
 
@@ -53,12 +53,12 @@ async def fetch_sqlite(symbol: str,
                 df = DataFrame(df.tz_localize(None))
                 df = df[OHLCV_COLUMN_NAMES]
                 return df
-            df = download(symbol)
-            print(f'downloaded ohlcv, symbol="{symbol}", shape={df.shape}',
+            downloaded = download(symbol)
+            print(f'downloaded ohlcv, symbol="{symbol}", shape={downloaded.shape}',
                   flush=True)
-            df_tuples = list(df.itertuples(index=True))
+            downloaded_tuples = list(downloaded.itertuples(index=True))
             entries = [tuple((int(t[0].timestamp()), *t[1:]))
-                       for t in df_tuples]
+                       for t in downloaded_tuples]
             await db.executemany('REPLACE INTO ohlcv VALUES(?, ?, ?, ?, ?, ?)', entries)
             await db.commit()
         # read the requested data
@@ -66,11 +66,19 @@ async def fetch_sqlite(symbol: str,
                       'FROM ohlcv WHERE '
                       f"Timestamp BETWEEN {start_.timestamp()} AND {end_.timestamp()}")
         data = await db.execute_fetchall(sql_select)
-        print(data)
+        df = DataFrame(
+            data, columns='Timestamp,Open,High,Low,Close,Volume'.split(','))
+        df = df.rename(columns={'Timestamp': OHLCV_INDEX_NAME})
+        df = df.set_index(OHLCV_INDEX_NAME)
+        df.index = to_datetime(df.index.values, unit='s')
+        df.index.name = OHLCV_INDEX_NAME
+        df = df.astype('float')
+        df = df.sort_index()
+        return df
 
 
 if __name__ == '__main__':
     async def main() -> None:
-        df = await fetch_sqlite('BTC-USD', '1d', '2023-01-15', '2023-01-31')
+        df = await fetch_sqlite('BTC-USD', '1d', '2022-01-15', '2023-01-31')
         print(df)
     asyncio.run(main())
