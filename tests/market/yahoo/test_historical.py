@@ -3,7 +3,7 @@ import itertools
 from collections import namedtuple
 
 import pytest
-from pandas import DataFrame, Series, Timedelta, to_datetime
+from pandas import DataFrame, Series, Timedelta, Timestamp, to_datetime
 
 from trbox.market.yahoo.historical.windows.use_dl_sqlite_cache import \
     fetch_sqlite
@@ -73,7 +73,9 @@ MAX_GAP = 5  # days, usually christmax
     *FOREX,
     *BONDS,
 ])
-def test_fetch_sqlite(symbol, start, end):
+def test_fetch_sqlite(symbol: str,
+                      start: str | Timestamp,
+                      end: str | Timestamp):
     async def main():
         df = await fetch_sqlite(symbol, FREQ, start, end)
         # shape

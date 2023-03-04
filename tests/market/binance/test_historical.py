@@ -9,6 +9,7 @@ from trbox.broker.paper import PaperEX
 from trbox.common.logger import Log
 from trbox.event.market import OhlcvWindow
 from trbox.market.binance.historical.windows import BinanceHistoricalWindows
+from trbox.market.binance.historical.windows.constants import Freq
 from trbox.market.binance.historical.windows.use_dl_sqlite_cache import \
     fetch_sqlite
 from trbox.market.binance.historical.windows.use_dl_zip_cache import fetch_zip
@@ -21,7 +22,10 @@ from trbox.trader import Trader
 @pytest.mark.parametrize('freq', ['1d', '4h', '2h', '1h', '5m', '1m'])
 @pytest.mark.parametrize('start', ['2022-12-01', '2022-12-15',])
 @pytest.mark.parametrize('end', ['2023-01-01', '2023-01-15',])
-def test_fetch_sqlite(symbol, freq, start, end):
+def test_fetch_sqlite(symbol: str,
+                      freq: Freq,
+                      start: str | Timestamp,
+                      end: str | Timestamp):
     async def main():
         df = await fetch_sqlite(symbol, freq, start, end)
         assert isinstance(df, DataFrame)
