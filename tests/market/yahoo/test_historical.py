@@ -14,15 +14,12 @@ CRYPTOS = itertools.product(
     ['2023-01-01', '2023-01-31',],
 )
 STOCKS = itertools.product(
-    ['SPY', 'QQQ', 'TSLA'],
+    ['SPY', 'QQQ', 'TSLA', 'NVDA', 'AMZN', 'AAPL',],
     ['2010-01-01', '2015-01-31',],
     ['2023-01-01', '2023-01-31',],
 )
 
 
-# @pytest.mark.parametrize('symbol', ['BTC-USD', 'ETH-USD', 'BNB-USD'])
-# @pytest.mark.parametrize('start', ['2022-01-01', '2022-01-31',])
-# @pytest.mark.parametrize('end', ['2023-01-01', '2023-01-31',])
 @pytest.mark.parametrize('symbol, start, end', [*CRYPTOS, *STOCKS])
 def test_fetch_sqlite(symbol, start, end):
     async def main():
