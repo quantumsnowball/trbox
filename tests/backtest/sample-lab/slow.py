@@ -4,11 +4,11 @@ from trbox import Strategy, Trader
 from trbox.backtest import Backtest
 from trbox.broker.paper import PaperEX
 from trbox.event.market import OhlcvWindow
-from trbox.market.local.historical.windows import LocalHistoricalWindows
+from trbox.market.yahoo.historical.windows import YahooHistoricalWindows
 from trbox.strategy.context import Context
 
-SYMBOL = 'BTC'
-SYMBOLS = ('BTC', )
+SYMBOL = 'BTC-USD'
+SYMBOLS = ('BTC-USD', )
 START = '2021-07-01'
 END = '2021-12-31'
 LENGTH = 30
@@ -29,9 +29,8 @@ bt = Backtest(
     Trader(
         strategy=Strategy(name='Benchmark')
         .on(SYMBOL, OhlcvWindow, do=rebalance(1)),
-        market=LocalHistoricalWindows(
+        market=YahooHistoricalWindows(
             symbols=SYMBOLS,
-            source=lambda s: f'.data/{s}_bar1day.csv',
             start=START,
             end=END,
             length=LENGTH),
@@ -39,9 +38,8 @@ bt = Backtest(
     Trader(
         strategy=Strategy(name='basic')
         .on(SYMBOL, OhlcvWindow, do=rebalance(0.5)),
-        market=LocalHistoricalWindows(
+        market=YahooHistoricalWindows(
             symbols=SYMBOLS,
-            source=lambda s: f'.data/{s}_bar1day.csv',
             start=START,
             end=END,
             length=LENGTH),
