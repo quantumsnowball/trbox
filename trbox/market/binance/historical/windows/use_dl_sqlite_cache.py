@@ -47,11 +47,9 @@ async def fetch_sqlite(symbol: str,
                             'CloseTime INT PRIMARY KEY)')
         await db.execute(sql_create_table)
         # check what source is already cached
-        sources = [r[0]
-                   for r in await db.execute_fetchall('SELECT Source FROM ohlcv')]
-        missing = [date
-                   for date in dates
-                   if date not in list(sources)]
+        exists = [r[0]
+                  for r in await db.execute_fetchall('SELECT Source FROM ohlcv')]
+        missing = set(dates).difference(set(exists))
         # download and cache the missing source
         if len(missing) > 0:
             async with aiohttp.ClientSession() as session:
