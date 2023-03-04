@@ -53,7 +53,7 @@ async def fetch_sqlite(symbol: str,
                 df = DataFrame(df.tz_localize(None))
                 df = df[OHLCV_COLUMN_NAMES]
                 return df
-            downloaded = download(symbol)
+            downloaded = await asyncio.to_thread(download, symbol)
             print(f'downloaded ohlcv, symbol="{symbol}", shape={downloaded.shape}',
                   flush=True)
             downloaded_tuples = list(downloaded.itertuples(index=True))
