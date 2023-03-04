@@ -51,7 +51,7 @@ async def fetch_sqlite(symbol: str,
                         # download
                         async def download() -> DataFrame:
                             base = 'https://query1.finance.yahoo.com/v7/finance/download'
-                            other_params = 'interval=1d&events=history&includeAdjustedClose=true'
+                            other_params = f'interval={freq}&events=history&includeAdjustedClose=true'
                             download_url = f'{base}/{quote(symbol)}?period1={missing_start}&period2={missing_end}&{other_params}'
                             async with session.get(download_url,
                                                    timeout=aiohttp.ClientTimeout(timeout)) as res:
@@ -74,6 +74,9 @@ async def fetch_sqlite(symbol: str,
                                 # trim and rename
                                 df = df.drop('Close', axis=1)
                                 df = df.rename(columns={'Adj Close': 'Close'})
+                                # clean
+                                df = df.dropna(how='any', axis=0)
+                                # done
                                 return df
                         downloaded = await download()
                         print(f'downloaded ohlcv, symbol="{symbol}", shape={downloaded.shape}',

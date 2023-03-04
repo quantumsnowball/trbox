@@ -3,7 +3,7 @@ import itertools
 from collections import namedtuple
 
 import pytest
-from pandas import DataFrame, Timedelta, to_datetime
+from pandas import DataFrame, Series, Timedelta, to_datetime
 
 from trbox.market.yahoo.historical.windows.use_dl_sqlite_cache import \
     fetch_sqlite
@@ -24,6 +24,7 @@ SHORTER = DateTestset(
         '2023-01-15T00:00:00.000',
     ],
 )
+
 LONGER = DateTestset(
     start=[
         '2014-01-01',
@@ -38,6 +39,8 @@ LONGER = DateTestset(
         '2023-01-18T00:00:00.000',
     ],
 )
+
+
 CRYPTOS = itertools.product(
     ['BTC-USD', 'ETH-USD', 'BNB-USD'],
     SHORTER.start, SHORTER.end,
@@ -52,14 +55,15 @@ INDICES = itertools.product(
 )
 FOREX = itertools.product(
     ['EURUSD=X', 'GBPUSD=X', 'JPY=X', ],
-    SHORTER.start, SHORTER.end,
+    LONGER.start, LONGER.end,
 )
 BONDS = itertools.product(
     ['^TNX', ],
-    SHORTER.start, SHORTER.end,
+    LONGER.start, LONGER.end,
 )
 FREQ = '1d'
-ERROR = 5  # days
+ERROR = 5  # days,
+MAX_GAP = 5  # days, usually christmax
 
 
 @pytest.mark.parametrize('symbol, start, end', [
@@ -67,17 +71,23 @@ ERROR = 5  # days
     *STOCKS,
     *INDICES,
     *FOREX,
-    # *BONDS,
+    *BONDS,
 ])
 def test_fetch_sqlite(symbol, start, end):
     async def main():
         df = await fetch_sqlite(symbol, FREQ, start, end)
+        # shape
         assert isinstance(df, DataFrame)
         assert df.shape[1] == 5
+        # index
         assert df.index.is_monotonic_increasing
         start_, end_ = to_datetime(start), to_datetime(end)
         assert start_ <= df.index[0] <= start_ + Timedelta(days=ERROR)
         assert end_ - Timedelta(days=ERROR) <= df.index[-1] <= end_
+        # gaps
+        gaps = Series(df.index, index=df.index).diff()
+        assert gaps.max().days <= MAX_GAP
+        # price
         for row in df.itertuples(index=False):
             open, high, low, close, *_ = tuple(map(lambda x: round(x, 4), row))
             assert low <= open <= high
