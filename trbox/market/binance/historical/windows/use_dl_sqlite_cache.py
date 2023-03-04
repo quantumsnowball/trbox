@@ -80,6 +80,8 @@ async def fetch_sqlite(symbol: str,
                         except Exception as e:
                             # will retry download and insert on Exception
                             Log.exception(e)
+                    else:
+                        raise Exception(f'Failed to download from Binance')
                 # download all missed data async
                 await asyncio.gather(*[download(missed) for missed in missing])
         # read the requested data
