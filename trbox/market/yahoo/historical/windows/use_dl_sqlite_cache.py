@@ -58,6 +58,11 @@ async def fetch_sqlite(symbol: str,
                                 df = read_csv(BytesIO(csv))
                                 df = df.set_index('Date')
                                 df.index = to_datetime(df.index.values)
+                                adj_ratio = df['Adj Close']/df['Close']
+                                df['Open'] *= adj_ratio
+                                df['High'] *= adj_ratio
+                                df['Low'] *= adj_ratio
+                                df['Volume'] /= adj_ratio
                                 df = df.drop('Close', axis=1)
                                 df = df.rename(columns={'Adj Close': 'Close'})
                                 return df
