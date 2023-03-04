@@ -19,4 +19,8 @@ def test_fetch_sqlite(symbol, freq, start, end):
         assert df.index.is_monotonic_increasing
         assert df.index[0] >= to_datetime(start)
         assert df.index[-1] <= to_datetime(end)
+        for open, high, low, close, *_ in df.itertuples(index=False):
+            assert low <= open <= high
+            assert low <= close <= high
+
     asyncio.run(main())
