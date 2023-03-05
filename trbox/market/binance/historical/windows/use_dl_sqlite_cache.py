@@ -5,13 +5,14 @@ from zipfile import ZipFile
 
 import aiohttp
 import aiosqlite
-from pandas import DataFrame, Timestamp, date_range, to_datetime
+from pandas import DataFrame, Series, Timestamp, date_range, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
 from trbox.common.utils import utcnow
 from trbox.market.binance.historical.windows.constants import (ARCHIVE_BASE,
                                                                CACHE_DIR,
+                                                               MAX_GAP,
                                                                DataType, Freq,
                                                                MarketType,
                                                                UpdateFreq)
@@ -101,6 +102,10 @@ async def fetch_sqlite(symbol: str,
         df.index.name = OHLCV_INDEX_NAME
         df = df.astype('float')
         df = df.sort_index()
+        # verify dataframe integrity
+        gaps = Series(df.index, index=df.index).diff().dropna()
+        assert gaps.max() <= MAX_GAP[freq], 'Gaps exists in the dataframe'
+        # done
         return df
 
 
