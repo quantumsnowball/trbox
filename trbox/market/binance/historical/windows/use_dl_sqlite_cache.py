@@ -1,15 +1,15 @@
 import asyncio
 from io import BytesIO
 from pathlib import Path
-from sqlite3 import Timestamp
 from zipfile import ZipFile
 
 import aiohttp
 import aiosqlite
-from pandas import DataFrame, date_range, to_datetime
+from pandas import DataFrame, Timestamp, date_range, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
+from trbox.common.utils import utcnow
 from trbox.market.binance.historical.windows.constants import (ARCHIVE_BASE,
                                                                CACHE_DIR,
                                                                DataType, Freq,
@@ -29,9 +29,11 @@ async def fetch_sqlite(symbol: str,
                        timeout: int = 5) -> DataFrame:
     # create db dir if not exist
     start_: Timestamp = to_datetime(start)
-    end_: Timestamp = to_datetime(end if end else Timestamp.now())
+    end_: Timestamp = to_datetime(end)
+    assert start_ < end_, 'Start date must be before end date'
+    assert end_ <= utcnow(), 'Future timestamp not allowed'
     dates = [str(d.date())
-             for d in date_range(start, end, freq='D')]
+             for d in date_range(start_, end_, freq='D')]
     cache_dir = f'{CACHE_DIR}/binance/historical/windows/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
     cache_url = f'{cache_dir}/db.sqlite'
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
@@ -103,6 +105,6 @@ async def fetch_sqlite(symbol: str,
 
 if __name__ == '__main__':
     async def main() -> None:
-        df = await fetch_sqlite('BTCUSDT', '1m', '2023-01-15', '2023-01-31')
+        df = await fetch_sqlite('BTCUSDT', '1m', '2023-03-15', '2023-03-08')
         print(df)
     asyncio.run(main())

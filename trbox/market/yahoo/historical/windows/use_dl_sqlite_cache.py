@@ -9,6 +9,7 @@ from pandas import DataFrame, Timestamp, date_range, read_csv, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
+from trbox.common.utils import utcnow
 from trbox.market.yahoo.historical.windows.constants import CACHE_DIR, Freq
 
 
@@ -22,8 +23,10 @@ async def fetch_sqlite(symbol: str,
     # create db if not exist
     start_: Timestamp = to_datetime(start)
     end_: Timestamp = to_datetime(end)
+    assert start_ < end_, 'Start date must be before end date'
+    assert end_ <= utcnow(), 'Future timestamp not allowed'
     dates = [d.timestamp()
-             for d in date_range(start, end, freq='D')]
+             for d in date_range(start_, end_, freq='D')]
     cache_dir = f'{CACHE_DIR}/yahoo/historical/windows/{symbol}/{freq}'
     cache_url = f'{cache_dir}/db.sqlite'
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
@@ -114,6 +117,6 @@ async def fetch_sqlite(symbol: str,
 
 if __name__ == '__main__':
     async def main() -> None:
-        df = await fetch_sqlite('BTC-USD', '1d', '2021-01-15', Timestamp.utcnow().tz_localize(None))
+        df = await fetch_sqlite('BTC-USD', '1d', '2021-01-15', '2021-01-31')
         print(df)
     asyncio.run(main())

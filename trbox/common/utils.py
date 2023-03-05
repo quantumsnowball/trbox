@@ -1,5 +1,3 @@
-import json
-from dataclasses import asdict
 from pprint import pformat
 from typing import Any
 
@@ -60,3 +58,7 @@ def ppf(obj: Any) -> str:
         return pformat(obj)
     except Exception:
         return str(obj)
+
+
+def utcnow() -> Timestamp:
+    return Timestamp.utcnow().tz_localize(None)

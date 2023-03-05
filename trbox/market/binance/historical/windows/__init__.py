@@ -5,6 +5,7 @@ from pandas import DataFrame, Timedelta, Timestamp, to_datetime
 from typing_extensions import override
 
 from trbox.common.types import Symbol, Symbols
+from trbox.common.utils import utcnow
 from trbox.event.broker import AuditRequest
 from trbox.event.market import OhlcvWindow
 from trbox.market import MarketWorker
@@ -38,8 +39,7 @@ class BinanceHistoricalWindows(MarketWorker):
         super().__init__()
         self._symbols = symbols
         self._start: Timestamp = to_datetime(start)
-        self._end = to_datetime(
-            end if end else Timestamp.utcnow().tz_localize(None))
+        self._end = to_datetime(end if end else utcnow())
         self._freq = freq
         self._length = length
         # data preprocessing
