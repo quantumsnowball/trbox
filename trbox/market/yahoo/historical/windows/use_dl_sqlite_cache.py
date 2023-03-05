@@ -21,7 +21,7 @@ async def fetch_sqlite(symbol: str,
                        timeout: int = 5) -> DataFrame:
     # create db if not exist
     start_: Timestamp = to_datetime(start)
-    end_: Timestamp = to_datetime(end if end else Timestamp.now())
+    end_: Timestamp = to_datetime(end)
     dates = [d.timestamp()
              for d in date_range(start, end, freq='D')]
     cache_dir = f'{CACHE_DIR}/yahoo/historical/windows/{symbol}/{freq}'
@@ -114,6 +114,6 @@ async def fetch_sqlite(symbol: str,
 
 if __name__ == '__main__':
     async def main() -> None:
-        df = await fetch_sqlite('BTC-USD', '1d', '2021-01-15', '2023-01-31')
+        df = await fetch_sqlite('BTC-USD', '1d', '2021-01-15', Timestamp.utcnow().tz_localize(None))
         print(df)
     asyncio.run(main())

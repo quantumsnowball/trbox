@@ -32,7 +32,8 @@ class YahooHistoricalWindows(MarketWorker):
         super().__init__()
         self._symbols = symbols
         self._start = to_datetime(start)
-        self._end = to_datetime(end if end else Timestamp.now())
+        self._end = to_datetime(
+            end if end else Timestamp.utcnow().tz_localize(None))
         self._freq = freq
         self._length = length
         # data preprocessing

@@ -58,7 +58,6 @@ def test_tzinfo():
     assert datetime.datetime(1970, 1, 1).tzinfo == None
     assert Timestamp.now().tzinfo == None
     assert to_datetime('1970-01-01').tzinfo == None
-    # Log.warning((date_range('1970-01-01', '1970-01-02', freq='D'))[-1].tzinfo)
     assert date_range('1970-01-01', '1970-01-02', freq='D')[-1].tzinfo == None
     # these are tz aware datetime
     assert Timestamp.utcnow().tzinfo != None
