@@ -5,12 +5,14 @@ from urllib.parse import quote
 
 import aiohttp
 import aiosqlite
-from pandas import DataFrame, Timestamp, date_range, read_csv, to_datetime
+from pandas import (DataFrame, Series, Timestamp, date_range, read_csv,
+                    to_datetime)
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
 from trbox.common.utils import utcnow
-from trbox.market.yahoo.historical.windows.constants import CACHE_DIR, Freq
+from trbox.market.yahoo.historical.windows.constants import (CACHE_DIR,
+                                                             MAX_GAP, Freq)
 
 
 async def fetch_sqlite(symbol: str,
@@ -114,7 +116,8 @@ async def fetch_sqlite(symbol: str,
         df = df.astype('float')
         df = df.sort_index()
         # verify dataframe integrity
-
+        gaps = Series(df.index, index=df.index).diff().dropna()
+        assert gaps.max().days <= MAX_GAP, 'Gaps exists in the dataframe'
         # done
         return df
 
