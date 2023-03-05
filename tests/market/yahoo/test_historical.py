@@ -96,3 +96,19 @@ def test_fetch_sqlite(symbol: str,
             assert low <= close <= high
 
     asyncio.run(main())
+
+
+@pytest.mark.parametrize('symbol', ['BTC-USD', 'ETH-USD'])
+@pytest.mark.parametrize('start,end', [
+    ('2017-01-01', '2016-01-01',),
+    (to_datetime('2015-01-01'), to_datetime('2014-01-01'),),
+    ('20230101', '20221231',),
+    ('2017-01-01T01:00:00.000', '2017-01-01T00:00:00.000'),
+])
+def test_fetch_sqlite_exception(symbol: str,
+                                start: str | Timestamp,
+                                end: str | Timestamp):
+    with pytest.raises(AssertionError):
+        async def main():
+            await fetch_sqlite(symbol, FREQ, start, end)
+        asyncio.run(main())

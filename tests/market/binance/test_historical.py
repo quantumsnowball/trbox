@@ -117,3 +117,20 @@ def test_historical_data(start: str | Timestamp,
     t.run()
 
     assert len(t.dashboard.navs) >= 10
+
+
+@pytest.mark.parametrize('symbol', ['BTCUSDT', 'ETHUSDT'])
+@pytest.mark.parametrize('start,end', [
+    ('2023-01-01', '2022-01-01',),
+    (to_datetime('2023-01-02'), to_datetime('2023-01-01'),),
+    ('20230101', '20221231',),
+    ('2023-01-01T01:00:00.000', '2023-01-01T00:00:00.000'),
+])
+def test_fetch_sqlite_exception(symbol: str,
+                                start: str | Timestamp,
+                                end: str | Timestamp):
+    FREQ = '1h'
+    with pytest.raises(AssertionError):
+        async def main():
+            await fetch_sqlite(symbol, FREQ, start, end)
+        asyncio.run(main())
