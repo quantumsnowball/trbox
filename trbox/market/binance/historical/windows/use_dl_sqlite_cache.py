@@ -5,14 +5,15 @@ from zipfile import ZipFile
 
 import aiohttp
 import aiosqlite
-from pandas import DataFrame, Series, Timestamp, date_range, to_datetime
+from pandas import (DataFrame, Series, Timedelta, Timestamp, date_range,
+                    to_datetime)
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
 from trbox.common.utils import utcnow
 from trbox.market.binance.historical.windows.constants import (ARCHIVE_BASE,
                                                                CACHE_DIR,
-                                                               MAX_GAP,
+                                                               ERROR, MAX_GAP,
                                                                DataType, Freq,
                                                                MarketType,
                                                                UpdateFreq)
@@ -103,6 +104,10 @@ async def fetch_sqlite(symbol: str,
         df = df.astype('float')
         df = df.sort_index()
         # verify dataframe integrity
+        assert to_datetime(start) <= df.index[0] <= \
+            to_datetime(start) + Timedelta(days=ERROR)
+        assert to_datetime(end) - Timedelta(days=ERROR) <= \
+            df.index[-1] <= to_datetime(end)
         gaps = Series(df.index, index=df.index).diff().dropna()
         assert gaps.max() <= MAX_GAP[freq], 'Gaps exists in the dataframe'
         # done
@@ -111,6 +116,6 @@ async def fetch_sqlite(symbol: str,
 
 if __name__ == '__main__':
     async def main() -> None:
-        df = await fetch_sqlite('BTCUSDT', '1m', '2023-03-15', '2023-03-08')
+        df = await fetch_sqlite('BTCUSDT', '1m', '2023-01-15', utcnow())
         print(df)
     asyncio.run(main())

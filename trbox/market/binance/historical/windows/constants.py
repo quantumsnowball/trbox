@@ -42,6 +42,7 @@ MAX_GAP: dict[Freq, Timedelta] = {
     '12h': Timedelta(hours=60),
     '1d': Timedelta(days=5),
 }
+ERROR = 5  # days
 
 RAW_COLUMNS = ['OpenTime', 'Open', 'High', 'Low', 'Close', 'Volume', 'CloseTime',
                'AssetVolume', 'NumberOfTrades', 'TakerBaseAssetVolume', 'TakerQuoteAssetVolume', 'Unused']
