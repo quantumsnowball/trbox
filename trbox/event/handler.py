@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from queue import Queue
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Self
 
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
@@ -54,9 +54,6 @@ class EventHandler(ABC):
     @ abstractmethod
     def handle(self, e: Event) -> None:
         pass
-
-
-Self = TypeVar('Self', bound='CounterParty')
 
 
 class CounterParty(EventHandler, ABC):

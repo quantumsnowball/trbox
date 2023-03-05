@@ -1,8 +1,6 @@
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Self
 
 from trbox.common.utils import cln
-
-Self = TypeVar('Self', bound='Memo')
 
 
 class Memo:

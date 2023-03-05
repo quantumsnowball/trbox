@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
-from typing import Iterable
+from typing import Iterable, Self
+
+from typing_extensions import override
 
 from trbox.backtest.result import Result
 from trbox.common.logger import Log
@@ -40,8 +41,9 @@ class BatchRunner(ABC):
             Log.info(Memo('finished', cln(executor))
                      .by(self).tag('pool', 'finished'))
 
-    def run(self, *, parallel: bool = False) -> None:
-        return self._run_async() if parallel else self._run_sync()
+    @abstractmethod
+    def run(self, *, parallel: bool = False) -> Self:
+        pass
 
 
 class Backtest(BatchRunner):
@@ -64,3 +66,8 @@ class Backtest(BatchRunner):
     @property
     def result(self) -> Result:
         return Result(*self._portfolios)
+
+    @override
+    def run(self, *, parallel: bool = False) -> Self:
+        self._run_async() if parallel else self._run_sync()
+        return self
