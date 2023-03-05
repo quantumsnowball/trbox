@@ -90,8 +90,7 @@ def test_fetch_sqlite(symbol: str,
         gaps = Series(df.index, index=df.index).diff()
         assert gaps.max().days <= MAX_GAP
         # price
-        for row in df.itertuples(index=False):
-            open, high, low, close, *_ = tuple(map(lambda x: round(x, 4), row))
+        for open, high, low, close, *_ in df.itertuples(index=False):
             assert low <= open <= high
             assert low <= close <= high
 
