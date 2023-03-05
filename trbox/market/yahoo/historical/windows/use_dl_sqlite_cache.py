@@ -5,12 +5,14 @@ from urllib.parse import quote
 
 import aiohttp
 import aiosqlite
-from pandas import DataFrame, Timestamp, date_range, read_csv, to_datetime
+from pandas import (DataFrame, Series, Timedelta, Timestamp, date_range,
+                    read_csv, to_datetime)
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
 from trbox.common.utils import utcnow
-from trbox.market.yahoo.historical.windows.constants import CACHE_DIR, Freq
+from trbox.market.yahoo.historical.windows.constants import (CACHE_DIR, ERROR,
+                                                             MAX_GAP, Freq)
 
 
 async def fetch_sqlite(symbol: str,
@@ -98,7 +100,8 @@ async def fetch_sqlite(symbol: str,
                         # will retry download and insert on Exception
                         Log.exception(e)
                 else:
-                    raise Exception(f'Failed to download from Yahoo Finance')
+                    # will allow return even if download failed
+                    Log.critical(f'Failed to download from Yahoo Finance')
         # read the requested data
         sql_select = ('SELECT Timestamp,Open,High,Low,Close,Volume '
                       'FROM ohlcv WHERE '
@@ -112,6 +115,14 @@ async def fetch_sqlite(symbol: str,
         df.index.name = OHLCV_INDEX_NAME
         df = df.astype('float')
         df = df.sort_index()
+        # verify dataframe integrity
+        assert to_datetime(start) <= df.index[0] <= \
+            to_datetime(start) + Timedelta(days=ERROR)
+        assert to_datetime(end) - Timedelta(days=ERROR) <= \
+            df.index[-1] <= to_datetime(end)
+        gaps = Series(df.index, index=df.index).diff().dropna()
+        assert gaps.max().days <= MAX_GAP, 'Gaps exists in the dataframe'
+        # done
         return df
 
 
