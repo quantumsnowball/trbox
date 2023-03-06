@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Iterable, Self
 
 from typing_extensions import override
 
-from trbox.backtest.monitor import Monitor, monitor
+from trbox.backtest.monitor import monitor
 from trbox.backtest.result import Result
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
@@ -68,7 +68,8 @@ class Backtest(BatchRunner):
         self._portfolios = [t.portfolio for t in traders]
         if progress is not None:
             monitor.put(EnableOutput(display=print,
-                                     step=progress))
+                                     step=progress,
+                                     count=len(traders)))
 
     @property
     def traders(self) -> tuple[Trader, ...]:

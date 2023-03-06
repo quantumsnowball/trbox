@@ -11,6 +11,7 @@ from trbox.event.monitor import EnableOutput, ProgressUpdate
 class Monitor(CounterParty):
     def __init__(self) -> None:
         super().__init__()
+        self._count = 1
         self._pcts: dict[str, float] = {}
         self._rolling: deque[float] = deque([0, 0], maxlen=2)
         self._step = 5
@@ -18,7 +19,7 @@ class Monitor(CounterParty):
 
     @property
     def progress(self) -> float:
-        return sum(self._pcts.values()) / len(self._pcts)
+        return sum(self._pcts.values()) / self._count
 
     # handle events
 
@@ -42,6 +43,7 @@ class Monitor(CounterParty):
         if isinstance(e, ProgressUpdate):
             self.handle_progress_update(e)
         elif isinstance(e, EnableOutput):
+            self._count = e.count
             self._step = e.step
             self._display = e.display
 

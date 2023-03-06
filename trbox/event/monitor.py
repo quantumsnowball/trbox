@@ -18,3 +18,4 @@ class ProgressUpdate(MonitorEvent):
 class EnableOutput(MonitorEvent):
     display: Callable[..., None]
     step: int
+    count: int
