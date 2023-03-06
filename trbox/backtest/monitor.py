@@ -3,6 +3,7 @@ from collections.abc import Callable
 
 from typing_extensions import override
 
+from trbox.common.utils import localnow_string
 from trbox.event import Event
 from trbox.event.handler import CounterParty
 from trbox.event.monitor import EnableOutput, ProgressUpdate
@@ -36,7 +37,7 @@ class Monitor(CounterParty):
             # check if overall progress is crossing a mark
             prev, val = self._rolling
             if int(prev*100//self._step) != int(val*100//self._step) or val == 0.0 or val == 1.0:
-                print(f'{self.progress:.2%}', flush=True)
+                print(f'{localnow_string()} : {self.progress:7.2%}', flush=True)
 
     @ override
     def handle(self, e: Event) -> None:
