@@ -68,6 +68,6 @@ class Backtest(BatchRunner):
         return Result(*self._portfolios)
 
     @override
-    def run(self, *, parallel: bool = False) -> Self:
+    def run(self, *, parallel: bool = True) -> Self:
         self._run_async() if parallel else self._run_sync()
         return self
