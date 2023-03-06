@@ -60,5 +60,13 @@ def ppf(obj: Any) -> str:
         return str(obj)
 
 
+def localnow() -> Timestamp:
+    return Timestamp.now()
+
+
+def localnow_string() -> str:
+    return localnow().isoformat().replace('T', ' ')[:-7]
+
+
 def utcnow() -> Timestamp:
     return Timestamp.utcnow().tz_localize(None)
