@@ -62,6 +62,7 @@ class YahooHistoricalWindows(MarketWorker):
             if hb:
                 hb.wait(5)
 
+            # TODO first timestamp is one day before self._start, bug?
             e = OhlcvWindow(timestamp=df.index[-1],
                             symbol=symbol,
                             win=df)
@@ -69,7 +70,9 @@ class YahooHistoricalWindows(MarketWorker):
             self.broker.put(e)
             self.portfolio.put(e)
             self.monitor.put(ProgressUpdate(self.strategy.name,
-                                            e.timestamp))
+                                            e.timestamp,
+                                            self._start,
+                                            self._end))
 
             # TODO other parties should decide when to audit
             self.broker.put(AuditRequest(e.timestamp))
