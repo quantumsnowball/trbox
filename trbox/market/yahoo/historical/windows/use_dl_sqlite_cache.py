@@ -51,7 +51,7 @@ async def fetch_sqlite(symbol: str,
             async with aiohttp.ClientSession() as session:
                 missing_start = int(min(missing))
                 missing_end = int(max(missing))
-                for _ in range(retry):
+                for i in range(retry):
                     try:
                         # download
                         async def download() -> DataFrame:
@@ -98,10 +98,11 @@ async def fetch_sqlite(symbol: str,
                         break
                     except Exception as e:
                         # will retry download and insert on Exception
-                        Log.exception(e)
+                        Log.info(
+                            f'Download failed, retrying {i+1}/{retry}')
                 else:
                     # will allow return even if download failed
-                    Log.critical(f'Failed to download from Yahoo Finance')
+                    Log.info(f'Failed to download from Yahoo Finance')
         # read the requested data
         sql_select = ('SELECT Timestamp,Open,High,Low,Close,Volume '
                       'FROM ohlcv WHERE '

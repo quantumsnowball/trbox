@@ -61,7 +61,7 @@ async def fetch_sqlite(symbol: str,
                     download_path = f'{ARCHIVE_BASE}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
                     download_fname = f'{symbol}-{freq}-{date}'
                     download_url = f'{download_path}/{download_fname}.zip'
-                    for _ in range(retry):
+                    for i in range(retry):
                         try:
                             async with session.get(download_url,
                                                    timeout=aiohttp.ClientTimeout(timeout)) as res:
@@ -83,10 +83,11 @@ async def fetch_sqlite(symbol: str,
                                 break
                         except Exception as e:
                             # will retry download and insert on Exception
-                            Log.exception(e)
+                            Log.info(
+                                f'Download failed, retrying {i+1}/{retry}')
                     else:
                         # will allow return even if download failed
-                        Log.critical(f'Failed to download from Binance')
+                        Log.info(f'Failed to download from Binance')
                 # download all missed data async
                 await asyncio.gather(*[download(missed) for missed in missing])
         # read the requested data
