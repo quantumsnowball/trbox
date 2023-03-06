@@ -1,3 +1,4 @@
+from collections import deque
 from collections.abc import Callable
 
 from typing_extensions import override
@@ -10,13 +11,14 @@ from trbox.event.monitor import EnableOutput, ProgressUpdate
 class Monitor(CounterParty):
     def __init__(self) -> None:
         super().__init__()
-        self._progress: dict[str, float] = {}
+        self._pcts: dict[str, float] = {}
+        self._rolling: deque[float] = deque([0, 0], maxlen=2)
         self._step = 5
         self._display: Callable[..., None] | None = None
 
     @property
     def progress(self) -> float:
-        return sum(self._progress.values()) / len(self._progress)
+        return sum(self._pcts.values()) / len(self._pcts)
 
     # handle events
 
@@ -24,12 +26,16 @@ class Monitor(CounterParty):
         # calculate overall progress
         total = e.end - e.start
         done = e.current - e.start
-        progress = done / total
-        self._progress[e.name] = max(0, min(1, progress))
-        # check if overall progress is crossing a mark
-        # then print to stdout
+        pct = max(0, min(1, done / total))
+        self._pcts[e.name] = pct
+        # only when display is enabled
         if self._display:
-            self._display(f'{self.progress:.2%}')
+            # calculate the latest overall progress
+            self._rolling.append(self.progress)
+            # check if overall progress is crossing a mark
+            prev, val = self._rolling
+            if int(prev*100//self._step) != int(val*100//self._step):
+                self._display(f'{self.progress:.2%}')
 
     @ override
     def handle(self, e: Event) -> None:

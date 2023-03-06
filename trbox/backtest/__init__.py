@@ -67,7 +67,8 @@ class Backtest(BatchRunner):
         self._runners: tuple[Trader, ...] = traders
         self._portfolios = [t.portfolio for t in traders]
         if progress is not None:
-            monitor.put(EnableOutput(print, progress))
+            monitor.put(EnableOutput(display=print,
+                                     step=progress))
 
     @property
     def traders(self) -> tuple[Trader, ...]:
