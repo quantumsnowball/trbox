@@ -190,7 +190,6 @@ class Lab(Thread):
             if proc.stdout:
                 print('stdout is ready')
                 async for line in proc.stdout:
-                    print('.', end='', flush=True)
                     await ws.send_json(dict(type='stdout',
                                             text=line.decode()))
                 print('stdout has ended')
@@ -204,7 +203,6 @@ class Lab(Thread):
             if proc.stderr:
                 print('stderr is ready')
                 async for line in proc.stderr:
-                    print('x', flush=True)
                     await ws.send_json(dict(type='stderr',
                                             text=line.decode()))
                 print('stderr has ended')
