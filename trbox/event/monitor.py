@@ -16,6 +16,5 @@ class ProgressUpdate(MonitorEvent):
 
 @dataclass
 class EnableOutput(MonitorEvent):
-    display: Callable[..., None]
     step: int
     count: int
