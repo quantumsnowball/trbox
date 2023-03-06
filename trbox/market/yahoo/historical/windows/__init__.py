@@ -8,6 +8,7 @@ from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import utcnow
 from trbox.event.broker import AuditRequest
 from trbox.event.market import OhlcvWindow
+from trbox.event.monitor import ProgressUpdate
 from trbox.market import MarketWorker
 from trbox.market.utils import make_combined_rolling_windows
 from trbox.market.yahoo.historical.windows.constants import Freq
@@ -67,6 +68,8 @@ class YahooHistoricalWindows(MarketWorker):
             self.strategy.put(e)
             self.broker.put(e)
             self.portfolio.put(e)
+            self.monitor.put(ProgressUpdate(self.strategy.name,
+                                            e.timestamp))
 
             # TODO other parties should decide when to audit
             self.broker.put(AuditRequest(e.timestamp))
