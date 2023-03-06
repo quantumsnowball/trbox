@@ -35,7 +35,7 @@ class Monitor(CounterParty):
             self._rolling.append(self.progress)
             # check if overall progress is crossing a mark
             prev, val = self._rolling
-            if int(prev*100//self._step) != int(val*100//self._step):
+            if int(prev*100//self._step) != int(val*100//self._step) or val == 0.0 or val == 1.0:
                 print(f'{self.progress:.2%}', flush=True)
 
     @ override
