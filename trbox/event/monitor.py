@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any, Callable
 
 from pandas import Timestamp
 
@@ -11,3 +12,9 @@ class ProgressUpdate(MonitorEvent):
     current: Timestamp
     start: Timestamp
     end: Timestamp
+
+
+@dataclass
+class EnableOutput(MonitorEvent):
+    display: Callable[..., None]
+    step: int

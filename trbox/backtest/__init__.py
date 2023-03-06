@@ -6,10 +6,12 @@ from typing import TYPE_CHECKING, Iterable, Self
 
 from typing_extensions import override
 
+from trbox.backtest.monitor import Monitor, monitor
 from trbox.backtest.result import Result
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
+from trbox.event.monitor import EnableOutput
 
 if TYPE_CHECKING:
     from trbox.trader import Runner, Trader
@@ -56,12 +58,16 @@ class Backtest(BatchRunner):
     Only accept Trader in backtest mode.
     '''
 
-    def __init__(self, *traders: Trader) -> None:
+    def __init__(self,
+                 *traders: Trader,
+                 progress: int | None = 5) -> None:
         super().__init__()
         for trader in traders:
             assert trader.backtesting
         self._runners: tuple[Trader, ...] = traders
         self._portfolios = [t.portfolio for t in traders]
+        if progress is not None:
+            monitor.put(EnableOutput(print, progress))
 
     @property
     def traders(self) -> tuple[Trader, ...]:
