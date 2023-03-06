@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from typing import Iterable, Self
+from typing import TYPE_CHECKING, Iterable, Self
 
 from typing_extensions import override
 
@@ -8,7 +10,9 @@ from trbox.backtest.result import Result
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
-from trbox.trader import Runner, Trader
+
+if TYPE_CHECKING:
+    from trbox.trader import Runner, Trader
 
 
 class BatchRunner(ABC):

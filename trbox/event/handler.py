@@ -11,6 +11,7 @@ from trbox.event import Event
 from trbox.event.system import Exit
 
 if TYPE_CHECKING:
+    from trbox.backtest.monitor import Monitor
     from trbox.broker import Broker
     from trbox.console import Console
     from trbox.market import Market
@@ -71,13 +72,15 @@ class CounterParty(EventHandler, ABC):
                market: Market,
                broker: Broker,
                portfolio: Portfolio,
-               console: Console) -> Self:
+               console: Console,
+               monitor: Monitor) -> Self:
         self._trader = trader
         self._strategy = strategy
         self._market = market
         self._broker = broker
         self._portfolio = portfolio
         self._console = console
+        self._monitor = monitor
         return self
 
     @property
@@ -103,3 +106,7 @@ class CounterParty(EventHandler, ABC):
     @property
     def console(self) -> Console:
         return self._console
+
+    @property
+    def monitor(self) -> Monitor:
+        return self._monitor
