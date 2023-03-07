@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, TypedDict
 
 from pandas import DataFrame
 
@@ -8,40 +9,51 @@ if TYPE_CHECKING:
     from trbox.portfolio import Portfolio
 
 
+class TradeStatsDict(TypedDict):
+    count: int
+
+
+class TradeStats:
+    def __init__(self, trades: DataFrame):
+        self.count = len(trades)
+
+    @property
+    def dict(self) -> TradeStatsDict:
+        return {
+            'count': self.count
+        }
+
+
+class StatsDict(TypedDict):
+    all: TradeStatsDict
+    buys: TradeStatsDict
+    sells: TradeStatsDict
+
+
 class Stats:
     def __init__(self,
                  portfolio: Portfolio) -> None:
         self._portfolio = portfolio
         self._trades = portfolio.dashboard.trades
+        self._buys = self._trades[self._trades.Action == 'BUY']
+        self._sells = self._trades[self._trades.Action == 'SELL']
 
     @property
-    def trades(self) -> DataFrame:
-        return self._trades
+    def all(self) -> TradeStats:
+        return TradeStats(self._trades)
 
     @property
-    def buys(self) -> DataFrame:
-        return self.trades[self.trades.Action == 'BUY']
+    def buys(self) -> TradeStats:
+        return TradeStats(self._buys)
 
     @property
-    def sells(self) -> DataFrame:
-        return self.trades[self.trades.Action == 'SELL']
+    def sells(self) -> TradeStats:
+        return TradeStats(self._sells)
 
     @property
-    def trade_count(self) -> int:
-        return len(self.trades)
-
-    @property
-    def buy_count(self) -> int:
-        return len(self.buys)
-
-    @property
-    def sell_count(self) -> int:
-        return len(self.sells)
-
-    @property
-    def df(self) -> DataFrame:
-        return DataFrame(dict(
-            trade_count=self.trade_count,
-            buy_count=self.buy_count,
-            sell_count=self.sell_count,
-        ), index=[self._portfolio.strategy.name, ])
+    def dict(self) -> StatsDict:
+        return {
+            'all': self.all.dict,
+            'buys': self.buys.dict,
+            'sells': self.sells.dict,
+        }

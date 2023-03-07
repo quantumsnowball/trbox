@@ -1,5 +1,6 @@
 import json
 import os
+import pickle
 import shutil
 from dataclasses import dataclass
 from inspect import currentframe
@@ -9,6 +10,7 @@ from pandas import DataFrame, Series, Timestamp, concat
 from trbox.common.logger import Log
 from trbox.common.utils import cln
 from trbox.portfolio import Portfolio
+from trbox.portfolio.stats import StatsDict
 
 
 @dataclass
@@ -30,8 +32,9 @@ class Result:
         return concat([p.metrics.df for p in self._portfolios], axis=0)
 
     @property
-    def stats(self) -> DataFrame:
-        return concat([p.stats.df for p in self._portfolios], axis=0)
+    def stats(self) -> dict[str, StatsDict]:
+        # return concat([p.stats.df for p in self._portfolios], axis=0)
+        return {p.strategy.name: p.stats.dict for p in self._portfolios}
 
     @property
     def equity(self) -> dict[str, Series]:
@@ -74,7 +77,8 @@ class Result:
 
         def save_stats(target_dir: str) -> None:
             save_path = f'{ target_dir }/stats.pkl'
-            self.stats.to_pickle(save_path)
+            with open(save_path, 'wb') as f:
+                pickle.dump(self.stats, f)
             print(f'SAVED: {save_path}', flush=True)
 
         def save_equity(target_dir: str) -> None:
