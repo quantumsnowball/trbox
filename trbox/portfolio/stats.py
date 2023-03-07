@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypedDict
 
-from pandas import DataFrame
+from pandas import DataFrame, Timestamp
 
 if TYPE_CHECKING:
     from trbox.portfolio import Portfolio
@@ -11,16 +11,32 @@ if TYPE_CHECKING:
 
 class TradeStatsDict(TypedDict):
     count: int
+    avg_interval: float | None
 
 
 class TradeStats:
     def __init__(self, trades: DataFrame):
-        self.count = len(trades)
+        self._trades = trades
+        self._start: Timestamp | None = trades.index[0] if self.count > 0 else None
+        self._end: Timestamp | None = trades.index[-1] if self.count > 0 else None
+
+    @property
+    def count(self) -> int:
+        return len(self._trades)
+
+    @property
+    def avg_interval(self) -> float | None:
+        if self.count >= 2 and self._start and self._end:
+            delta = self._end - self._start
+            return delta.days / (self.count - 1)
+        # return float('nan')
+        return None
 
     @property
     def dict(self) -> TradeStatsDict:
         return {
-            'count': self.count
+            'count': self.count,
+            'avg_interval': self.avg_interval,
         }
 
 

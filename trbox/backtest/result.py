@@ -33,7 +33,6 @@ class Result:
 
     @property
     def stats(self) -> dict[str, StatsDict]:
-        # return concat([p.stats.df for p in self._portfolios], axis=0)
         return {p.strategy.name: p.stats.dict for p in self._portfolios}
 
     @property
