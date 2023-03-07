@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from threading import Event
 from typing import TYPE_CHECKING, Any
 
+from trbox.backtest.monitor import Monitor, monitor
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
@@ -39,11 +40,13 @@ class Runner:
         self._broker: Broker = broker
         self._console: Console = console if console else DummyConsole()
         self._portfolio: Portfolio = Basic()
+        self._monitor: Monitor = monitor
         self._handlers = (self._strategy,
                           self._market,
                           self._broker,
                           self._console,
-                          self._portfolio, )
+                          self._portfolio,
+                          self._monitor, )
         self._signal = Signal(enter=Event(),
                               broker_ready=Event())
 
@@ -97,7 +100,8 @@ class Trader(Runner):
                            market=self._market,
                            broker=self._broker,
                            portfolio=self._portfolio,
-                           console=self._console)
+                           console=self._console,
+                           monitor=self._monitor)
 
     # mode
 

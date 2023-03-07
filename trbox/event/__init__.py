@@ -32,6 +32,13 @@ class PortfolioEvent(Event):
     pass
 
 
+class MonitorEvent(Event):
+    '''
+    Progress reporting
+    '''
+    pass
+
+
 class SystemEvent(Event):
     '''
     Flow control of the Runner

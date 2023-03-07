@@ -8,6 +8,7 @@ from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import utcnow
 from trbox.event.broker import AuditRequest
 from trbox.event.market import OhlcvWindow
+from trbox.event.monitor import ProgressUpdate
 from trbox.market import MarketWorker
 from trbox.market.binance.historical.windows.constants import Freq
 from trbox.market.binance.historical.windows.use_dl_sqlite_cache import \
@@ -73,6 +74,10 @@ class BinanceHistoricalWindows(MarketWorker):
             self.strategy.put(e)
             self.broker.put(e)
             self.portfolio.put(e)
+            self.monitor.put(ProgressUpdate(self.strategy.name,
+                                            e.timestamp,
+                                            self._start,
+                                            self._end))
 
             self.broker.put(AuditRequest(e.timestamp))
 

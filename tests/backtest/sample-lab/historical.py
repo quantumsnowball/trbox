@@ -39,11 +39,12 @@ bt = Backtest(
             start=START,
             end=END,
             length=LENGTH),
-        broker=PaperEX(SYMBOL))
+        broker=PaperEX(SYMBOL)),
+    progress=7,
 )
 
 print('Started backtest')
-bt.run(parallel=False)
+bt.run(parallel=True)
 print('Finished backtest')
 
 bt.result.save()
