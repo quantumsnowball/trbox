@@ -12,6 +12,7 @@ class TradeStatsDict(TypedDict):
     count: int
     avg_interval: float | None
     avg_quantity: float | None
+    avg_value: float | None
 
 
 class TradeStats:
@@ -38,11 +39,18 @@ class TradeStats:
         return None
 
     @property
+    def avg_value(self) -> float | None:
+        if self.count > 0:
+            return abs(self._trades['GrossProceeds'].mean())
+        return None
+
+    @property
     def dict(self) -> TradeStatsDict:
         return {
             'count': self.count,
             'avg_interval': self.avg_interval,
             'avg_quantity': self.avg_quantity,
+            'avg_value': self.avg_value,
         }
 
 
