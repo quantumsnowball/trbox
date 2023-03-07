@@ -30,6 +30,10 @@ class Result:
         return concat([p.metrics.df for p in self._portfolios], axis=0)
 
     @property
+    def stats(self) -> DataFrame:
+        return concat([p.stats.df for p in self._portfolios], axis=0)
+
+    @property
     def equity(self) -> dict[str, Series]:
         return {p.strategy.name: p.dashboard.equity for p in self._portfolios}
 
@@ -68,6 +72,11 @@ class Result:
             self.metrics.to_pickle(save_path)
             print(f'SAVED: {save_path}', flush=True)
 
+        def save_stats(target_dir: str) -> None:
+            save_path = f'{ target_dir }/stats.pkl'
+            self.stats.to_pickle(save_path)
+            print(f'SAVED: {save_path}', flush=True)
+
         def save_equity(target_dir: str) -> None:
             save_path = f'{ target_dir }/equity.pkl'
             df = concat(tuple(self.equity.values()), axis=1)
@@ -103,10 +112,6 @@ class Result:
             save_metrics(target_dir)
             save_equity(target_dir)
             save_trades(target_dir)
-            # import inspect
-            # frame = inspect.currentframe()
-            # if frame:
-            #     caller = frame.f_back
-            #     print(caller.f_globals if caller else None)
+            save_stats(target_dir)
         except Exception as e:
             Log.exception(e)
