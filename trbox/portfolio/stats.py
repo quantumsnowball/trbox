@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypedDict
 
 from pandas import DataFrame, Timestamp
@@ -12,6 +11,7 @@ if TYPE_CHECKING:
 class TradeStatsDict(TypedDict):
     count: int
     avg_interval: float | None
+    avg_quantity: float | None
 
 
 class TradeStats:
@@ -29,7 +29,12 @@ class TradeStats:
         if self.count >= 2 and self._start and self._end:
             delta = self._end - self._start
             return delta.days / (self.count - 1)
-        # return float('nan')
+        return None
+
+    @property
+    def avg_quantity(self) -> float | None:
+        if self.count > 0:
+            return self._trades['Quantity'].mean()
         return None
 
     @property
@@ -37,6 +42,7 @@ class TradeStats:
         return {
             'count': self.count,
             'avg_interval': self.avg_interval,
+            'avg_quantity': self.avg_quantity,
         }
 
 
