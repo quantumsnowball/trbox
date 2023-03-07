@@ -95,6 +95,7 @@ class Lab(Thread):
             web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
             web.get('/api/result/{path:.+}/equity', self.get_result_equity),
             web.get('/api/result/{path:.+}/trades', self.get_result_trades),
+            web.get('/api/result/{path:.+}/stats', self.get_result_stats),
             web.delete('/api/operation/{path:.+}', self.delete_resource),
             # then serve index and all other statics
             web.get('/', self.index),
@@ -140,6 +141,16 @@ class Lab(Thread):
     async def get_result_metrics(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         df = pd.read_pickle(f'{path}/metrics.pkl')
+        return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
+                                                                     indent=4)))
+
+    async def get_result_stats(self, request: web.Request) -> web.Response:
+        path = request.match_info['path']
+        strategy = request.query['strategy']
+        df = pd.read_pickle(f'{path}/stats.pkl')
+        print(f'{path}/stats.pkl', flush=True)
+        # return web.json_response(df.loc[strategy], dumps=lambda df: str(df.to_json(orient='split',
+        #                                                                            indent=4)))
         return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
                                                                      indent=4)))
 
