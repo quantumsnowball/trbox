@@ -149,10 +149,8 @@ class Lab(Thread):
         strategy = request.query['strategy']
         df = pd.read_pickle(f'{path}/stats.pkl')
         print(f'{path}/stats.pkl', flush=True)
-        # return web.json_response(df.loc[strategy], dumps=lambda df: str(df.to_json(orient='split',
-        #                                                                            indent=4)))
-        return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
-                                                                     indent=4)))
+        return web.json_response(df.loc[strategy], dumps=lambda df: str(df.to_json(orient='columns',
+                                                                                   indent=4)))
 
     async def get_result_equity(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
