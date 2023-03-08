@@ -1,5 +1,6 @@
 import asyncio
 import os
+import pickle
 import shutil
 from asyncio import Future
 from threading import Thread
@@ -17,6 +18,7 @@ from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import WebSocketMessage
+from trbox.portfolio.stats import StatsDict
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
@@ -95,6 +97,7 @@ class Lab(Thread):
             web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
             web.get('/api/result/{path:.+}/equity', self.get_result_equity),
             web.get('/api/result/{path:.+}/trades', self.get_result_trades),
+            web.get('/api/result/{path:.+}/stats', self.get_result_stats),
             web.delete('/api/operation/{path:.+}', self.delete_resource),
             # then serve index and all other statics
             web.get('/', self.index),
@@ -142,6 +145,13 @@ class Lab(Thread):
         df = pd.read_pickle(f'{path}/metrics.pkl')
         return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
                                                                      indent=4)))
+
+    async def get_result_stats(self, request: web.Request) -> web.Response:
+        path = request.match_info['path']
+        strategy = request.query['strategy']
+        with open(f'{path}/stats.pkl', 'rb') as f:
+            stats: dict[str, StatsDict] = pickle.load(f)
+        return web.json_response(stats[strategy], dumps=lambda s: json.dumps(s, indent=4))
 
     async def get_result_equity(self, request: web.Request) -> web.Response:
         path = request.match_info['path']

@@ -15,6 +15,7 @@ from trbox.event.portfolio import (EquityCurveHistoryRequest,
                                    TradeLogHistoryUpdate)
 from trbox.portfolio.dashboard import Dashboard
 from trbox.portfolio.metrics import Metrics
+from trbox.portfolio.stats import Stats
 
 
 class Portfolio(CounterParty, ABC):
@@ -57,6 +58,10 @@ class Portfolio(CounterParty, ABC):
     @property
     def metrics(self) -> Metrics:
         return Metrics(portfolio=self)
+
+    @property
+    def stats(self) -> Stats:
+        return Stats(portfolio=self)
 
     #
     # helpers

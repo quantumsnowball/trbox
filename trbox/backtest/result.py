@@ -1,5 +1,6 @@
 import json
 import os
+import pickle
 import shutil
 from dataclasses import dataclass
 from inspect import currentframe
@@ -9,6 +10,7 @@ from pandas import DataFrame, Series, Timestamp, concat
 from trbox.common.logger import Log
 from trbox.common.utils import cln
 from trbox.portfolio import Portfolio
+from trbox.portfolio.stats import StatsDict
 
 
 @dataclass
@@ -28,6 +30,10 @@ class Result:
     @property
     def metrics(self) -> DataFrame:
         return concat([p.metrics.df for p in self._portfolios], axis=0)
+
+    @property
+    def stats(self) -> dict[str, StatsDict]:
+        return {p.strategy.name: p.stats.dict for p in self._portfolios}
 
     @property
     def equity(self) -> dict[str, Series]:
@@ -68,6 +74,12 @@ class Result:
             self.metrics.to_pickle(save_path)
             print(f'SAVED: {save_path}', flush=True)
 
+        def save_stats(target_dir: str) -> None:
+            save_path = f'{ target_dir }/stats.pkl'
+            with open(save_path, 'wb') as f:
+                pickle.dump(self.stats, f)
+            print(f'SAVED: {save_path}', flush=True)
+
         def save_equity(target_dir: str) -> None:
             save_path = f'{ target_dir }/equity.pkl'
             df = concat(tuple(self.equity.values()), axis=1)
@@ -103,10 +115,6 @@ class Result:
             save_metrics(target_dir)
             save_equity(target_dir)
             save_trades(target_dir)
-            # import inspect
-            # frame = inspect.currentframe()
-            # if frame:
-            #     caller = frame.f_back
-            #     print(caller.f_globals if caller else None)
+            save_stats(target_dir)
         except Exception as e:
             Log.exception(e)
