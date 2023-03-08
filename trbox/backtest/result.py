@@ -1,14 +1,15 @@
 import json
 import os
-import pickle
 import shutil
+import sqlite3
 from dataclasses import dataclass
 from inspect import currentframe
+from sqlite3 import Connection
 
-from pandas import DataFrame, Series, Timestamp, concat
+from pandas import DataFrame, Series, concat
 
 from trbox.common.logger import Log
-from trbox.common.utils import cln
+from trbox.common.utils import cln, localnow
 from trbox.portfolio import Portfolio
 from trbox.portfolio.stats import StatsDict
 
@@ -54,47 +55,50 @@ class Result:
     # save
     #
     def save(self) -> None:
-        def save_meta(script_path: str, target_dir: str, timestamp: str, params: dict[str, str]) -> None:
-            save_path = f'{target_dir}/meta.json'
-            json.dump(dict(
+        def save_meta(db: Connection, script_path: str, timestamp: str, params: dict[str, str]) -> None:
+            db.execute('CREATE TABLE IF NOT EXISTS meta(json TEXT)')
+            data = json.dumps(dict(
                 timestamp=timestamp,
                 source=os.path.basename(script_path),
                 params=params,
                 strategies=[s.strategy.name for s in self._portfolios],
-            ), open(save_path, 'w'), indent=4)
-            print(f'SAVED: {save_path}', flush=True)
+            ), indent=4)
+            db.execute('REPLACE INTO meta VALUES(?)', (data,))
+            db.commit()
+            print(f'INSERTED: meta', flush=True)
 
         def save_source(script_path: str, target_dir: str) -> None:
             save_path = f'{target_dir}/source.py'
             shutil.copy(script_path, save_path)
             print(f'SAVED: {save_path}', flush=True)
 
-        def save_metrics(target_dir: str) -> None:
-            save_path = f'{ target_dir }/metrics.pkl'
-            self.metrics.to_pickle(save_path)
-            print(f'SAVED: {save_path}', flush=True)
+        def save_metrics(db: Connection) -> None:
+            self.metrics.to_sql('metrics', db)
+            db.commit()
+            print(f'INSERTED: metrics', flush=True)
 
-        def save_stats(target_dir: str) -> None:
-            save_path = f'{ target_dir }/stats.pkl'
-            with open(save_path, 'wb') as f:
-                pickle.dump(self.stats, f)
-            print(f'SAVED: {save_path}', flush=True)
+        def save_stats(db: Connection) -> None:
+            db.execute(
+                'CREATE TABLE IF NOT EXISTS stats(name TEXT, json TEXT)')
+            data = [(name, json.dumps(stat, indent=4))
+                    for name, stat in self.stats.items()]
+            db.executemany('replace into stats values(?,?)', data)
+            db.commit()
+            print(f'INSERTED: stats', flush=True)
 
-        def save_equity(target_dir: str) -> None:
-            save_path = f'{ target_dir }/equity.pkl'
-            df = concat(tuple(self.equity.values()), axis=1)
-            df.columns = tuple(self.equity.keys())
-            df.to_pickle(save_path)
-            print(f'SAVED: {save_path}', flush=True)
-
-        def save_trades(target_dir: str) -> None:
-            save_path = f'{ target_dir }/trades.pkl'
+        def save_trades(db: Connection) -> None:
             df = concat(tuple(self.trades.values()),
                         keys=tuple(self.trades.keys()),
                         names=('Strategy', 'Date'),
                         axis=0,)
-            df.to_pickle(save_path)
-            print(f'SAVED: {save_path}', flush=True)
+            df.to_sql('trades', db)
+            print(f'INSERTED: trades', flush=True)
+
+        def save_equity(db: Connection) -> None:
+            df = concat(tuple(self.equity.values()), axis=1)
+            df.columns = tuple(self.equity.keys())
+            df.to_sql('equity', db)
+            print(f'INSERTED: equity', flush=True)
 
         try:
             # prepare caller info
@@ -106,15 +110,18 @@ class Result:
                              if k.isupper()} if globals else {}
             # prepare directory
             base_dir = os.path.relpath(os.path.dirname(script_path))
-            timestamp = Timestamp.now().isoformat().replace(':', '.')
+            timestamp = localnow().isoformat().replace(':', '.')
             target_dir = f'{base_dir}/.result_{timestamp}'
             os.makedirs(target_dir)
             # save
-            save_meta(script_path, target_dir, timestamp, caller_consts)
             save_source(script_path, target_dir)
-            save_metrics(target_dir)
-            save_equity(target_dir)
-            save_trades(target_dir)
-            save_stats(target_dir)
+            db_path = f'{target_dir}/db.sqlite'
+            with sqlite3.connect(db_path) as db:
+                save_meta(db, script_path, timestamp, caller_consts)
+                save_metrics(db)
+                save_stats(db)
+                save_trades(db)
+                save_equity(db)
+
         except Exception as e:
             Log.exception(e)

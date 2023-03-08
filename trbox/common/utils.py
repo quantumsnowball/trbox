@@ -1,6 +1,9 @@
+import asyncio
+import sqlite3
 from pprint import pformat
 from typing import Any
 
+import pandas as pd
 from pandas import DataFrame, Timestamp
 
 from trbox.common.constants import OHLCV_COLUMN_NAMES
@@ -70,3 +73,14 @@ def localnow_string() -> str:
 
 def utcnow() -> Timestamp:
     return Timestamp.utcnow().tz_localize(None)
+
+
+async def read_sql_async(sql: str,
+                         db: str,
+                         *args: Any,
+                         **kwargs: Any) -> DataFrame:
+    def read_sql_sync():
+        with sqlite3.connect(db) as con:
+            df = pd.read_sql(sql, con, *args, **kwargs)
+            return df
+    return await asyncio.to_thread(read_sql_sync)

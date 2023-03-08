@@ -1,14 +1,13 @@
 import asyncio
 import os
-import pickle
 import shutil
 from asyncio import Future
 from threading import Thread
 from typing import Any
 
 import aiohttp
+import aiosqlite
 import click
-import pandas as pd
 from aiohttp import web
 from aiohttp.typedefs import Handler
 from binance.websocket.binance_socket_manager import json
@@ -18,7 +17,7 @@ from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import WebSocketMessage
-from trbox.portfolio.stats import StatsDict
+from trbox.common.utils import read_sql_async
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
@@ -53,14 +52,8 @@ def scan_for_result(parent: Node,
         if m.is_dir():
             if m.name.startswith(prefix):
                 # prefixed dir should contain run info
-                meta_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
-                source_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
-                metrics_path = f'{basepath}/{parent.path}/{m.name}/metrics.pkl'
-                equity_path = f'{basepath}/{parent.path}/{m.name}/equity.pkl'
-                if (os.path.isfile(meta_path) or
-                    os.path.isfile(source_path) or
-                    os.path.isfile(metrics_path) or
-                        os.path.isfile(equity_path)):
+                db_path = f'{basepath}/{parent.path}/{m.name}/db.sqlite'
+                if (os.path.isfile(db_path)):
                     # meta.json should exist in a valid result dir
                     parent.add(scan_for_result(Node(m.name, 'folder', parent, []),
                                                basepath=basepath))
@@ -131,8 +124,11 @@ class Lab(Thread):
 
     async def get_result_meta(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
-        meta = open(f'{path}/meta.json').read()
-        return web.json_response(text=meta)
+        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
+            result = await db.execute('SELECT json FROM meta')
+            row = await result.fetchone()
+            meta = row[0] if row else '{}'
+            return web.json_response(text=meta)
 
     async def get_result_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
@@ -142,20 +138,26 @@ class Lab(Thread):
 
     async def get_result_metrics(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
-        df = pd.read_pickle(f'{path}/metrics.pkl')
+        df = await read_sql_async('SELECT * FROM metrics',
+                                  f'{path}/db.sqlite')
+        df = df.set_index('index')
         return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
                                                                      indent=4)))
 
     async def get_result_stats(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         strategy = request.query['strategy']
-        with open(f'{path}/stats.pkl', 'rb') as f:
-            stats: dict[str, StatsDict] = pickle.load(f)
-        return web.json_response(stats[strategy], dumps=lambda s: json.dumps(s, indent=4))
+        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
+            result = await db.execute('SELECT json FROM stats WHERE name=?', (strategy, ))
+            row = await result.fetchone()
+            stats = row[0] if row else '{}'
+            return web.json_response(text=stats)
 
     async def get_result_equity(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
-        df = pd.read_pickle(f'{path}/equity.pkl')
+        df = await read_sql_async('SELECT * from equity',
+                                  f'{path}/db.sqlite',)
+        df = df.set_index('index')
         return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
                                                                      orient='columns',
                                                                      indent=4)))
@@ -163,10 +165,14 @@ class Lab(Thread):
     async def get_result_trades(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         strategy = request.query['strategy']
-        df = pd.read_pickle(f'{path}/trades.pkl')
-        return web.json_response(df.loc[strategy], dumps=lambda df: str(df.to_json(date_format='iso',
-                                                                                   orient='table',
-                                                                                   indent=4)))
+        df = await read_sql_async('SELECT * FROM trades WHERE Strategy=?',
+                                  f'{path}/db.sqlite',
+                                  params=(strategy, ))
+        df = df.set_index('Date')
+        df = df.drop(columns=['Strategy'])
+        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                     orient='table',
+                                                                     indent=4)))
 
     async def run_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
