@@ -67,6 +67,11 @@ class Result:
             db.commit()
             print(f'INSERTED: meta', flush=True)
 
+        def save_source(script_path: str, target_dir: str) -> None:
+            save_path = f'{target_dir}/source.py'
+            shutil.copy(script_path, save_path)
+            print(f'SAVED: {save_path}', flush=True)
+
         # deprecated
 
         def _save_meta(script_path: str, target_dir: str, timestamp: str, params: dict[str, str]) -> None:
@@ -77,11 +82,6 @@ class Result:
                 params=params,
                 strategies=[s.strategy.name for s in self._portfolios],
             ), open(save_path, 'w'), indent=4)
-            print(f'SAVED: {save_path}', flush=True)
-
-        def save_source(script_path: str, target_dir: str) -> None:
-            save_path = f'{target_dir}/source.py'
-            shutil.copy(script_path, save_path)
             print(f'SAVED: {save_path}', flush=True)
 
         def save_metrics(target_dir: str) -> None:
