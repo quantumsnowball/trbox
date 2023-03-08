@@ -1,6 +1,5 @@
 import asyncio
 import os
-import pickle
 import shutil
 import sqlite3
 from asyncio import Future
@@ -20,7 +19,6 @@ from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import WebSocketMessage
-from trbox.portfolio.stats import StatsDict
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
@@ -125,11 +123,6 @@ class Lab(Thread):
             t = f.read()
             return web.Response(text=t)
 
-    async def _get_result_meta(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        meta = open(f'{path}/meta.json').read()
-        return web.json_response(text=meta)
-
     async def get_result_meta(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         async with aiosqlite.connect(f'{path}/db.sqlite') as db:
@@ -144,12 +137,6 @@ class Lab(Thread):
             t = f.read()
             return web.Response(text=t)
 
-    async def _get_result_metrics(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        df = pd.read_pickle(f'{path}/metrics.pkl')
-        return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
-                                                                     indent=4)))
-
     async def get_result_metrics(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         async with aiosqlite.connect(f'{path}/db.sqlite') as db:
@@ -160,13 +147,6 @@ class Lab(Thread):
             return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
                                                                          indent=4)))
 
-    async def _get_result_stats(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        strategy = request.query['strategy']
-        with open(f'{path}/stats.pkl', 'rb') as f:
-            stats: dict[str, StatsDict] = pickle.load(f)
-        return web.json_response(stats[strategy], dumps=lambda s: json.dumps(s, indent=4))
-
     async def get_result_stats(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         strategy = request.query['strategy']
@@ -176,13 +156,6 @@ class Lab(Thread):
             stats = row[0] if row else '{}'
             return web.json_response(text=stats)
 
-    async def _get_result_equity(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        df = pd.read_pickle(f'{path}/equity.pkl')
-        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
-                                                                     orient='columns',
-                                                                     indent=4)))
-
     async def get_result_equity(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         with sqlite3.connect(f'{path}/db.sqlite') as db:
@@ -191,14 +164,6 @@ class Lab(Thread):
             return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
                                                                          orient='columns',
                                                                          indent=4)))
-
-    async def _get_result_trades(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        strategy = request.query['strategy']
-        df = pd.read_pickle(f'{path}/trades.pkl')
-        return web.json_response(df.loc[strategy], dumps=lambda df: str(df.to_json(date_format='iso',
-                                                                                   orient='table',
-                                                                                   indent=4)))
 
     async def get_result_trades(self, request: web.Request) -> web.Response:
         path = request.match_info['path']

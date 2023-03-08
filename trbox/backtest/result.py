@@ -1,13 +1,12 @@
 import json
 import os
-import pickle
 import shutil
 import sqlite3
 from dataclasses import dataclass
 from inspect import currentframe
 from sqlite3 import Connection
 
-from pandas import DataFrame, Series, Timestamp, concat
+from pandas import DataFrame, Series, concat
 
 from trbox.common.logger import Log
 from trbox.common.utils import cln, localnow
@@ -96,51 +95,10 @@ class Result:
             print(f'INSERTED: trades', flush=True)
 
         def save_equity(db: Connection) -> None:
-            # save_path = f'{ target_dir }/equity.pkl'
-            # df.to_pickle(save_path)
             df = concat(tuple(self.equity.values()), axis=1)
             df.columns = tuple(self.equity.keys())
             df.to_sql('equity', db)
             print(f'INSERTED: equity', flush=True)
-
-        # deprecated
-
-        def _save_meta(script_path: str, target_dir: str, timestamp: str, params: dict[str, str]) -> None:
-            save_path = f'{target_dir}/meta.json'
-            json.dump(dict(
-                timestamp=timestamp,
-                source=os.path.basename(script_path),
-                params=params,
-                strategies=[s.strategy.name for s in self._portfolios],
-            ), open(save_path, 'w'), indent=4)
-            print(f'SAVED: {save_path}', flush=True)
-
-        def _save_metrics(target_dir: str) -> None:
-            save_path = f'{ target_dir }/metrics.pkl'
-            self.metrics.to_pickle(save_path)
-            print(f'SAVED: {save_path}', flush=True)
-
-        def _save_stats(target_dir: str) -> None:
-            save_path = f'{ target_dir }/stats.pkl'
-            with open(save_path, 'wb') as f:
-                pickle.dump(self.stats, f)
-            print(f'SAVED: {save_path}', flush=True)
-
-        def _save_equity(target_dir: str) -> None:
-            save_path = f'{ target_dir }/equity.pkl'
-            df = concat(tuple(self.equity.values()), axis=1)
-            df.columns = tuple(self.equity.keys())
-            df.to_pickle(save_path)
-            print(f'SAVED: {save_path}', flush=True)
-
-        def _save_trades(target_dir: str) -> None:
-            save_path = f'{ target_dir }/trades.pkl'
-            df = concat(tuple(self.trades.values()),
-                        keys=tuple(self.trades.keys()),
-                        names=('Strategy', 'Date'),
-                        axis=0,)
-            df.to_pickle(save_path)
-            print(f'SAVED: {save_path}', flush=True)
 
         try:
             # prepare caller info
@@ -156,13 +114,6 @@ class Result:
             target_dir = f'{base_dir}/.result_{timestamp}'
             os.makedirs(target_dir)
             # save
-            # _save_meta(script_path, target_dir, timestamp, caller_consts)
-            # save_source(script_path, target_dir)
-            # _save_metrics(target_dir)
-            # _save_equity(target_dir)
-            # _save_trades(target_dir)
-            # _save_stats(target_dir)
-            # save sqlite
             save_source(script_path, target_dir)
             db_path = f'{target_dir}/db.sqlite'
             with sqlite3.connect(db_path) as db:
