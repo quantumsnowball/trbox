@@ -2,11 +2,13 @@ import asyncio
 import os
 import pickle
 import shutil
+import sqlite3
 from asyncio import Future
 from threading import Thread
 from typing import Any
 
 import aiohttp
+import aiosqlite
 import click
 import pandas as pd
 from aiohttp import web
@@ -129,10 +131,18 @@ class Lab(Thread):
             t = f.read()
             return web.Response(text=t)
 
-    async def get_result_meta(self, request: web.Request) -> web.Response:
+    async def get_result_meta_(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         meta = open(f'{path}/meta.json').read()
         return web.json_response(text=meta)
+
+    async def get_result_meta(self, request: web.Request) -> web.Response:
+        path = request.match_info['path']
+        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
+            result = await db.execute('SELECT json FROM meta')
+            row = await result.fetchone()
+            meta = row[0] if row else '{}'
+            return web.json_response(text=meta)
 
     async def get_result_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
