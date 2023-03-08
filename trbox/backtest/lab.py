@@ -1,7 +1,6 @@
 import asyncio
 import os
 import shutil
-import sqlite3
 from asyncio import Future
 from threading import Thread
 from typing import Any
@@ -9,7 +8,6 @@ from typing import Any
 import aiohttp
 import aiosqlite
 import click
-import pandas as pd
 from aiohttp import web
 from aiohttp.typedefs import Handler
 from binance.websocket.binance_socket_manager import json
@@ -19,6 +17,7 @@ from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import WebSocketMessage
+from trbox.common.utils import read_sql_async
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
@@ -139,13 +138,11 @@ class Lab(Thread):
 
     async def get_result_metrics(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
-        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
-            result = await db.execute('SELECT * FROM metrics')
-            columns = [m[0] for m in result.description]
-            rows = await result.fetchall()
-            df = pd.DataFrame(rows, columns=columns).set_index('index')
-            return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
-                                                                         indent=4)))
+        df = await read_sql_async('SELECT * FROM metrics',
+                                  f'{path}/db.sqlite')
+        df = df.set_index('index')
+        return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
+                                                                     indent=4)))
 
     async def get_result_stats(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
@@ -158,25 +155,24 @@ class Lab(Thread):
 
     async def get_result_equity(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
-        with sqlite3.connect(f'{path}/db.sqlite') as db:
-            df = pd.read_sql('SELECT * from equity', db)
-            df = df.set_index('index')
-            return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
-                                                                         orient='columns',
-                                                                         indent=4)))
+        df = await read_sql_async('SELECT * from equity',
+                                  f'{path}/db.sqlite',)
+        df = df.set_index('index')
+        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                     orient='columns',
+                                                                     indent=4)))
 
     async def get_result_trades(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         strategy = request.query['strategy']
-        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
-            result = await db.execute('SELECT * FROM trades WHERE Strategy=?', (strategy, ))
-            columns = [m[0] for m in result.description]
-            rows = await result.fetchall()
-            df = pd.DataFrame(rows, columns=columns).set_index('Date')
-            df = df.drop(columns=['Strategy'])
-            return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
-                                                                         orient='table',
-                                                                         indent=4)))
+        df = await read_sql_async('SELECT * FROM trades WHERE Strategy=?',
+                                  f'{path}/db.sqlite',
+                                  params=(strategy, ))
+        df = df.set_index('Date')
+        df = df.drop(columns=['Strategy'])
+        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                     orient='table',
+                                                                     indent=4)))
 
     async def run_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
