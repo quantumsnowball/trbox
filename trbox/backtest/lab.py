@@ -150,11 +150,21 @@ class Lab(Thread):
             t = f.read()
             return web.Response(text=t)
 
-    async def get_result_metrics(self, request: web.Request) -> web.Response:
+    async def _get_result_metrics(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         df = pd.read_pickle(f'{path}/metrics.pkl')
         return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
                                                                      indent=4)))
+
+    async def get_result_metrics(self, request: web.Request) -> web.Response:
+        path = request.match_info['path']
+        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
+            result = await db.execute('SELECT * FROM metrics')
+            columns = [m[0] for m in result.description]
+            rows = await result.fetchall()
+            df = pd.DataFrame(rows, columns=columns).set_index('index')
+            return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
+                                                                         indent=4)))
 
     async def get_result_stats(self, request: web.Request) -> web.Response:
         path = request.match_info['path']

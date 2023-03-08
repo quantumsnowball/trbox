@@ -138,9 +138,9 @@ class Result:
             save_trades(target_dir)
             save_stats(target_dir)
             # save sqlite
+            save_source(script_path, target_dir)
             db_path = f'{target_dir}/db.sqlite'
             with sqlite3.connect(db_path) as db:
-                save_source(script_path, target_dir)
                 save_meta(db, script_path, timestamp, caller_consts)
                 save_metrics(db)
 
