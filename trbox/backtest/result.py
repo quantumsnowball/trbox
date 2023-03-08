@@ -159,7 +159,7 @@ class Result:
             # _save_meta(script_path, target_dir, timestamp, caller_consts)
             # save_source(script_path, target_dir)
             # _save_metrics(target_dir)
-            _save_equity(target_dir)
+            # _save_equity(target_dir)
             # _save_trades(target_dir)
             # _save_stats(target_dir)
             # save sqlite
