@@ -131,7 +131,7 @@ class Lab(Thread):
             t = f.read()
             return web.Response(text=t)
 
-    async def get_result_meta_(self, request: web.Request) -> web.Response:
+    async def _get_result_meta(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         meta = open(f'{path}/meta.json').read()
         return web.json_response(text=meta)

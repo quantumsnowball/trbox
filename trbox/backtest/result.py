@@ -5,6 +5,7 @@ import shutil
 import sqlite3
 from dataclasses import dataclass
 from inspect import currentframe
+from sqlite3 import Connection
 
 from pandas import DataFrame, Series, Timestamp, concat
 
@@ -55,7 +56,7 @@ class Result:
     # save
     #
     def save(self) -> None:
-        def save_meta(db: sqlite3.Connection, script_path: str, timestamp: str, params: dict[str, str]) -> None:
+        def save_meta(db: Connection, script_path: str, timestamp: str, params: dict[str, str]) -> None:
             db.execute('CREATE TABLE IF NOT EXISTS meta(json TEXT)')
             data = json.dumps(dict(
                 timestamp=timestamp,
@@ -72,6 +73,11 @@ class Result:
             shutil.copy(script_path, save_path)
             print(f'SAVED: {save_path}', flush=True)
 
+        def save_metrics(db: Connection) -> None:
+            self.metrics.to_sql('metrics', db)
+            db.commit()
+            print(f'INSERTED: metrics', flush=True)
+
         # deprecated
 
         def _save_meta(script_path: str, target_dir: str, timestamp: str, params: dict[str, str]) -> None:
@@ -84,7 +90,7 @@ class Result:
             ), open(save_path, 'w'), indent=4)
             print(f'SAVED: {save_path}', flush=True)
 
-        def save_metrics(target_dir: str) -> None:
+        def _save_metrics(target_dir: str) -> None:
             save_path = f'{ target_dir }/metrics.pkl'
             self.metrics.to_pickle(save_path)
             print(f'SAVED: {save_path}', flush=True)
@@ -121,20 +127,22 @@ class Result:
                              if k.isupper()} if globals else {}
             # prepare directory
             base_dir = os.path.relpath(os.path.dirname(script_path))
-            timestamp = Timestamp.now().isoformat().replace(':', '.')
+            timestamp = localnow().isoformat().replace(':', '.')
             target_dir = f'{base_dir}/.result_{timestamp}'
             os.makedirs(target_dir)
             # save
-            _save_meta(script_path, target_dir, timestamp, caller_consts)
-            save_source(script_path, target_dir)
-            save_metrics(target_dir)
+            # _save_meta(script_path, target_dir, timestamp, caller_consts)
+            # save_source(script_path, target_dir)
+            # _save_metrics(target_dir)
             save_equity(target_dir)
             save_trades(target_dir)
             save_stats(target_dir)
             # save sqlite
             db_path = f'{target_dir}/db.sqlite'
             with sqlite3.connect(db_path) as db:
+                save_source(script_path, target_dir)
                 save_meta(db, script_path, timestamp, caller_consts)
+                save_metrics(db)
 
         except Exception as e:
             Log.exception(e)
