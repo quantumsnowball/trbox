@@ -55,14 +55,8 @@ def scan_for_result(parent: Node,
         if m.is_dir():
             if m.name.startswith(prefix):
                 # prefixed dir should contain run info
-                meta_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
-                source_path = f'{basepath}/{parent.path}/{m.name}/meta.json'
-                metrics_path = f'{basepath}/{parent.path}/{m.name}/metrics.pkl'
-                equity_path = f'{basepath}/{parent.path}/{m.name}/equity.pkl'
-                if (os.path.isfile(meta_path) or
-                    os.path.isfile(source_path) or
-                    os.path.isfile(metrics_path) or
-                        os.path.isfile(equity_path)):
+                db_path = f'{basepath}/{parent.path}/{m.name}/db.sqlite'
+                if (os.path.isfile(db_path)):
                     # meta.json should exist in a valid result dir
                     parent.add(scan_for_result(Node(m.name, 'folder', parent, []),
                                                basepath=basepath))
