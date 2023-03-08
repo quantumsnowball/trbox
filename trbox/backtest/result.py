@@ -95,6 +95,14 @@ class Result:
             df.to_sql('trades', db)
             print(f'INSERTED: trades', flush=True)
 
+        def save_equity(db: Connection) -> None:
+            # save_path = f'{ target_dir }/equity.pkl'
+            # df.to_pickle(save_path)
+            df = concat(tuple(self.equity.values()), axis=1)
+            df.columns = tuple(self.equity.keys())
+            df.to_sql('equity', db)
+            print(f'INSERTED: equity', flush=True)
+
         # deprecated
 
         def _save_meta(script_path: str, target_dir: str, timestamp: str, params: dict[str, str]) -> None:
@@ -118,7 +126,7 @@ class Result:
                 pickle.dump(self.stats, f)
             print(f'SAVED: {save_path}', flush=True)
 
-        def save_equity(target_dir: str) -> None:
+        def _save_equity(target_dir: str) -> None:
             save_path = f'{ target_dir }/equity.pkl'
             df = concat(tuple(self.equity.values()), axis=1)
             df.columns = tuple(self.equity.keys())
@@ -151,7 +159,7 @@ class Result:
             # _save_meta(script_path, target_dir, timestamp, caller_consts)
             # save_source(script_path, target_dir)
             # _save_metrics(target_dir)
-            save_equity(target_dir)
+            _save_equity(target_dir)
             # _save_trades(target_dir)
             # _save_stats(target_dir)
             # save sqlite
@@ -162,6 +170,7 @@ class Result:
                 save_metrics(db)
                 save_stats(db)
                 save_trades(db)
+                save_equity(db)
 
         except Exception as e:
             Log.exception(e)
