@@ -166,12 +166,21 @@ class Lab(Thread):
             return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
                                                                          indent=4)))
 
-    async def get_result_stats(self, request: web.Request) -> web.Response:
+    async def _get_result_stats(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         strategy = request.query['strategy']
         with open(f'{path}/stats.pkl', 'rb') as f:
             stats: dict[str, StatsDict] = pickle.load(f)
         return web.json_response(stats[strategy], dumps=lambda s: json.dumps(s, indent=4))
+
+    async def get_result_stats(self, request: web.Request) -> web.Response:
+        path = request.match_info['path']
+        strategy = request.query['strategy']
+        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
+            result = await db.execute('SELECT json FROM stats WHERE name=?', (strategy, ))
+            row = await result.fetchone()
+            stats = row[0] if row else '{}'
+            return web.json_response(text=stats)
 
     async def get_result_equity(self, request: web.Request) -> web.Response:
         path = request.match_info['path']

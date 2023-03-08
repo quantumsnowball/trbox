@@ -79,10 +79,8 @@ class Result:
             print(f'INSERTED: metrics', flush=True)
 
         def save_stats(db: Connection) -> None:
-            # save_path = f'{ target_dir }/stats.pkl'
-            # with open(save_path, 'wb') as f:
-            #     pickle.dump(self.stats, f)
-            db.execute('CREATE TABLE IF NOT EXISTS stats(name TEXT, json TEXT)')
+            db.execute(
+                'CREATE TABLE IF NOT EXISTS stats(name TEXT, json TEXT)')
             data = [(name, json.dumps(stat, indent=4))
                     for name, stat in self.stats.items()]
             db.executemany('replace into stats values(?,?)', data)
@@ -147,7 +145,7 @@ class Result:
             # _save_metrics(target_dir)
             save_equity(target_dir)
             save_trades(target_dir)
-            _save_stats(target_dir)
+            # _save_stats(target_dir)
             # save sqlite
             save_source(script_path, target_dir)
             db_path = f'{target_dir}/db.sqlite'
