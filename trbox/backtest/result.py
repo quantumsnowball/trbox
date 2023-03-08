@@ -87,6 +87,14 @@ class Result:
             db.commit()
             print(f'INSERTED: stats', flush=True)
 
+        def save_trades(db: Connection) -> None:
+            df = concat(tuple(self.trades.values()),
+                        keys=tuple(self.trades.keys()),
+                        names=('Strategy', 'Date'),
+                        axis=0,)
+            df.to_sql('trades', db)
+            print(f'INSERTED: trades', flush=True)
+
         # deprecated
 
         def _save_meta(script_path: str, target_dir: str, timestamp: str, params: dict[str, str]) -> None:
@@ -117,7 +125,7 @@ class Result:
             df.to_pickle(save_path)
             print(f'SAVED: {save_path}', flush=True)
 
-        def save_trades(target_dir: str) -> None:
+        def _save_trades(target_dir: str) -> None:
             save_path = f'{ target_dir }/trades.pkl'
             df = concat(tuple(self.trades.values()),
                         keys=tuple(self.trades.keys()),
@@ -144,7 +152,7 @@ class Result:
             # save_source(script_path, target_dir)
             # _save_metrics(target_dir)
             save_equity(target_dir)
-            save_trades(target_dir)
+            _save_trades(target_dir)
             # _save_stats(target_dir)
             # save sqlite
             save_source(script_path, target_dir)
@@ -153,6 +161,7 @@ class Result:
                 save_meta(db, script_path, timestamp, caller_consts)
                 save_metrics(db)
                 save_stats(db)
+                save_trades(db)
 
         except Exception as e:
             Log.exception(e)
