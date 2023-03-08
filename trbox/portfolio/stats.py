@@ -36,19 +36,19 @@ class TradeStats:
     @property
     def avg_quantity(self) -> float | None:
         if self.count > 0:
-            return self._trades['Quantity'].mean()
+            return self._trades['Quantity'].map(abs).mean()
         return None
 
     @property
     def avg_value(self) -> float | None:
         if self.count > 0:
-            return abs(self._trades['GrossProceeds'].mean())
+            return abs(self._trades['GrossProceeds'].map(abs).mean())
         return None
 
     @property
     def avg_fees(self) -> float | None:
         if self.count > 0:
-            return abs(self._trades['Fees'].mean())
+            return abs(self._trades['Fees'].map(abs).mean())
         return None
 
     @property
