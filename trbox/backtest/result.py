@@ -152,7 +152,7 @@ class Result:
             # save_source(script_path, target_dir)
             # _save_metrics(target_dir)
             save_equity(target_dir)
-            _save_trades(target_dir)
+            # _save_trades(target_dir)
             # _save_stats(target_dir)
             # save sqlite
             save_source(script_path, target_dir)

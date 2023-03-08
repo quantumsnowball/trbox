@@ -189,13 +189,26 @@ class Lab(Thread):
                                                                      orient='columns',
                                                                      indent=4)))
 
-    async def get_result_trades(self, request: web.Request) -> web.Response:
+    async def _get_result_trades(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
         strategy = request.query['strategy']
         df = pd.read_pickle(f'{path}/trades.pkl')
         return web.json_response(df.loc[strategy], dumps=lambda df: str(df.to_json(date_format='iso',
                                                                                    orient='table',
                                                                                    indent=4)))
+
+    async def get_result_trades(self, request: web.Request) -> web.Response:
+        path = request.match_info['path']
+        strategy = request.query['strategy']
+        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
+            result = await db.execute('SELECT * FROM trades WHERE Strategy=?', (strategy, ))
+            columns = [m[0] for m in result.description]
+            rows = await result.fetchall()
+            df = pd.DataFrame(rows, columns=columns).set_index('Date')
+            df = df.drop(columns=['Strategy'])
+            return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                         orient='table',
+                                                                         indent=4)))
 
     async def run_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
