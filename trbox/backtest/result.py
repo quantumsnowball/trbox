@@ -78,6 +78,17 @@ class Result:
             db.commit()
             print(f'INSERTED: metrics', flush=True)
 
+        def save_stats(db: Connection) -> None:
+            # save_path = f'{ target_dir }/stats.pkl'
+            # with open(save_path, 'wb') as f:
+            #     pickle.dump(self.stats, f)
+            db.execute('CREATE TABLE IF NOT EXISTS stats(name TEXT, json TEXT)')
+            data = [(name, json.dumps(stat, indent=4))
+                    for name, stat in self.stats.items()]
+            db.executemany('replace into stats values(?,?)', data)
+            db.commit()
+            print(f'INSERTED: stats', flush=True)
+
         # deprecated
 
         def _save_meta(script_path: str, target_dir: str, timestamp: str, params: dict[str, str]) -> None:
@@ -95,7 +106,7 @@ class Result:
             self.metrics.to_pickle(save_path)
             print(f'SAVED: {save_path}', flush=True)
 
-        def save_stats(target_dir: str) -> None:
+        def _save_stats(target_dir: str) -> None:
             save_path = f'{ target_dir }/stats.pkl'
             with open(save_path, 'wb') as f:
                 pickle.dump(self.stats, f)
@@ -136,13 +147,14 @@ class Result:
             # _save_metrics(target_dir)
             save_equity(target_dir)
             save_trades(target_dir)
-            save_stats(target_dir)
+            _save_stats(target_dir)
             # save sqlite
             save_source(script_path, target_dir)
             db_path = f'{target_dir}/db.sqlite'
             with sqlite3.connect(db_path) as db:
                 save_meta(db, script_path, timestamp, caller_consts)
                 save_metrics(db)
+                save_stats(db)
 
         except Exception as e:
             Log.exception(e)
