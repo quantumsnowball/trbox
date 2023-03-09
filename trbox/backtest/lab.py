@@ -237,10 +237,10 @@ class Lab(Thread):
         return ws
 
     async def delete_resource(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        if os.path.isfile(path):
-            os.remove(path)
-        elif os.path.isdir(path):
+        path = Path(request.match_info['path'])
+        if path.is_file():
+            path.unlink()
+        elif path.is_dir():
             shutil.rmtree(path)
         print(f'deleted {path}')
         return web.Response()
