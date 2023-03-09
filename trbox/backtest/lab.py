@@ -140,7 +140,6 @@ class Lab(Thread):
         path = request.match_info['path']
         df = await read_sql_async('SELECT * FROM metrics',
                                   f'{path}/db.sqlite')
-        df = df.set_index('index')
         return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
                                                                      indent=4)))
 

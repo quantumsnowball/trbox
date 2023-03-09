@@ -153,7 +153,7 @@ class Metrics:
 
     @property
     def df(self) -> DataFrame:
-        return DataFrame(dict(
+        df = DataFrame(dict(
             total_return=self.total_return,
             cagr=self.cagr,
             mu=self.mu_sigma[0],
@@ -164,3 +164,5 @@ class Metrics:
             mdd_days=self.drawdown.duration.days,
             calmar=self.calmar
         ), index=[self._portfolio.strategy.name, ])
+        df.index.name = 'name'
+        return df
