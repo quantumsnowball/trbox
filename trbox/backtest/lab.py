@@ -11,6 +11,7 @@ import click
 from aiohttp import web
 from aiohttp.typedefs import Handler
 from binance.websocket.binance_socket_manager import json
+from pandas.io.sql import DatabaseError
 from typing_extensions import override
 
 from trbox.backtest.utils import Node
@@ -138,9 +139,14 @@ class Lab(Thread):
 
     async def get_result_metrics(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
-        df = await read_sql_async('SELECT * FROM metrics',
-                                  f'{path}/db.sqlite')
-        df = df.set_index('index')
+        try:
+            sort = request.query['sort'].upper()
+            order = request.query['order'].upper()
+            df = await read_sql_async(f'SELECT * FROM metrics ORDER BY {sort} {order}',
+                                      f'{path}/db.sqlite')
+        except (KeyError, DatabaseError, ):
+            df = await read_sql_async(f'SELECT * FROM metrics',
+                                      f'{path}/db.sqlite')
         return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
                                                                      indent=4)))
 
