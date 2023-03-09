@@ -1,6 +1,5 @@
 import asyncio
 # import io
-import os
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -30,14 +29,15 @@ async def fetch_zip(symbol: str,
             cache_name = f'{symbol}-{freq}-{date}'
             cache_url = f'{cache_dir}/{cache_name}.zip'
             # check if file exist in cache, if not, download first
-            if not os.path.isfile(cache_url):
+            cache_path = Path(cache_url)
+            if not cache_path.is_file():
                 download_path = f'{ARCHIVE_BASE}/{market_type}/{update_freq}/{data_type}/{symbol}/{freq}'
                 download_fname = f'{symbol}-{freq}-{date}.zip'
                 download_url = f'{download_path}/{download_fname}'
                 async with session.get(download_url) as res:
                     assert res.status == 200
                     print(f'downloaded: {download_url}')
-                    Path(cache_dir).mkdir(parents=True, exist_ok=True)
+                    cache_path.mkdir(parents=True, exist_ok=True)
                     # async with aiofiles.open(cache_url, 'wb') as cache_file:
                     with open(cache_url, 'wb') as cache_file:
                         async for chunk in res.content.iter_chunked(1024):
