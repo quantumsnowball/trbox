@@ -2,6 +2,7 @@ import asyncio
 import os
 import shutil
 from asyncio import Future
+from pathlib import Path
 from threading import Thread
 from typing import Any
 
@@ -23,9 +24,9 @@ from trbox.common.utils import read_sql_async
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
 DEFAULT_PATH = '.'
-FRONTEND_LOCAL_DIR = f'{os.path.dirname(__file__)}/../frontend/trbox-lab/out/'
+FRONTEND_LOCAL_DIR = Path(Path(__file__).parent, '../frontend/trbox-lab/out/')
 DEFAULT_FILENAME = 'index.html'
-ENTRY_POINT = f'{FRONTEND_LOCAL_DIR}{DEFAULT_FILENAME}'
+ENTRY_POINT = Path(FRONTEND_LOCAL_DIR, DEFAULT_FILENAME)
 PY_SUFFIX = '.py'
 RUNDIR_PREFIX = '.result'
 
@@ -54,7 +55,7 @@ def scan_for_result(parent: Node,
             if m.name.startswith(prefix):
                 # prefixed dir should contain run info
                 db_path = f'{basepath}/{parent.path}/{m.name}/db.sqlite'
-                if (os.path.isfile(db_path)):
+                if (Path(db_path).is_file()):
                     # meta.json should exist in a valid result dir
                     parent.add(scan_for_result(Node(m.name, 'folder', parent, []),
                                                basepath=basepath))
@@ -236,10 +237,10 @@ class Lab(Thread):
         return ws
 
     async def delete_resource(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        if os.path.isfile(path):
-            os.remove(path)
-        elif os.path.isdir(path):
+        path = Path(request.match_info['path'])
+        if path.is_file():
+            path.unlink()
+        elif path.is_dir():
             shutil.rmtree(path)
         print(f'deleted {path}')
         return web.Response()
