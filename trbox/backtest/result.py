@@ -1,9 +1,9 @@
 import json
-import os
 import shutil
 import sqlite3
 from dataclasses import dataclass
 from inspect import currentframe
+from pathlib import Path
 from sqlite3 import Connection
 
 from pandas import DataFrame, Series, concat
@@ -55,11 +55,11 @@ class Result:
     # save
     #
     def save(self) -> None:
-        def save_meta(db: Connection, script_path: str, timestamp: str, params: dict[str, str]) -> None:
+        def save_meta(db: Connection, script_path: Path, timestamp: str, params: dict[str, str]) -> None:
             db.execute('CREATE TABLE IF NOT EXISTS meta(json TEXT)')
             data = json.dumps(dict(
                 timestamp=timestamp,
-                source=os.path.basename(script_path),
+                source=Path(script_path).name,
                 params=params,
                 strategies=[s.strategy.name for s in self._portfolios],
             ), indent=4)
@@ -67,8 +67,8 @@ class Result:
             db.commit()
             print(f'INSERTED: meta', flush=True)
 
-        def save_source(script_path: str, target_dir: str) -> None:
-            save_path = f'{target_dir}/source.py'
+        def save_source(script_path: Path, target_dir: Path) -> None:
+            save_path = Path(target_dir, 'source.py')
             shutil.copy(script_path, save_path)
             print(f'SAVED: {save_path}', flush=True)
 
@@ -105,14 +105,14 @@ class Result:
             frame = currentframe()
             caller_frame = frame.f_back if frame else None
             globals = caller_frame.f_globals if caller_frame else None
-            script_path = str(globals['__file__']) if globals else ''
+            script_path = Path(globals['__file__']) if globals else Path()
             caller_consts = {k: str(v) for k, v in globals.items()
                              if k.isupper()} if globals else {}
             # prepare directory
-            base_dir = os.path.relpath(os.path.dirname(script_path))
+            base_dir = Path(script_path).parent.relative_to(Path.cwd())
             timestamp = localnow().isoformat().replace(':', '.')
-            target_dir = f'{base_dir}/.result_{timestamp}'
-            os.makedirs(target_dir)
+            target_dir = Path(base_dir, f'.result_{timestamp}')
+            target_dir.mkdir(parents=True)
             # save
             save_source(script_path, target_dir)
             db_path = f'{target_dir}/db.sqlite'
