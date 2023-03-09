@@ -2,6 +2,7 @@ import asyncio
 import os
 import shutil
 from asyncio import Future
+from pathlib import Path
 from threading import Thread
 from typing import Any
 
@@ -54,7 +55,7 @@ def scan_for_result(parent: Node,
             if m.name.startswith(prefix):
                 # prefixed dir should contain run info
                 db_path = f'{basepath}/{parent.path}/{m.name}/db.sqlite'
-                if (os.path.isfile(db_path)):
+                if (Path(db_path).is_file()):
                     # meta.json should exist in a valid result dir
                     parent.add(scan_for_result(Node(m.name, 'folder', parent, []),
                                                basepath=basepath))
