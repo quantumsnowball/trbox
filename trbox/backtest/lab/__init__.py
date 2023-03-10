@@ -18,7 +18,6 @@ from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.types import WebSocketMessage
-from trbox.common.utils import read_sql_async
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
@@ -87,7 +86,6 @@ class Lab(Thread):
             web.get('/api/tree/result', self.ls_result),
             web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
-            web.get('/api/result/{path:.+}/marks', self.get_result_marks),
             web.delete('/api/operation/{path:.+}', self.delete_resource),
             # then serve index and all other statics
             web.get('/', self.index),
@@ -112,17 +110,6 @@ class Lab(Thread):
                                basepath=self._path)
         return web.json_response(node.dict,
                                  dumps=lambda s: str(json.dumps(s, indent=4)))
-
-    async def get_result_marks(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        strategy = request.query['strategy']
-        name = request.query['name']
-        df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
-                                  f'{path}/db.sqlite',
-                                  params=(strategy, name, ))
-        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
-                                                                     orient='values',
-                                                                     indent=4)))
 
     async def run_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
