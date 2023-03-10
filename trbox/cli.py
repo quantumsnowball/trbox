@@ -1,6 +1,8 @@
 import click
 
-from trbox.backtest.lab import DEFAULT_HOST, DEFAULT_PATH, DEFAULT_PORT, Lab
+from trbox.backtest.lab import Lab
+from trbox.backtest.lab.constants import (DEFAULT_HOST, DEFAULT_PATH,
+                                          DEFAULT_PORT)
 
 
 @click.group()
