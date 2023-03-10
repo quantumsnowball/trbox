@@ -89,7 +89,6 @@ class Lab(Thread):
             web.get('/api/tree/result', self.ls_result),
             web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
-            web.get('/api/result/{path:.+}/meta', self.get_result_meta),
             web.get('/api/result/{path:.+}/source', self.get_result_source),
             web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
             web.get('/api/result/{path:.+}/equity', self.get_result_equity),
@@ -120,14 +119,6 @@ class Lab(Thread):
                                basepath=self._path)
         return web.json_response(node.dict,
                                  dumps=lambda s: str(json.dumps(s, indent=4)))
-
-    async def get_result_meta(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
-            result = await db.execute('SELECT json FROM meta')
-            row = await result.fetchone()
-            meta = row[0] if row else '{}'
-            return web.json_response(text=meta)
 
     async def get_result_source(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
