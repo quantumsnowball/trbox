@@ -12,7 +12,6 @@ import click
 from aiohttp import web
 from aiohttp.typedefs import Handler
 from binance.websocket.binance_socket_manager import json
-from pandas.io.sql import DatabaseError
 from typing_extensions import override
 
 from trbox.backtest.lab.endpoints import routes
@@ -89,7 +88,6 @@ class Lab(Thread):
             web.get('/api/tree/result', self.ls_result),
             web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
-            web.get('/api/result/{path:.+}/equity', self.get_result_equity),
             web.get('/api/result/{path:.+}/trades', self.get_result_trades),
             web.get('/api/result/{path:.+}/stats', self.get_result_stats),
             web.get('/api/result/{path:.+}/marks', self.get_result_marks),
@@ -126,15 +124,6 @@ class Lab(Thread):
             row = await result.fetchone()
             stats = row[0] if row else '{}'
             return web.json_response(text=stats)
-
-    async def get_result_equity(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        df = await read_sql_async('SELECT * from equity',
-                                  f'{path}/db.sqlite',)
-        df = df.set_index('index')
-        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
-                                                                     orient='columns',
-                                                                     indent=4)))
 
     async def get_result_trades(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
