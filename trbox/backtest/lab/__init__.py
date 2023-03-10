@@ -85,18 +85,13 @@ class Lab(Thread):
         self._app.add_routes(endpoints.result)
         self._app.add_routes(endpoints.operation)
         # then serve index and all other statics
-        self._app.add_routes([
-            web.get('/', self.index),
-            web.static('/', FRONTEND_LOCAL_DIR),
-        ])
+        self._app.add_routes(endpoints.static)
+        # app
         self._runner = web.AppRunner(self._app)
 
     #
     # routes
     #
-    async def index(self, _: web.Request) -> web.FileResponse:
-        return web.FileResponse(ENTRY_POINT)
-
     async def ls_source(self, _: web.Request) -> web.Response:
         node = scan_for_source(Node('', 'folder', None, []),
                                basepath=self._path)
