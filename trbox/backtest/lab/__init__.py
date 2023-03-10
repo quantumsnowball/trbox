@@ -11,7 +11,7 @@ from aiohttp.typedefs import Handler
 from binance.websocket.binance_socket_manager import json
 from typing_extensions import override
 
-from trbox.backtest.lab.endpoints import routes
+import trbox.backtest.lab.endpoints as endpoints
 from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
@@ -81,7 +81,9 @@ class Lab(Thread):
             web.get('/api/tree/source', self.ls_source),
             web.get('/api/tree/result', self.ls_result),
         ])
-        self._app.add_routes(routes)
+        self._app.add_routes(endpoints.source)
+        self._app.add_routes(endpoints.result)
+        self._app.add_routes(endpoints.operation)
         # then serve index and all other statics
         self._app.add_routes([
             web.get('/', self.index),
