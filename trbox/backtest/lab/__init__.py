@@ -5,13 +5,10 @@ from typing import Any
 
 import click
 from aiohttp import web
-from aiohttp.typedefs import Handler
 from typing_extensions import override
 
 import trbox.backtest.lab.endpoints as endpoints
-from trbox.backtest.lab.constants import ENTRY_POINT
-from trbox.common.logger import Log
-from trbox.common.logger.parser import Memo
+from trbox.backtest.lab.endpoints.error import on_request_error
 
 
 class Lab(Thread):
@@ -27,7 +24,8 @@ class Lab(Thread):
         self._path = path
         self._host = host
         self._port = port
-        self._app = web.Application(middlewares=[self.on_request_error, ])
+        # error
+        self._app = web.Application(middlewares=[on_request_error, ])
         # match api first
         self._app.add_routes(endpoints.tree(self._path))
         self._app.add_routes(endpoints.source)
@@ -37,25 +35,6 @@ class Lab(Thread):
         self._app.add_routes(endpoints.static)
         # app
         self._runner = web.AppRunner(self._app)
-
-    #
-    # error handling
-    #
-
-    @ web.middleware
-    async def on_request_error(self,
-                               request: web.Request,
-                               handler: Handler) -> web.StreamResponse:
-        try:
-            return await handler(request)
-        except web.HTTPNotFound as e404:
-            # FileNotFoundError
-            Log.critical(Memo(e404).by('Middleware'))
-            return web.FileResponse(ENTRY_POINT)
-        except Exception as e:
-            # any other errors
-            Log.exception(e)
-            return web.FileResponse(ENTRY_POINT)
 
     #
     # main loop
