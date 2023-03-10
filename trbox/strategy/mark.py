@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Any, Self
 
-from pandas import Series, Timestamp, concat
+from pandas import MultiIndex, Series, Timestamp, concat
 
 
 class Mark:
@@ -31,6 +31,12 @@ class Mark:
 
     @property
     def series(self) -> Series:
+        names = ['name', 'timestamp']
+        if len(self._marks) == 0:
+            return Series([],
+                          index=MultiIndex.from_tuples([], names=names),
+                          name='value',
+                          dtype=float)
         return concat([self[k] for k in self._marks],
                       keys=self._marks.keys(),
-                      names=['name', 'timestamp'])
+                      names=names)
