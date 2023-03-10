@@ -88,7 +88,6 @@ class Lab(Thread):
             web.get('/api/tree/result', self.ls_result),
             web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
-            web.get('/api/result/{path:.+}/trades', self.get_result_trades),
             web.get('/api/result/{path:.+}/stats', self.get_result_stats),
             web.get('/api/result/{path:.+}/marks', self.get_result_marks),
             web.delete('/api/operation/{path:.+}', self.delete_resource),
@@ -124,18 +123,6 @@ class Lab(Thread):
             row = await result.fetchone()
             stats = row[0] if row else '{}'
             return web.json_response(text=stats)
-
-    async def get_result_trades(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        strategy = request.query['strategy']
-        df = await read_sql_async('SELECT * FROM trades WHERE Strategy=?',
-                                  f'{path}/db.sqlite',
-                                  params=(strategy, ))
-        df = df.set_index('Date')
-        df = df.drop(columns=['Strategy'])
-        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
-                                                                     orient='table',
-                                                                     indent=4)))
 
     async def get_result_marks(self, request: web.Request) -> web.Response:
         path = request.match_info['path']

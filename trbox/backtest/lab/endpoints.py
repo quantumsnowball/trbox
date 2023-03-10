@@ -58,3 +58,17 @@ async def get_result_equity(request: web.Request) -> web.Response:
     return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
                                                                  orient='columns',
                                                                  indent=4)))
+
+
+@routes.get('/api/result/{path:.+}/trades')
+async def get_result_trades(request: web.Request) -> web.Response:
+    path = request.match_info['path']
+    strategy = request.query['strategy']
+    df = await read_sql_async('SELECT * FROM trades WHERE Strategy=?',
+                              f'{path}/db.sqlite',
+                              params=(strategy, ))
+    df = df.set_index('Date')
+    df = df.drop(columns=['Strategy'])
+    return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                 orient='table',
+                                                                 indent=4)))
