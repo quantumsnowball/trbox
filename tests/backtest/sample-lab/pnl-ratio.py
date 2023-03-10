@@ -33,6 +33,7 @@ def strategy(length: int, interval: int):
             pnlr = pnl_ratio(win)
             weight = pnlr
             my.portfolio.rebalance(SYMBOL, weight, my.event.price)
+            my.mark[f'Pr({length},{interval})'] = my.event.price
 
     return Trader(
         strategy=Strategy(name=f'ST-L({length})-I({interval})')

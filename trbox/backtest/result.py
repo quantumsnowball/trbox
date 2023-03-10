@@ -67,6 +67,7 @@ class Result:
                 source=Path(script_path).name,
                 params=params,
                 strategies=[s.strategy.name for s in self._portfolios],
+                marks=sum([len(s.strategy.mark) for s in self._portfolios]),
             ), indent=4)
             db.execute('REPLACE INTO meta VALUES(?)', (data,))
             db.commit()

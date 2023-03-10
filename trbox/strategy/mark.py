@@ -29,6 +29,9 @@ class Mark:
                     value: Any) -> None:
         self(key, value)
 
+    def __len__(self) -> int:
+        return len(self._marks)
+
     @property
     def series(self) -> Series:
         names = ['name', 'timestamp']

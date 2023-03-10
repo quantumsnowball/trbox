@@ -18,8 +18,8 @@ def rebalance(pct_target: float):
     def routine(my: Context[OhlcvWindow]):
         if my.count.every(30):
             my.portfolio.rebalance(SYMBOL, pct_target, my.event.price)
-        my.mark['price1'] = my.event.price
-        my.mark('price2', my.event.price)
+        # my.mark[f'price1,{pct_target}'] = my.event.price
+        # my.mark(f'price2,{pct_target}', my.event.price)
     return routine
 
 
