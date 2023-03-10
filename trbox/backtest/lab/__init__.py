@@ -15,6 +15,7 @@ from binance.websocket.binance_socket_manager import json
 from pandas.io.sql import DatabaseError
 from typing_extensions import override
 
+from trbox.backtest.lab.endpoints import routes
 from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
@@ -81,13 +82,13 @@ class Lab(Thread):
         self._host = host
         self._port = port
         self._app = web.Application(middlewares=[self.on_request_error, ])
+        self._app.add_routes(routes)
         self._app.add_routes([
             # match api first
             web.get('/api/tree/source', self.ls_source),
             web.get('/api/tree/result', self.ls_result),
             web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
-            web.get('/api/source/{path:.+}', self.get_source),
             web.get('/api/result/{path:.+}/meta', self.get_result_meta),
             web.get('/api/result/{path:.+}/source', self.get_result_source),
             web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
@@ -119,12 +120,6 @@ class Lab(Thread):
                                basepath=self._path)
         return web.json_response(node.dict,
                                  dumps=lambda s: str(json.dumps(s, indent=4)))
-
-    async def get_source(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        with open(f'{path}') as f:
-            t = f.read()
-            return web.Response(text=t)
 
     async def get_result_meta(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
