@@ -12,6 +12,7 @@ from trbox.common.logger import Log
 from trbox.common.utils import cln, localnow
 from trbox.portfolio import Portfolio
 from trbox.portfolio.stats import StatsDict
+from trbox.strategy.mark import Mark
 
 
 @dataclass
@@ -39,6 +40,10 @@ class Result:
     @property
     def equity(self) -> dict[str, Series]:
         return {p.strategy.name: p.dashboard.equity for p in self._portfolios}
+
+    @property
+    def marks(self) -> dict[str, Mark]:
+        return {p.strategy.name: p.strategy.mark for p in self._portfolios}
 
     @property
     def trades(self) -> dict[str, DataFrame]:
@@ -100,6 +105,12 @@ class Result:
             df.to_sql('equity', db)
             print(f'INSERTED: equity', flush=True)
 
+        def save_marks(db: Connection) -> None:
+            sr = concat([m.series for m in self.marks.values()],
+                        keys=self.marks.keys())
+            sr.to_sql('marks', db)
+            print(f'INSERTED: marks', flush=True)
+
         try:
             # prepare caller info
             frame = currentframe()
@@ -122,6 +133,7 @@ class Result:
                 save_stats(db)
                 save_trades(db)
                 save_equity(db)
+                save_marks(db)
 
         except Exception as e:
             Log.exception(e)
