@@ -9,6 +9,7 @@ from trbox.event import Event, MarketEvent
 from trbox.event.broker import OrderResult
 from trbox.event.handler import CounterParty
 from trbox.strategy.context import Context, Count
+from trbox.strategy.mark import Mark
 from trbox.strategy.types import DataHandler, DataHandlers, Heartbeats, Hook
 
 T = TypeVar('T', bound=MarketEvent)
@@ -22,6 +23,8 @@ class Strategy(CounterParty):
         self._datahandlers: DataHandlers = {}
         # signal
         self._heartbeats: Heartbeats = {}
+        # mark
+        self._mark = Mark()
 
     def __str__(self) -> str:
         return f'{cln(self)}(name={self.name})'
@@ -33,6 +36,10 @@ class Strategy(CounterParty):
     @property
     def heartbeats(self) -> Heartbeats:
         return self._heartbeats
+
+    @property
+    def mark(self) -> Mark:
+        return self._mark
 
     def on(self,
            symbol: Symbol,
@@ -63,6 +70,8 @@ class Strategy(CounterParty):
         hook = handler.hook
         # set the event object in runtime
         context.event = e
+        # inject the updated mark object in runtime
+        context.mark = self._mark.update(e.timestamp)
         # call the data handler hook function
         hook(my=context)
         # tick the counter
