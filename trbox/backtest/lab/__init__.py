@@ -24,7 +24,8 @@ from trbox.common.utils import read_sql_async
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
 DEFAULT_PATH = '.'
-FRONTEND_LOCAL_DIR = Path(Path(__file__).parent, '../frontend/trbox-lab/out/')
+FRONTEND_LOCAL_DIR = Path(Path(__file__).parent,
+                          '../../frontend/trbox-lab/out/')
 DEFAULT_FILENAME = 'index.html'
 ENTRY_POINT = Path(FRONTEND_LOCAL_DIR, DEFAULT_FILENAME)
 PY_SUFFIX = '.py'
