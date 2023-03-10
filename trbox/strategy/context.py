@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 
 from trbox.event import MarketEvent
 from trbox.portfolio.dashboard import Dashboard
+from trbox.strategy.mark import Mark
 from trbox.strategy.types import MemoryCell, MemorySized, Memroy
 from trbox.trader import Trader
 
@@ -52,6 +53,7 @@ class Context(Generic[T_contra]):
     count: Count
     event: T_contra = field(init=False)
     memory: Memroy = field(init=False, kw_only=True)
+    mark: Mark = field(init=False)
 
     def __post_init__(self) -> None:
         class dequedict(MemorySized):

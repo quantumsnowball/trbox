@@ -11,6 +11,7 @@ from trbox.common.utils import cln
 from trbox.console.dummy import DummyConsole
 from trbox.portfolio import Basic, Portfolio
 from trbox.portfolio.dashboard import Dashboard
+from trbox.strategy.mark import Mark
 
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
@@ -125,3 +126,7 @@ class Trader(Runner):
     @property
     def dashboard(self) -> Dashboard:
         return self._portfolio.dashboard
+
+    @property
+    def mark(self) -> Mark:
+        return self._strategy.mark

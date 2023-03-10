@@ -93,6 +93,7 @@ class Lab(Thread):
             web.get('/api/result/{path:.+}/equity', self.get_result_equity),
             web.get('/api/result/{path:.+}/trades', self.get_result_trades),
             web.get('/api/result/{path:.+}/stats', self.get_result_stats),
+            web.get('/api/result/{path:.+}/marks', self.get_result_marks),
             web.delete('/api/operation/{path:.+}', self.delete_resource),
             # then serve index and all other statics
             web.get('/', self.index),
@@ -179,6 +180,17 @@ class Lab(Thread):
         df = df.drop(columns=['Strategy'])
         return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
                                                                      orient='table',
+                                                                     indent=4)))
+
+    async def get_result_marks(self, request: web.Request) -> web.Response:
+        path = request.match_info['path']
+        strategy = request.query['strategy']
+        name = request.query['name']
+        df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
+                                  f'{path}/db.sqlite',
+                                  params=(strategy, name, ))
+        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                     orient='values',
                                                                      indent=4)))
 
     async def run_source(self, request: web.Request) -> web.Response:
