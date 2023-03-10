@@ -1,5 +1,7 @@
 import asyncio
 import json
+import shutil
+from pathlib import Path
 from sqlite3 import DatabaseError
 
 import aiohttp
@@ -167,3 +169,18 @@ async def get_result_marks(request: web.Request) -> web.Response:
     return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
                                                                  orient='values',
                                                                  indent=4)))
+
+#
+# operations
+#
+
+
+@routes.delete('/api/operation/{path:.+}')
+async def delete_resource(request: web.Request) -> web.Response:
+    path = Path(request.match_info['path'])
+    if path.is_file():
+        path.unlink()
+    elif path.is_dir():
+        shutil.rmtree(path)
+    print(f'deleted {path}')
+    return web.Response()

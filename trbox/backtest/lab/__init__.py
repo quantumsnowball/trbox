@@ -1,6 +1,5 @@
 import asyncio
 import os
-import shutil
 from asyncio import Future
 from pathlib import Path
 from threading import Thread
@@ -82,7 +81,6 @@ class Lab(Thread):
             # match api first
             web.get('/api/tree/source', self.ls_source),
             web.get('/api/tree/result', self.ls_result),
-            web.delete('/api/operation/{path:.+}', self.delete_resource),
             # then serve index and all other statics
             web.get('/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
@@ -106,15 +104,6 @@ class Lab(Thread):
                                basepath=self._path)
         return web.json_response(node.dict,
                                  dumps=lambda s: str(json.dumps(s, indent=4)))
-
-    async def delete_resource(self, request: web.Request) -> web.Response:
-        path = Path(request.match_info['path'])
-        if path.is_file():
-            path.unlink()
-        elif path.is_dir():
-            shutil.rmtree(path)
-        print(f'deleted {path}')
-        return web.Response()
 
     #
     # error handling
