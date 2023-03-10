@@ -6,7 +6,6 @@ from pathlib import Path
 from threading import Thread
 from typing import Any
 
-import aiohttp
 import click
 from aiohttp import web
 from aiohttp.typedefs import Handler
@@ -17,7 +16,6 @@ from trbox.backtest.lab.endpoints import routes
 from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-from trbox.common.types import WebSocketMessage
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7000
@@ -84,7 +82,6 @@ class Lab(Thread):
             # match api first
             web.get('/api/tree/source', self.ls_source),
             web.get('/api/tree/result', self.ls_result),
-            web.get('/api/run/output/{path:.+}', self.run_source_output),
             web.delete('/api/operation/{path:.+}', self.delete_resource),
             # then serve index and all other statics
             web.get('/', self.index),
@@ -109,56 +106,6 @@ class Lab(Thread):
                                basepath=self._path)
         return web.json_response(node.dict,
                                  dumps=lambda s: str(json.dumps(s, indent=4)))
-
-    async def run_source_output(self, request: web.Request) -> web.WebSocketResponse:
-        path = request.match_info['path']
-        ws = web.WebSocketResponse()
-        await ws.prepare(request)
-        print('A client has connected')
-        cmd = f'python {path}'
-        proc = await asyncio.create_subprocess_shell(cmd,
-                                                     stdout=asyncio.subprocess.PIPE,
-                                                     stderr=asyncio.subprocess.PIPE)
-        print(f'created subprocess, executing: {cmd}')
-
-        async def listen_to_message() -> None:
-            print('listening to ws message from client')
-            async for raw in ws:
-                print('still listening ... forever')
-                if raw.type == aiohttp.WSMsgType.TEXT:
-                    msg: WebSocketMessage = json.loads(raw.data)
-                    if msg['type'] == 'system' and msg['text'] == 'stop':
-                        print('client requested to exit')
-                        proc.terminate()
-                        print('terminated process')
-                        return
-
-        async def read_stdout() -> None:
-            if proc.stdout:
-                print('stdout is ready')
-                async for line in proc.stdout:
-                    await ws.send_json(dict(type='stdout',
-                                            text=line.decode()))
-                print('stdout has ended')
-                await ws.send_json(dict(
-                    type='stdout',
-                    text=f'executing `{path}` finished: return code = {proc.returncode}'))
-                await ws.close()
-                print('ws connection closed')
-
-        async def read_stderr() -> None:
-            if proc.stderr:
-                print('stderr is ready')
-                async for line in proc.stderr:
-                    await ws.send_json(dict(type='stderr',
-                                            text=line.decode()))
-                print('stderr has ended')
-
-        await asyncio.gather(listen_to_message(),
-                             read_stdout(),
-                             read_stderr())
-
-        return ws
 
     async def delete_resource(self, request: web.Request) -> web.Response:
         path = Path(request.match_info['path'])
