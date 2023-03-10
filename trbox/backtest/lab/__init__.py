@@ -12,19 +12,10 @@ from binance.websocket.binance_socket_manager import json
 from typing_extensions import override
 
 import trbox.backtest.lab.endpoints as endpoints
+from trbox.backtest.lab.constants import ENTRY_POINT, PY_SUFFIX, RUNDIR_PREFIX
 from trbox.backtest.utils import Node
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
-
-DEFAULT_HOST = 'localhost'
-DEFAULT_PORT = 7000
-DEFAULT_PATH = '.'
-FRONTEND_LOCAL_DIR = Path(Path(__file__).parent,
-                          '../../frontend/trbox-lab/out/')
-DEFAULT_FILENAME = 'index.html'
-ENTRY_POINT = Path(FRONTEND_LOCAL_DIR, DEFAULT_FILENAME)
-PY_SUFFIX = '.py'
-RUNDIR_PREFIX = '.result'
 
 
 def scan_for_source(parent: Node,

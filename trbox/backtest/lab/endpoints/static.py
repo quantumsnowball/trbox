@@ -1,12 +1,7 @@
-from pathlib import Path
 
 from aiohttp import web
 
-FRONTEND_LOCAL_DIR = Path(Path(__file__).parent,
-                          '../../../frontend/trbox-lab/out/')
-DEFAULT_FILENAME = 'index.html'
-ENTRY_POINT = Path(FRONTEND_LOCAL_DIR, DEFAULT_FILENAME)
-
+from trbox.backtest.lab.constants import ENTRY_POINT, FRONTEND_LOCAL_DIR
 
 routes = web.RouteTableDef()
 
