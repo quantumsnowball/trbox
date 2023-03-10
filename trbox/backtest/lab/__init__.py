@@ -89,7 +89,6 @@ class Lab(Thread):
             web.get('/api/tree/result', self.ls_result),
             web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
-            web.get('/api/result/{path:.+}/source', self.get_result_source),
             web.get('/api/result/{path:.+}/metrics', self.get_result_metrics),
             web.get('/api/result/{path:.+}/equity', self.get_result_equity),
             web.get('/api/result/{path:.+}/trades', self.get_result_trades),
@@ -119,12 +118,6 @@ class Lab(Thread):
                                basepath=self._path)
         return web.json_response(node.dict,
                                  dumps=lambda s: str(json.dumps(s, indent=4)))
-
-    async def get_result_source(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        with open(f'{path}/source.py') as f:
-            t = f.read()
-            return web.Response(text=t)
 
     async def get_result_metrics(self, request: web.Request) -> web.Response:
         path = request.match_info['path']

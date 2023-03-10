@@ -20,3 +20,11 @@ async def get_result_meta(request: web.Request) -> web.Response:
         row = await result.fetchone()
         meta = row[0] if row else '{}'
         return web.json_response(text=meta)
+
+
+@routes.get('/api/result/{path:.+}/source')
+async def get_result_source(request: web.Request) -> web.Response:
+    path = request.match_info['path']
+    with open(f'{path}/source.py') as f:
+        t = f.read()
+        return web.Response(text=t)
