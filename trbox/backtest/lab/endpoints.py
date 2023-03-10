@@ -72,3 +72,14 @@ async def get_result_trades(request: web.Request) -> web.Response:
     return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
                                                                  orient='table',
                                                                  indent=4)))
+
+
+@routes.get('/api/result/{path:.+}/stats')
+async def get_result_stats(request: web.Request) -> web.Response:
+    path = request.match_info['path']
+    strategy = request.query['strategy']
+    async with aiosqlite.connect(f'{path}/db.sqlite') as db:
+        result = await db.execute('SELECT json FROM stats WHERE name=?', (strategy, ))
+        row = await result.fetchone()
+        stats = row[0] if row else '{}'
+        return web.json_response(text=stats)

@@ -7,7 +7,6 @@ from threading import Thread
 from typing import Any
 
 import aiohttp
-import aiosqlite
 import click
 from aiohttp import web
 from aiohttp.typedefs import Handler
@@ -88,7 +87,6 @@ class Lab(Thread):
             web.get('/api/tree/result', self.ls_result),
             web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
-            web.get('/api/result/{path:.+}/stats', self.get_result_stats),
             web.get('/api/result/{path:.+}/marks', self.get_result_marks),
             web.delete('/api/operation/{path:.+}', self.delete_resource),
             # then serve index and all other statics
@@ -114,15 +112,6 @@ class Lab(Thread):
                                basepath=self._path)
         return web.json_response(node.dict,
                                  dumps=lambda s: str(json.dumps(s, indent=4)))
-
-    async def get_result_stats(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        strategy = request.query['strategy']
-        async with aiosqlite.connect(f'{path}/db.sqlite') as db:
-            result = await db.execute('SELECT json FROM stats WHERE name=?', (strategy, ))
-            row = await result.fetchone()
-            stats = row[0] if row else '{}'
-            return web.json_response(text=stats)
 
     async def get_result_marks(self, request: web.Request) -> web.Response:
         path = request.match_info['path']
