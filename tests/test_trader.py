@@ -15,6 +15,7 @@ from trbox.market.generated.historical.trades import GeneratedHistoricalTrades
 from trbox.market.yahoo.historical.windows import YahooHistoricalWindows
 from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy import Context
+from trbox.strategy.mark import Mark
 from trbox.strategy.types import Memroy
 
 
@@ -40,8 +41,12 @@ def test_dummy(name, live):
                 my.portfolio.trade(SYMBOL, QUANTITY)
         if my.count.every(250):
             assert_valid_metrics(my)
-        # can also access dashboard when still trading
+        # mark some value
+        my.mark[my.event.symbol] = my.event.price
+        my.mark('price', my.event.price)
+        # can also access inspect when still trading
         assert isinstance(my.dashboard, Dashboard)
+        assert isinstance(my.mark, Mark)
         Log.info(Memo('anytime get', dashboard=my.dashboard)
                  .by(my.strategy).tag('dashboard'))
         sleep(DELAY)
