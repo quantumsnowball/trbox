@@ -76,12 +76,14 @@ class Lab(Thread):
         self._host = host
         self._port = port
         self._app = web.Application(middlewares=[self.on_request_error, ])
-        self._app.add_routes(routes)
+        # match api first
         self._app.add_routes([
-            # match api first
             web.get('/api/tree/source', self.ls_source),
             web.get('/api/tree/result', self.ls_result),
-            # then serve index and all other statics
+        ])
+        self._app.add_routes(routes)
+        # then serve index and all other statics
+        self._app.add_routes([
             web.get('/', self.index),
             web.static('/', FRONTEND_LOCAL_DIR),
         ])
