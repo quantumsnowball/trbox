@@ -22,7 +22,7 @@ class Mark:
 
     def __getitem__(self,
                     key: str) -> Series:
-        return Series(self._marks[key])
+        return Series(self._marks[key], name='value')
 
     def __setitem__(self,
                     key: str,
@@ -32,4 +32,5 @@ class Mark:
     @property
     def series(self) -> Series:
         return concat([self[k] for k in self._marks],
-                      keys=self._marks.keys())
+                      keys=self._marks.keys(),
+                      names=['name', 'timestamp'])

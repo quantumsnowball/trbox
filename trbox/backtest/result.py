@@ -107,7 +107,8 @@ class Result:
 
         def save_marks(db: Connection) -> None:
             sr = concat([m.series for m in self.marks.values()],
-                        keys=self.marks.keys())
+                        keys=self.marks.keys(),
+                        names=['strategy',])
             sr.to_sql('marks', db)
             print(f'INSERTED: marks', flush=True)
 
