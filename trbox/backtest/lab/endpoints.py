@@ -1,5 +1,9 @@
+from sqlite3 import DatabaseError
+
 import aiosqlite
 from aiohttp import web
+
+from trbox.common.utils import read_sql_async
 
 routes = web.RouteTableDef()
 
@@ -28,3 +32,18 @@ async def get_result_source(request: web.Request) -> web.Response:
     with open(f'{path}/source.py') as f:
         t = f.read()
         return web.Response(text=t)
+
+
+@routes.get('/api/result/{path:.+}/metrics')
+async def get_result_metrics(request: web.Request) -> web.Response:
+    path = request.match_info['path']
+    try:
+        sort = request.query['sort'].upper()
+        order = request.query['order'].upper()
+        df = await read_sql_async(f'SELECT * FROM metrics ORDER BY {sort} {order}',
+                                  f'{path}/db.sqlite')
+    except (KeyError, DatabaseError, ):
+        df = await read_sql_async(f'SELECT * FROM metrics',
+                                  f'{path}/db.sqlite')
+    return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
+                                                                 indent=4)))
