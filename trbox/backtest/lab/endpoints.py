@@ -7,6 +7,10 @@ from trbox.common.utils import read_sql_async
 
 routes = web.RouteTableDef()
 
+#
+# source
+#
+
 
 @routes.get('/api/source/{path:.+}')
 async def get_source(request: web.Request) -> web.Response:
@@ -14,6 +18,17 @@ async def get_source(request: web.Request) -> web.Response:
     with open(f'{path}') as f:
         t = f.read()
         return web.Response(text=t)
+
+
+@routes.get('/api/run/init/{path:.+}')
+async def run_source(request: web.Request) -> web.Response:
+    path = request.match_info['path']
+    return web.json_response([dict(type='stdout',
+                                   text=f'executing `{path}`\n'), ])
+
+#
+# result
+#
 
 
 @routes.get('/api/result/{path:.+}/meta')

@@ -84,7 +84,6 @@ class Lab(Thread):
             # match api first
             web.get('/api/tree/source', self.ls_source),
             web.get('/api/tree/result', self.ls_result),
-            web.get('/api/run/init/{path:.+}', self.run_source),
             web.get('/api/run/output/{path:.+}', self.run_source_output),
             web.delete('/api/operation/{path:.+}', self.delete_resource),
             # then serve index and all other statics
@@ -110,11 +109,6 @@ class Lab(Thread):
                                basepath=self._path)
         return web.json_response(node.dict,
                                  dumps=lambda s: str(json.dumps(s, indent=4)))
-
-    async def run_source(self, request: web.Request) -> web.Response:
-        path = request.match_info['path']
-        return web.json_response([dict(type='stdout',
-                                       text=f'executing `{path}`\n'), ])
 
     async def run_source_output(self, request: web.Request) -> web.WebSocketResponse:
         path = request.match_info['path']
