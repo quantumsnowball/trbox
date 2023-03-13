@@ -51,6 +51,10 @@ class Portfolio(CounterParty, ABC):
     def dashboard(self) -> Dashboard:
         return self._dashboard
 
+    @property
+    def leverage(self) -> float:
+        return self.broker.positions_worth / self.equity
+
     #
     # analysis
     #
