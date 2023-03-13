@@ -4,6 +4,7 @@ from sqlite3 import DatabaseError
 
 import aiosqlite
 from aiohttp import web
+from pandas import DataFrame, concat
 
 from trbox.common.utils import read_sql_async
 
@@ -81,10 +82,8 @@ async def get_result_stats(request: web.Request) -> web.Response:
 
 @routes.get('/api/result/{path:.+}/marks')
 async def get_result_marks(request: web.Request) -> web.Response:
-    path = request.match_info['path']
-
     # /marks?strategy=<strategy>&name=<name>
-    async def give_series() -> web.Response:
+    async def give_series(path: str, strategy: str, name: str) -> web.Response:
         df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
                                   f'{path}/db.sqlite',
                                   params=(strategy, name, ))
@@ -93,11 +92,28 @@ async def get_result_marks(request: web.Request) -> web.Response:
                                                                      indent=4)))
 
     # /marks?strategy=<?>&name=<?>&interp=<?>
-    async def give_series_interp() -> web.Response:
-        return web.json_response([])
+    async def give_series_interp(path: str, strategy: str, name: str, interp: str) -> web.Response:
+        overlay_df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
+                                          f'{path}/db.sqlite',
+                                          params=(strategy, name, ))
+        main_df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
+                                       f'{path}/db.sqlite',
+                                       params=(strategy, interp, ))
+        combined_df = (concat([overlay_df, main_df])
+                       .drop_duplicates(subset='timestamp', keep='last')
+                       .sort_values(by='timestamp'))
+        converted_df = (combined_df.set_index('timestamp')
+                        .astype(float)
+                        .interpolate(method='index'))
+        result_df = (converted_df.loc[overlay_df.timestamp].reset_index()
+                     if converted_df is not None
+                     else DataFrame([]))
+        return web.json_response(result_df, dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                            orient='values',
+                                                                            indent=4)))
 
     # /marks, or either only strategy or name is given
-    async def give_index() -> web.Response:
+    async def give_index(path: str) -> web.Response:
         df = await read_sql_async('SELECT DISTINCT strategy,name FROM marks',
                                   f'{path}/db.sqlite',
                                   index_col=['strategy',])
@@ -106,13 +122,14 @@ async def get_result_marks(request: web.Request) -> web.Response:
             index[strategy].append(name)
         return web.json_response(index, dumps=lambda d: json.dumps(d, indent=4))
 
+    path = request.match_info['path']
     try:
         strategy = request.query['strategy']
         name = request.query['name']
         interp = request.query.get('interp', None)
-        if interp:
-            return await give_series_interp()
+        if not interp:
+            return await give_series(path, strategy, name)
         else:
-            return await give_series()
+            return await give_series_interp(path, strategy, name, interp)
     except (KeyError, DatabaseError, ):
-        return await give_index()
+        return await give_index(path)
