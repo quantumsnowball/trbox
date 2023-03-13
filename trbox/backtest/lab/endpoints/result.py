@@ -82,16 +82,22 @@ async def get_result_stats(request: web.Request) -> web.Response:
 @routes.get('/api/result/{path:.+}/marks')
 async def get_result_marks(request: web.Request) -> web.Response:
     path = request.match_info['path']
-    try:
-        strategy = request.query['strategy']
-        name = request.query['name']
+
+    # /marks?strategy=<strategy>&name=<name>
+    async def give_series() -> web.Response:
         df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
                                   f'{path}/db.sqlite',
                                   params=(strategy, name, ))
         return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
                                                                      orient='values',
                                                                      indent=4)))
-    except (KeyError, DatabaseError, ):
+
+    # /marks?strategy=<?>&name=<?>&interp=<?>
+    async def give_series_interp() -> web.Response:
+        return web.json_response([])
+
+    # /marks, or either only strategy or name is given
+    async def give_index() -> web.Response:
         df = await read_sql_async('SELECT DISTINCT strategy,name FROM marks',
                                   f'{path}/db.sqlite',
                                   index_col=['strategy',])
@@ -99,3 +105,14 @@ async def get_result_marks(request: web.Request) -> web.Response:
         for strategy, name in df.itertuples():
             index[strategy].append(name)
         return web.json_response(index, dumps=lambda d: json.dumps(d, indent=4))
+
+    try:
+        strategy = request.query['strategy']
+        name = request.query['name']
+        interp = request.query.get('interp', None)
+        if interp:
+            return await give_series_interp()
+        else:
+            return await give_series()
+    except (KeyError, DatabaseError, ):
+        return await give_index()
