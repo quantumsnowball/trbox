@@ -1,3 +1,5 @@
+import json
+from collections import defaultdict
 from sqlite3 import DatabaseError
 
 import aiosqlite
@@ -80,11 +82,20 @@ async def get_result_stats(request: web.Request) -> web.Response:
 @routes.get('/api/result/{path:.+}/marks')
 async def get_result_marks(request: web.Request) -> web.Response:
     path = request.match_info['path']
-    strategy = request.query['strategy']
-    name = request.query['name']
-    df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
-                              f'{path}/db.sqlite',
-                              params=(strategy, name, ))
-    return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
-                                                                 orient='values',
-                                                                 indent=4)))
+    try:
+        strategy = request.query['strategy']
+        name = request.query['name']
+        df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
+                                  f'{path}/db.sqlite',
+                                  params=(strategy, name, ))
+        return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
+                                                                     orient='values',
+                                                                     indent=4)))
+    except (KeyError, DatabaseError, ):
+        df = await read_sql_async('SELECT DISTINCT strategy,name FROM marks',
+                                  f'{path}/db.sqlite',
+                                  index_col=['strategy',])
+        index = defaultdict(list)
+        for strategy, name in df.itertuples():
+            index[strategy].append(name)
+        return web.json_response(index, dumps=lambda d: json.dumps(d, indent=4))
