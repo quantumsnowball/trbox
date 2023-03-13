@@ -99,6 +99,10 @@ async def get_result_marks(request: web.Request) -> web.Response:
         main_df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
                                        f'{path}/db.sqlite',
                                        params=(strategy, interp, ))
+        # return empty if either df is empty
+        if len(overlay_df) == 0 or len(main_df) == 0:
+            return web.json_response([])
+        #
         combined_df = (concat([overlay_df, main_df])
                        .drop_duplicates(subset='timestamp', keep='last')
                        .sort_values(by='timestamp'))
