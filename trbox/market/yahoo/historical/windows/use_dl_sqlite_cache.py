@@ -12,7 +12,7 @@ from pandas import (DataFrame, Series, Timedelta, Timestamp, date_range,
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
-from trbox.common.utils import utcnow
+from trbox.common.utils import read_sql_async, utcnow
 from trbox.market.yahoo.historical.windows.constants import (CACHE_DIR, ERROR,
                                                              MAX_GAP, Freq)
 
@@ -102,6 +102,18 @@ async def fetch_sqlite(symbol: str,
         with sqlite3.connect(cache_url) as db:
             meta.to_sql('meta', db, index=False)
     # read the requested data and return
+    sql_select = ('SELECT Timestamp,Open,High,Low,Close,Volume '
+                  'FROM ohlcv WHERE '
+                  f"Timestamp BETWEEN {start_.timestamp()} AND {end_.timestamp()}")
+    df = await read_sql_async(sql_select, cache_url)
+    df = df.rename(columns={'Timestamp': OHLCV_INDEX_NAME})
+    df = df.set_index(OHLCV_INDEX_NAME)
+    df.index = to_datetime(df.index.values, unit='s')
+    df.index.name = OHLCV_INDEX_NAME
+    df = df.astype('float')
+    df = df.sort_index()
+    # done
+    return df
 
 
 if __name__ == '__main__':
