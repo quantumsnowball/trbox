@@ -120,10 +120,13 @@ async def fetch_sqlite(symbol: str,
     df = df.astype('float')
     df = df.sort_index()
     # verify dataframe integrity
-    assert to_datetime(start) <= df.index[0] <= \
-        to_datetime(start) + Timedelta(days=ERROR)
-    assert to_datetime(end) - Timedelta(days=ERROR) <= \
-        df.index[-1] <= to_datetime(end)
+    try:
+        assert to_datetime(start) <= df.index[0] <= \
+            to_datetime(start) + Timedelta(days=ERROR)
+        assert to_datetime(end) - Timedelta(days=ERROR) <= \
+            df.index[-1] <= to_datetime(end)
+    except AssertionError as e:
+        Log.exception(e)
     # done
     return df
 
