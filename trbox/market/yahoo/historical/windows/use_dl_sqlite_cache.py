@@ -52,17 +52,12 @@ async def fetch_sqlite(symbol: str,
         return False
     # if data is outdated download and replace the data
     if not await data_is_up_to_date():
-        # purge the database
-        async with aiosqlite.connect(cache_url) as db:
-            await db.execute('DROP TABLE IF EXISTS ohlcv')
-            await db.execute('DROP TABLE IF EXISTS meta')
         # download max length data
 
         async def download() -> DataFrame:
             base = 'https://query1.finance.yahoo.com/v7/finance/download'
             other_params = f'interval={freq}&events=history&includeAdjustedClose=true'
             download_url = f'{base}/{quote(symbol)}?period1=0&period2={int(utcnow().timestamp())}&{other_params}'
-            print(download_url)
             async with aiohttp.ClientSession() as session:
                 async with session.get(download_url,
                                        timeout=aiohttp.ClientTimeout(timeout)) as res:
@@ -92,6 +87,10 @@ async def fetch_sqlite(symbol: str,
         downloaded = await download()
         print(f'downloaded ohlcv, symbol="{symbol}", shape={downloaded.shape}',
               flush=True)
+        # purge the database
+        async with aiosqlite.connect(cache_url) as db:
+            await db.execute('DROP TABLE IF EXISTS ohlcv')
+            await db.execute('DROP TABLE IF EXISTS meta')
         # insert to ohlcv table
         with sqlite3.connect(cache_url) as db:
             downloaded.to_sql('ohlcv', db, index=False)
