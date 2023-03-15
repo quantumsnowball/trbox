@@ -87,5 +87,12 @@ async def read_sql_async(sql: str,
     return await asyncio.to_thread(read_sql_sync)
 
 
-# async def to_sql_async(df: DataFrame,
-#                        db: str,
+async def to_sql_async(df: DataFrame,
+                       name: str,
+                       db: Path,
+                       *args: Any,
+                       **kwargs: Any) -> None:
+    def to_sql_sync():
+        with sqlite3.connect(db) as con:
+            df.to_sql(name, con, *args, **kwargs)
+    await asyncio.to_thread(to_sql_sync)

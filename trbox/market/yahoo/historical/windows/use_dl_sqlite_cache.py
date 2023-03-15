@@ -12,7 +12,7 @@ from pandas import (DataFrame, Series, Timedelta, Timestamp, date_range,
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
-from trbox.common.utils import read_sql_async, utcnow
+from trbox.common.utils import read_sql_async, to_sql_async, utcnow
 from trbox.market.yahoo.historical.windows.constants import (CACHE_DIR, ERROR,
                                                              MAX_GAP, Freq)
 
@@ -95,14 +95,12 @@ async def fetch_sqlite(symbol: str,
                     await db.execute('DROP TABLE IF EXISTS ohlcv')
                     await db.execute('DROP TABLE IF EXISTS meta')
                 # insert to ohlcv table
-                with sqlite3.connect(cache_url) as db:
-                    downloaded.to_sql('ohlcv', db, index=False)
+                await to_sql_async(downloaded, 'ohlcv', cache_url, index=False)
                 # write meta data
                 meta = DataFrame(dict(last_updated=utcnow().timestamp(),
                                       start=downloaded['Timestamp'].iloc[0],
                                       end=downloaded['Timestamp'].iloc[-1]), index=[0])
-                with sqlite3.connect(cache_url) as db:
-                    meta.to_sql('meta', db, index=False)
+                await to_sql_async(meta, 'meta', cache_url, index=False)
                 # successfully done
                 break
             except Exception:
