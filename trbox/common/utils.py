@@ -1,5 +1,6 @@
 import asyncio
 import sqlite3
+from pathlib import Path
 from pprint import pformat
 from typing import Any
 
@@ -76,7 +77,7 @@ def utcnow() -> Timestamp:
 
 
 async def read_sql_async(sql: str,
-                         db: str,
+                         db: Path,
                          *args: Any,
                          **kwargs: Any) -> DataFrame:
     def read_sql_sync():
@@ -84,3 +85,7 @@ async def read_sql_async(sql: str,
             df = pd.read_sql(sql, con, *args, **kwargs)
             return df
     return await asyncio.to_thread(read_sql_sync)
+
+
+# async def to_sql_async(df: DataFrame,
+#                        db: str,

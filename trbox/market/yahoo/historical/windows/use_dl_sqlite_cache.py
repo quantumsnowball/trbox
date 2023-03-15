@@ -52,54 +52,65 @@ async def fetch_sqlite(symbol: str,
         return False
     # if data is outdated download and replace the data
     if not await data_is_up_to_date():
-        # download max length data
+        for i in range(retry):
+            try:
+                # download max length data
 
-        async def download() -> DataFrame:
-            base = 'https://query1.finance.yahoo.com/v7/finance/download'
-            other_params = f'interval={freq}&events=history&includeAdjustedClose=true'
-            download_url = f'{base}/{quote(symbol)}?period1=0&period2={int(utcnow().timestamp())}&{other_params}'
-            async with aiohttp.ClientSession() as session:
-                async with session.get(download_url,
-                                       timeout=aiohttp.ClientTimeout(timeout)) as res:
-                    assert res.status == 200
-                    csv = await res.content.read()
-                    df = read_csv(BytesIO(csv))
-                    df['Date'] = to_datetime(df['Date']).astype(int) // 1e9
-                    df = df.rename(columns={'Date': 'Timestamp'})
-                    # adjust
-                    adj_ratio = df['Adj Close']/df['Close']
-                    df['Open'] *= adj_ratio
-                    df['High'] *= adj_ratio
-                    df['Low'] *= adj_ratio
-                    df['Volume'] /= adj_ratio
-                    # ensure min max
-                    df['High'] = df[['Open', 'High', 'Close']].apply(max,
-                                                                     axis=1)
-                    df['Low'] = df[['Open', 'Low', 'Close']].apply(min,
-                                                                   axis=1)
-                    # trim and rename
-                    df = df.drop('Close', axis=1)
-                    df = df.rename(columns={'Adj Close': 'Close'})
-                    # clean
-                    df = df.dropna(how='any', axis=0)
-                    # done
-                    return df
-        downloaded = await download()
-        print(f'downloaded ohlcv, symbol="{symbol}", shape={downloaded.shape}',
-              flush=True)
-        # purge the database
-        async with aiosqlite.connect(cache_url) as db:
-            await db.execute('DROP TABLE IF EXISTS ohlcv')
-            await db.execute('DROP TABLE IF EXISTS meta')
-        # insert to ohlcv table
-        with sqlite3.connect(cache_url) as db:
-            downloaded.to_sql('ohlcv', db, index=False)
-        # write meta data
-        meta = DataFrame(dict(last_updated=utcnow().timestamp(),
-                              start=downloaded['Timestamp'].iloc[0],
-                              end=downloaded['Timestamp'].iloc[-1]), index=[0])
-        with sqlite3.connect(cache_url) as db:
-            meta.to_sql('meta', db, index=False)
+                async def download() -> DataFrame:
+                    base = 'https://query1.finance.yahoo.com/v7/finance/download'
+                    other_params = f'interval={freq}&events=history&includeAdjustedClose=true'
+                    download_url = f'{base}/{quote(symbol)}?period1=0&period2={int(utcnow().timestamp())}&{other_params}'
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(download_url,
+                                               timeout=aiohttp.ClientTimeout(timeout)) as res:
+                            assert res.status == 200
+                            csv = await res.content.read()
+                            df = read_csv(BytesIO(csv))
+                            df['Date'] = to_datetime(
+                                df['Date']).astype(int) // 1e9
+                            df = df.rename(columns={'Date': 'Timestamp'})
+                            # adjust
+                            adj_ratio = df['Adj Close']/df['Close']
+                            df['Open'] *= adj_ratio
+                            df['High'] *= adj_ratio
+                            df['Low'] *= adj_ratio
+                            df['Volume'] /= adj_ratio
+                            # ensure min max
+                            df['High'] = df[['Open', 'High', 'Close']].apply(max,
+                                                                             axis=1)
+                            df['Low'] = df[['Open', 'Low', 'Close']].apply(min,
+                                                                           axis=1)
+                            # trim and rename
+                            df = df.drop('Close', axis=1)
+                            df = df.rename(columns={'Adj Close': 'Close'})
+                            # clean
+                            df = df.dropna(how='any', axis=0)
+                            # done
+                            return df
+                downloaded = await download()
+                print(f'downloaded ohlcv, symbol="{symbol}", shape={downloaded.shape}',
+                      flush=True)
+                # purge the database
+                async with aiosqlite.connect(cache_url) as db:
+                    await db.execute('DROP TABLE IF EXISTS ohlcv')
+                    await db.execute('DROP TABLE IF EXISTS meta')
+                # insert to ohlcv table
+                with sqlite3.connect(cache_url) as db:
+                    downloaded.to_sql('ohlcv', db, index=False)
+                # write meta data
+                meta = DataFrame(dict(last_updated=utcnow().timestamp(),
+                                      start=downloaded['Timestamp'].iloc[0],
+                                      end=downloaded['Timestamp'].iloc[-1]), index=[0])
+                with sqlite3.connect(cache_url) as db:
+                    meta.to_sql('meta', db, index=False)
+                # successfully done
+                break
+            except Exception:
+                # will retry download and insert on Exception
+                Log.info(f'Download failed, retrying {i+1}/{retry}')
+        else:
+            # will allow return even if download failed
+            Log.info(f'Failed to download from Yahoo Finance')
     # read the requested data and return
     sql_select = ('SELECT Timestamp,Open,High,Low,Close,Volume '
                   'FROM ohlcv WHERE '
@@ -118,5 +129,6 @@ async def fetch_sqlite(symbol: str,
 if __name__ == '__main__':
     async def main() -> None:
         df = await fetch_sqlite('SPY', '1d', '2021-01-15', '2021-01-31')
-        print(df)
+        print(df.shape)
+        print(df.columns)
     asyncio.run(main())
