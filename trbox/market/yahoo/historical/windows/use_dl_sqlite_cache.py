@@ -38,15 +38,18 @@ async def fetch_sqlite(symbol: str,
         try:
             async with aiosqlite.connect(cache_url) as db:
                 meta = tuple(await db.execute_fetchall('SELECT * from meta'))
-            # meta data not available
-            if len(meta) == 0:
-                return False
-            # last_updated, timestamp_first, timestamp_last = meta[0]
-            # print(meta)
-            return False
-        except OperationalError:
-            # meta table not exists
-            return False
+                last_updated, timestamp_first, timestamp_last = meta[0]
+                # full coverage
+                if start_.timestamp() > timestamp_first and end_.timestamp() < timestamp_last:
+                    return True
+                # data is fresh within 1d
+                if utcnow().timestamp() < last_updated + 86400:
+                    return True
+        except (KeyError, OperationalError):
+            # meta data not available or meta table not exists
+            pass
+        # default
+        return False
     # if data is outdated download and replace the data
     if not await data_is_up_to_date():
         # purge the database
