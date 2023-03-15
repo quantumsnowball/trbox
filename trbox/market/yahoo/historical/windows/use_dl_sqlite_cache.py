@@ -27,8 +27,8 @@ async def fetch_sqlite(symbol: str,
     end_: Timestamp = to_datetime(end)
     assert start_ < end_, 'Start date must be before end date'
     assert end_ <= utcnow(), 'Future timestamp not allowed'
-    cache_dir = Path(f'{CACHE_DIR}/yahoo/historical/windows/{symbol}/{freq}')
-    cache_url = Path(f'{cache_dir}/db.sqlite')
+    cache_dir = Path(CACHE_DIR, 'yahoo/historical/windows', symbol, freq)
+    cache_url = Path(cache_dir, 'db.sqlite')
     cache_dir.mkdir(parents=True, exist_ok=True)
     # decide if the data exists and up to date
 
