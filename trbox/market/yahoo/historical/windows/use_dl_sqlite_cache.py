@@ -1,5 +1,4 @@
 import asyncio
-import sqlite3
 from io import BytesIO
 from pathlib import Path
 from sqlite3 import OperationalError
@@ -7,14 +6,13 @@ from urllib.parse import quote
 
 import aiohttp
 import aiosqlite
-from pandas import (DataFrame, Series, Timedelta, Timestamp, date_range,
-                    read_csv, to_datetime)
+from pandas import DataFrame, Timestamp, read_csv, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
 from trbox.common.utils import read_sql_async, to_sql_async, utcnow
-from trbox.market.yahoo.historical.windows.constants import (CACHE_DIR, ERROR,
-                                                             MAX_GAP, Freq)
+from trbox.market.yahoo.historical.windows.constants import (ABSOLUTE_START,
+                                                             CACHE_DIR, Freq)
 
 
 async def fetch_sqlite(symbol: str,
@@ -59,7 +57,7 @@ async def fetch_sqlite(symbol: str,
                 async def download() -> DataFrame:
                     base = 'https://query1.finance.yahoo.com/v7/finance/download'
                     other_params = f'interval={freq}&events=history&includeAdjustedClose=true'
-                    download_url = f'{base}/{quote(symbol)}?period1=0&period2={int(utcnow().timestamp())}&{other_params}'
+                    download_url = f'{base}/{quote(symbol)}?period1={ABSOLUTE_START}&period2={int(utcnow().timestamp())}&{other_params}'
                     async with aiohttp.ClientSession() as session:
                         async with session.get(download_url,
                                                timeout=aiohttp.ClientTimeout(timeout)) as res:
