@@ -6,13 +6,14 @@ from urllib.parse import quote
 
 import aiohttp
 import aiosqlite
-from pandas import DataFrame, Timestamp, read_csv, to_datetime
+from pandas import DataFrame, Timedelta, Timestamp, read_csv, to_datetime
 
 from trbox.common.constants import OHLCV_INDEX_NAME
 from trbox.common.logger import Log
 from trbox.common.utils import read_sql_async, to_sql_async, utcnow
 from trbox.market.yahoo.historical.windows.constants import (ABSOLUTE_START,
-                                                             CACHE_DIR, Freq)
+                                                             CACHE_DIR, ERROR,
+                                                             Freq)
 
 
 async def fetch_sqlite(symbol: str,
@@ -118,6 +119,11 @@ async def fetch_sqlite(symbol: str,
     df.index.name = OHLCV_INDEX_NAME
     df = df.astype('float')
     df = df.sort_index()
+    # verify dataframe integrity
+    assert to_datetime(start) <= df.index[0] <= \
+        to_datetime(start) + Timedelta(days=ERROR)
+    assert to_datetime(end) - Timedelta(days=ERROR) <= \
+        df.index[-1] <= to_datetime(end)
     # done
     return df
 
