@@ -10,17 +10,17 @@ from pandas import DataFrame, Series, concat
 
 from trbox.common.logger import Log
 from trbox.common.utils import cln, localnow
+from trbox.portfolio import Portfolio
 from trbox.portfolio.stats import StatsDict
 from trbox.strategy.mark import Mark
-from trbox.trader.digest import Digest
 
 
 @dataclass
 class Result:
     desc: str = 'A collection of all trader dashboard with summary'
 
-    def __init__(self, *digests: Digest) -> None:
-        self._digests = digests
+    def __init__(self, *portfolios: Portfolio) -> None:
+        self._portfolios = portfolios
 
     def __str__(self) -> str:
         return f'{cln(self)}({self.desc})'
@@ -31,23 +31,23 @@ class Result:
 
     @property
     def metrics(self) -> DataFrame:
-        return concat([d.metrics for d in self._digests], axis=0)
+        return concat([p.metrics.df for p in self._portfolios], axis=0)
 
     @property
     def stats(self) -> dict[str, StatsDict]:
-        return {d.name: d.stats for d in self._digests}
+        return {p.strategy.name: p.stats.dict for p in self._portfolios}
 
     @property
     def equity(self) -> dict[str, Series]:
-        return {d.name: d.equity for d in self._digests}
+        return {p.strategy.name: p.dashboard.equity for p in self._portfolios}
 
     @property
     def marks(self) -> dict[str, Mark]:
-        return {d.name: d.mark for d in self._digests}
+        return {p.strategy.name: p.strategy.mark for p in self._portfolios}
 
     @property
     def trades(self) -> dict[str, DataFrame]:
-        return {d.name: d.trades for d in self._digests}
+        return {p.strategy.name: p.dashboard.trades for p in self._portfolios}
     #
     # presenting
     #
@@ -66,8 +66,8 @@ class Result:
                 timestamp=timestamp,
                 source=Path(script_path).name,
                 params=params,
-                strategies=[d.name for d in self._digests],
-                marks=sum([len(d.mark) for d in self._digests]),
+                strategies=[s.strategy.name for s in self._portfolios],
+                marks=sum([len(s.strategy.mark) for s in self._portfolios]),
             ), indent=4)
             db.execute('REPLACE INTO meta VALUES(?)', (data,))
             db.commit()

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from multiprocessing import Queue
 from threading import Event
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 
 from trbox.backtest.monitor import Monitor, monitor
 from trbox.common.logger import Log
@@ -12,6 +13,7 @@ from trbox.console.dummy import DummyConsole
 from trbox.portfolio import Basic, Portfolio
 from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy.mark import Mark
+from trbox.trader.digest import Digest
 
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
@@ -70,7 +72,8 @@ class Runner:
         return self._signal
 
     # main thread pool
-    def run(self) -> None:
+    # TODO may be move to Trader class
+    def run(self, mp_queue: Queue | None = None) -> None:
         with ThreadPoolExecutor(thread_name_prefix='TraderPool') as executor:
             futures = [executor.submit(h.run) for h in self._handlers]
             # notify the event handlers start
@@ -92,6 +95,10 @@ class Runner:
                 raise e
 
         Log.info(Memo('Runner has completed').by(self))
+
+        # send itself back to main proc if available
+        if mp_queue:
+            mp_queue.put(self.digest)
 
 
 class Trader(Runner):
@@ -135,3 +142,13 @@ class Trader(Runner):
     @property
     def mark(self) -> Mark:
         return self._strategy.mark
+
+    # digest
+    @property
+    def digest(self) -> Digest:
+        return Digest(name=self.name,
+                      metrics=self.portfolio.metrics.df,
+                      stats=self.portfolio.stats.dict,
+                      equity=self.portfolio.dashboard.equity,
+                      mark=self.portfolio.strategy.mark,
+                      trades=self.portfolio.dashboard.trades,)

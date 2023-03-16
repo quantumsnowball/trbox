@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 from typing import TYPE_CHECKING, Iterable, Literal, Self
 
 from typing_extensions import override
@@ -13,6 +13,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event.monitor import EnableOutput
+from trbox.trader.digest import Digest
 
 if TYPE_CHECKING:
     from trbox.trader import Runner, Trader
@@ -28,6 +29,7 @@ class BatchRunner(ABC):
     @abstractmethod
     def __init__(self) -> None:
         self._runners: Iterable[Runner]
+        self._digests: Iterable[Digest]
 
     def _run_sync(self) -> None:
         for id, runner in enumerate(self._runners):
@@ -51,15 +53,21 @@ class BatchRunner(ABC):
                      .by(self).tag('pool', 'finished'))
 
     def _run_multiprocess(self) -> None:
-        procs = [Process(target=runner.run)
-                 for runner in self._runners]
-        Log.info(Memo('started', n_procs=len(procs))
-                 .by(self).tag('pool', 'started'))
+        result_queues: list[Queue] = [Queue() for _ in self._runners]
+        procs = [Process(target=runner.run, args=(queue,))
+                 for runner, queue in zip(self._runners, result_queues)]
+        # start
         for p in procs:
             p.start()
+        Log.info(Memo('started', n_procs=len(procs))
+                 .by(self).tag('pool', 'started'))
+        # block here until all future has resolved
+        # get back all the mutated runners
+        self._digests = tuple(queue.get()
+                              for queue in result_queues)
+        # join and exit
         for p in procs:
             p.join()
-        # block here until all future has resolved
         Log.info(Memo('finished', n_procs=len(procs))
                  .by(self).tag('pool', 'finished'))
 
@@ -92,7 +100,10 @@ class Backtest(BatchRunner):
 
     @property
     def result(self) -> Result:
-        return Result(*self._portfolios)
+        try:
+            return Result(*self._digests)
+        except AttributeError:
+            return Result(*[r.digest for r in self._runners])
 
     @override
     def run(self, *, mode: Mode = 'thread') -> Self:
