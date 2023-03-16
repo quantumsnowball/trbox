@@ -24,13 +24,11 @@ class Monitor(Handler):
 
     def run(self):
         while True:
-            print('getting progress...')
             item = self.queue.get()
-            print('received an item')
             if item == 'exit':
                 break
             self.count += 1
-            print(f'msg count = {self.count}')
+            # print(f'msg count = {self.count}')
 
 
 monitor = Monitor()
@@ -39,14 +37,16 @@ monitor = Monitor()
 class Worker(Handler):
     def __init__(self):
         super().__init__()
+        self.last_msg = 'init'
 
     def run(self):
         while True:
             item = self.queue.get()
+            self.last_msg = item
             if item == 'exit':
                 break
             # do other things on the item, may be cpu intensive ...
-            print(item)
+            # print(item)
             monitor.put('count me')
 
 
@@ -60,9 +60,9 @@ class Runner:
         for i in range(4):
             self.a.put(f'{self.name}: hello a ({i})')
             self.b.put(f'{self.name}: hello b ({i})')
-        # self.a.put('exit')
-        # self.b.put('exit')
-        # monitor.put('exit')
+        self.a.put('exit')
+        self.b.put('exit')
+        monitor.put('exit')
         with ThreadPoolExecutor() as exe:
             futures = [exe.submit(r.run)
                        for r in [self.a, self.b]]
@@ -96,12 +96,14 @@ def run_in_process():
     rA = Runner('A')
     rB = Runner('B')
     rC = Runner('C')
+    print(rA.a.last_msg)
     procs = [*[Process(target=r.start)
              for r in [rA, rB, rC]], Process(target=monitor.run)]
     for p in procs:
         p.start()
     for p in procs:
         p.join()
+    print(rA.a.last_msg)
 
 
 if __name__ == '__main__':
