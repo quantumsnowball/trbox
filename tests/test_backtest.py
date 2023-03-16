@@ -15,8 +15,8 @@ from trbox.strategy.context import Context
 
 
 @pytest.mark.parametrize('name', [None, 'DummySt', ])
-@pytest.mark.parametrize('parallel', [False, ])
-def test_dummy(name, parallel):
+@pytest.mark.parametrize('mode', ['serial', 'thread', 'process', ])
+def test_dummy(name, mode):
     SYMBOL = 'BTC'
     QUANTITY = 0.2
 
@@ -36,7 +36,7 @@ def test_dummy(name, parallel):
             market=GeneratedHistoricalTrades(SYMBOL),
             broker=PaperEX(SYMBOL))
     )
-    bt.run(parallel=parallel)
+    bt.run(mode=mode)
     # for backtesting, up to here means market data finished, simular to user termination
     for trader in bt.traders:
         Log.info(Memo(str(trader.portfolio.dashboard)).by(
