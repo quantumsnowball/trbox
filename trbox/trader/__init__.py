@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from multiprocessing import Queue
 from threading import Event
 from typing import TYPE_CHECKING, Any
 
@@ -12,6 +14,7 @@ from trbox.console.dummy import DummyConsole
 from trbox.portfolio import Basic, Portfolio
 from trbox.portfolio.dashboard import Dashboard
 from trbox.strategy.mark import Mark
+from trbox.trader.digest import Digest
 
 if TYPE_CHECKING:
     from trbox.strategy import Strategy
@@ -30,7 +33,7 @@ class Signal:
     broker_ready: Event
 
 
-class Runner:
+class Runner(ABC):
     def __init__(self, *,
                  strategy: Strategy,
                  market: Market,
@@ -41,6 +44,11 @@ class Runner:
         self._broker: Broker = broker
         self._console: Console = console if console else DummyConsole()
         self._portfolio: Portfolio = Basic()
+        # TODO now this the same instance of monitor, but using multiple threads to run it
+        # it doesn't crash because the queue object is thread safe and only one thread can
+        # get the progress event and print, and will receive the Exit event to shutdown itself
+        # but this seems anti-pattern, should refactor the code to use a separated thread/process
+        # to run the monitor.run() method
         self._monitor: Monitor = monitor
         self._handlers = (self._strategy,
                           self._market,
@@ -64,29 +72,9 @@ class Runner:
     def signal(self) -> Signal:
         return self._signal
 
-    # main thread pool
-    def run(self) -> None:
-        with ThreadPoolExecutor(thread_name_prefix='TraderPool') as executor:
-            futures = [executor.submit(h.run) for h in self._handlers]
-            # notify the event handlers start
-            self.start()
-            # wait for future results and catch exceptions in other threads
-            try:
-                for future in as_completed(futures):
-                    future.result()
-            # catch KeyboardInterrupt first to stop threads gracefully
-            except KeyboardInterrupt as e:
-                self.stop()
-                Log.info(Memo(cln(e), 'requested all handlers to quit')
-                         .by(self).tag('interrupt', 'ctrl-c'))
-            # if other Exception are catched, stop all threads gracefully and
-            # then raise them again in main thread to fail any test cases
-            except Exception as e:
-                Log.exception(e.__class__)
-                self.stop()
-                raise e
-
-        Log.info(Memo('Runner has completed').by(self))
+    @abstractmethod
+    def run(self, mp_queue: Queue[Digest] | None = None) -> None:
+        ...
 
 
 class Trader(Runner):
@@ -130,3 +118,41 @@ class Trader(Runner):
     @property
     def mark(self) -> Mark:
         return self._strategy.mark
+
+    # digest
+    @property
+    def digest(self) -> Digest:
+        return Digest(name=self.name,
+                      metrics=self.portfolio.metrics.df,
+                      stats=self.portfolio.stats.dict,
+                      equity=self.portfolio.dashboard.equity,
+                      mark=self.portfolio.strategy.mark,
+                      trades=self.portfolio.dashboard.trades,)
+
+    # main thread pool
+    def run(self, mp_queue: Queue[Digest] | None = None) -> None:
+        with ThreadPoolExecutor(thread_name_prefix='TraderPool') as executor:
+            futures = [executor.submit(h.run) for h in self._handlers]
+            # notify the event handlers start
+            self.start()
+            # wait for future results and catch exceptions in other threads
+            try:
+                for future in as_completed(futures):
+                    future.result()
+            # catch KeyboardInterrupt first to stop threads gracefully
+            except KeyboardInterrupt as e:
+                self.stop()
+                Log.info(Memo(cln(e), 'requested all handlers to quit')
+                         .by(self).tag('interrupt', 'ctrl-c'))
+            # if other Exception are catched, stop all threads gracefully and
+            # then raise them again in main thread to fail any test cases
+            except Exception as e:
+                Log.exception(e.__class__)
+                self.stop()
+                raise e
+
+        Log.info(Memo('Runner has completed').by(self))
+
+        # send itself back to main proc if available
+        if mp_queue:
+            mp_queue.put(self.digest)

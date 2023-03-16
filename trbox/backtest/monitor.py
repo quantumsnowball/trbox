@@ -1,5 +1,4 @@
 from collections import deque
-from collections.abc import Callable
 
 from typing_extensions import override
 
