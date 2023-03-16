@@ -49,7 +49,7 @@ bt = Backtest(
 )
 
 print('Started backtest')
-bt.run(parallel=True)
+bt.run(mode='process')
 print('Finished backtest')
 
 bt.result.save()
