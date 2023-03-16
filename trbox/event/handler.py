@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from queue import Queue
+from multiprocessing import Queue
 from typing import TYPE_CHECKING, Self
 
 from trbox.common.logger import Log
@@ -43,9 +43,6 @@ class EventHandler(ABC):
             # pass the event to the subclass method for handling
             self.handle(e)
             Log.debug(Memo('handled', event=cln(e)).by(self))
-
-            # mark the task done and update event count
-            self._inbox.task_done()
 
             # break handler if received the Exit event
             if isinstance(e, Exit):
