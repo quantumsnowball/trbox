@@ -41,6 +41,11 @@ class Runner:
         self._broker: Broker = broker
         self._console: Console = console if console else DummyConsole()
         self._portfolio: Portfolio = Basic()
+        # TODO now this the same instance of monitor, but using multiple threads to run it
+        # it doesn't crash because the queue object is thread safe and only one thread can
+        # get the progress event and print, and will receive the Exit event to shutdown itself
+        # but this seems anti-pattern, should refactor the code to use a separated thread/process
+        # to run the monitor.run() method
         self._monitor: Monitor = monitor
         self._handlers = (self._strategy,
                           self._market,
