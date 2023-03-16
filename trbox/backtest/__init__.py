@@ -61,8 +61,8 @@ class BatchRunner(ABC):
             p.start()
         Log.info(Memo('started', n_procs=len(procs))
                  .by(self).tag('pool', 'started'))
-        # block here until all future has resolved
-        # get back all the mutated runners
+        # block here until all process finished
+        # get back all trader result digest
         self._digests = tuple(queue.get()
                               for queue in result_queues)
         # join and exit
