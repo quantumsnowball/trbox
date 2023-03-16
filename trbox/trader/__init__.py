@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from multiprocessing import Queue
 from threading import Event
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any
 
 from trbox.backtest.monitor import Monitor, monitor
 from trbox.common.logger import Log
@@ -32,7 +33,7 @@ class Signal:
     broker_ready: Event
 
 
-class Runner:
+class Runner(ABC):
     def __init__(self, *,
                  strategy: Strategy,
                  market: Market,
@@ -71,34 +72,9 @@ class Runner:
     def signal(self) -> Signal:
         return self._signal
 
-    # main thread pool
-    # TODO may be move to Trader class
+    @abstractmethod
     def run(self, mp_queue: Queue | None = None) -> None:
-        with ThreadPoolExecutor(thread_name_prefix='TraderPool') as executor:
-            futures = [executor.submit(h.run) for h in self._handlers]
-            # notify the event handlers start
-            self.start()
-            # wait for future results and catch exceptions in other threads
-            try:
-                for future in as_completed(futures):
-                    future.result()
-            # catch KeyboardInterrupt first to stop threads gracefully
-            except KeyboardInterrupt as e:
-                self.stop()
-                Log.info(Memo(cln(e), 'requested all handlers to quit')
-                         .by(self).tag('interrupt', 'ctrl-c'))
-            # if other Exception are catched, stop all threads gracefully and
-            # then raise them again in main thread to fail any test cases
-            except Exception as e:
-                Log.exception(e.__class__)
-                self.stop()
-                raise e
-
-        Log.info(Memo('Runner has completed').by(self))
-
-        # send itself back to main proc if available
-        if mp_queue:
-            mp_queue.put(self.digest)
+        ...
 
 
 class Trader(Runner):
@@ -152,3 +128,31 @@ class Trader(Runner):
                       equity=self.portfolio.dashboard.equity,
                       mark=self.portfolio.strategy.mark,
                       trades=self.portfolio.dashboard.trades,)
+
+    # main thread pool
+    def run(self, mp_queue: Queue | None = None) -> None:
+        with ThreadPoolExecutor(thread_name_prefix='TraderPool') as executor:
+            futures = [executor.submit(h.run) for h in self._handlers]
+            # notify the event handlers start
+            self.start()
+            # wait for future results and catch exceptions in other threads
+            try:
+                for future in as_completed(futures):
+                    future.result()
+            # catch KeyboardInterrupt first to stop threads gracefully
+            except KeyboardInterrupt as e:
+                self.stop()
+                Log.info(Memo(cln(e), 'requested all handlers to quit')
+                         .by(self).tag('interrupt', 'ctrl-c'))
+            # if other Exception are catched, stop all threads gracefully and
+            # then raise them again in main thread to fail any test cases
+            except Exception as e:
+                Log.exception(e.__class__)
+                self.stop()
+                raise e
+
+        Log.info(Memo('Runner has completed').by(self))
+
+        # send itself back to main proc if available
+        if mp_queue:
+            mp_queue.put(self.digest)
