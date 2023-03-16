@@ -73,7 +73,7 @@ class Runner(ABC):
         return self._signal
 
     @abstractmethod
-    def run(self, mp_queue: Queue | None = None) -> None:
+    def run(self, mp_queue: Queue[Digest] | None = None) -> None:
         ...
 
 
@@ -130,7 +130,7 @@ class Trader(Runner):
                       trades=self.portfolio.dashboard.trades,)
 
     # main thread pool
-    def run(self, mp_queue: Queue | None = None) -> None:
+    def run(self, mp_queue: Queue[Digest] | None = None) -> None:
         with ThreadPoolExecutor(thread_name_prefix='TraderPool') as executor:
             futures = [executor.submit(h.run) for h in self._handlers]
             # notify the event handlers start

@@ -53,7 +53,7 @@ class BatchRunner(ABC):
                      .by(self).tag('pool', 'finished'))
 
     def _run_multiprocess(self) -> None:
-        result_queues: list[Queue] = [Queue() for _ in self._runners]
+        result_queues: list[Queue[Digest]] = [Queue() for _ in self._runners]
         procs = [Process(target=runner.run, args=(queue,))
                  for runner, queue in zip(self._runners, result_queues)]
         # start

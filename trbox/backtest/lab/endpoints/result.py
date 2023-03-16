@@ -1,5 +1,6 @@
 import json
 from collections import defaultdict
+from pathlib import Path
 from sqlite3 import DatabaseError
 
 import aiosqlite
@@ -36,10 +37,10 @@ async def get_result_metrics(request: web.Request) -> web.Response:
         sort = request.query['sort'].upper()
         order = request.query['order'].upper()
         df = await read_sql_async(f'SELECT * FROM metrics ORDER BY {sort} {order}',
-                                  f'{path}/db.sqlite')
+                                  Path(path, 'db.sqlite'))
     except (KeyError, DatabaseError, ):
         df = await read_sql_async(f'SELECT * FROM metrics',
-                                  f'{path}/db.sqlite')
+                                  Path(path, 'db.sqlite'))
     return web.json_response(df, dumps=lambda df: str(df.to_json(orient='split',
                                                                  indent=4)))
 
@@ -48,7 +49,7 @@ async def get_result_metrics(request: web.Request) -> web.Response:
 async def get_result_equity(request: web.Request) -> web.Response:
     path = request.match_info['path']
     df = await read_sql_async('SELECT * from equity',
-                              f'{path}/db.sqlite',)
+                              Path(path, 'db.sqlite'),)
     df = df.set_index('index')
     return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
                                                                  orient='columns',
@@ -60,7 +61,7 @@ async def get_result_trades(request: web.Request) -> web.Response:
     path = request.match_info['path']
     strategy = request.query['strategy']
     df = await read_sql_async('SELECT * FROM trades WHERE Strategy=?',
-                              f'{path}/db.sqlite',
+                              Path(path, 'db.sqlite'),
                               params=(strategy, ))
     df = df.set_index('Date')
     df = df.drop(columns=['Strategy'])
@@ -85,7 +86,7 @@ async def get_result_marks(request: web.Request) -> web.Response:
     # /marks?strategy=<strategy>&name=<name>
     async def give_series(path: str, strategy: str, name: str) -> web.Response:
         df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
-                                  f'{path}/db.sqlite',
+                                  Path(path, 'db.sqlite'),
                                   params=(strategy, name, ))
         return web.json_response(df, dumps=lambda df: str(df.to_json(date_format='iso',
                                                                      orient='values',
@@ -94,10 +95,10 @@ async def get_result_marks(request: web.Request) -> web.Response:
     # /marks?strategy=<?>&name=<?>&interp=<?>
     async def give_series_interp(path: str, strategy: str, name: str, interp: str) -> web.Response:
         overlay_df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
-                                          f'{path}/db.sqlite',
+                                          Path(path, 'db.sqlite'),
                                           params=(strategy, name, ))
         main_df = await read_sql_async('SELECT timestamp,value FROM marks WHERE strategy=? AND name=?',
-                                       f'{path}/db.sqlite',
+                                       Path(path, 'db.sqlite'),
                                        params=(strategy, interp, ))
         # return empty if either df is empty
         if len(overlay_df) == 0 or len(main_df) == 0:
@@ -119,7 +120,7 @@ async def get_result_marks(request: web.Request) -> web.Response:
     # /marks, or either only strategy or name is given
     async def give_index(path: str) -> web.Response:
         df = await read_sql_async('SELECT DISTINCT strategy,name FROM marks',
-                                  f'{path}/db.sqlite',
+                                  Path(path, 'db.sqlite'),
                                   index_col=['strategy',])
         index = defaultdict(list)
         for strategy, name in df.itertuples():
