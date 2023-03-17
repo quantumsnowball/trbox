@@ -81,11 +81,3 @@ class Dashboard:
                             e.gross_proceeds,
                             e.fee,
                             e.net_proceeds))
-
-    #
-    # presenting
-    #
-
-    def plot(self) -> None:
-        # TODO may be simple nav ploting, both live and backtesting
-        ...

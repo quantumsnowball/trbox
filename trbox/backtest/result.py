@@ -48,13 +48,6 @@ class Result:
     @property
     def trades(self) -> dict[str, DataFrame]:
         return {d.name: d.trades for d in self._digests}
-    #
-    # presenting
-    #
-
-    def plot(self) -> None:
-        # TODO combine all traders and plot at one single chart
-        ...
 
     #
     # save
