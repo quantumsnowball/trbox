@@ -111,6 +111,7 @@ class Backtest(BatchRunner):
     def run(self, *, mode: Mode = 'thread') -> Self:
         # start monitor
         t = Thread(target=monitor.run,
+                   daemon=True,
                    name='Monitor')
         t.start()
 

@@ -9,7 +9,7 @@ from trbox.event.system import Exit
 
 
 class Monitor:
-    def __init__(self, maxsize: int = 10) -> None:
+    def __init__(self, maxsize: int = 25) -> None:
         self._inbox: Queue[Event] = Queue(maxsize=maxsize)
         self._enable = False
         self._count = 1
