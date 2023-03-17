@@ -36,18 +36,19 @@ class YahooHistoricalWindows(MarketWorker):
         self._symbols = symbols
         self._start = to_datetime(start)
         self._end = to_datetime(end if end else utcnow())
-        self._freq = freq
+        self._freq: Freq = freq
         self._length = length
-        # data preprocessing
-        self._win_start = cal_win_start(self._start, self._freq, self._length)
-        self._dfs_coros = {s: fetch_sqlite(s, self._freq, self._win_start, self._end)
-                           for s in self._symbols}
         # work thread event
         self._alive = Event()
 
     @override
     def working(self) -> None:
+        # data preprocessing
+        self._win_start = cal_win_start(self._start, self._freq, self._length)
+        self._dfs_coros = {s: fetch_sqlite(s, self._freq, self._win_start, self._end)
+                           for s in self._symbols}
         # gather dfs
+
         async def gather_dfs() -> dict[Symbol, DataFrame]:
             results = await asyncio.gather(*self._dfs_coros.values())
             return dict(zip(self._symbols, results))
