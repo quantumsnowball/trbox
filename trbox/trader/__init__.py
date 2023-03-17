@@ -6,7 +6,6 @@ from multiprocessing import Queue
 from threading import Event
 from typing import TYPE_CHECKING, Any
 
-from trbox.backtest.monitor import Monitor, monitor
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
@@ -44,18 +43,11 @@ class Runner(ABC):
         self._broker: Broker = broker
         self._console: Console = console if console else DummyConsole()
         self._portfolio: Portfolio = Basic()
-        # TODO now this the same instance of monitor, but using multiple threads to run it
-        # it doesn't crash because the queue object is thread safe and only one thread can
-        # get the progress event and print, and will receive the Exit event to shutdown itself
-        # but this seems anti-pattern, should refactor the code to use a separated thread/process
-        # to run the monitor.run() method
-        self._monitor: Monitor = monitor
         self._handlers = (self._strategy,
                           self._market,
                           self._broker,
                           self._console,
-                          self._portfolio,
-                          self._monitor, )
+                          self._portfolio,)
         self._signal = Signal(enter=Event(),
                               broker_ready=Event())
 
@@ -89,8 +81,7 @@ class Trader(Runner):
                            market=self._market,
                            broker=self._broker,
                            portfolio=self._portfolio,
-                           console=self._console,
-                           monitor=self._monitor)
+                           console=self._console,)
 
     # mode
 

@@ -4,11 +4,11 @@ from typing_extensions import override
 
 from trbox.common.utils import localnow_string
 from trbox.event import Event
-from trbox.event.handler import CounterParty
+from trbox.event.handler import EventHandler
 from trbox.event.monitor import EnableOutput, ProgressUpdate
 
 
-class Monitor(CounterParty):
+class Monitor(EventHandler):
     def __init__(self) -> None:
         super().__init__()
         self._enable = False

@@ -7,7 +7,7 @@ from trbox.common.types import Symbol
 from trbox.common.utils import cln, ppf
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import OrderResult
-from trbox.event.handler import CounterParty
+from trbox.event.handler.counterparty import CounterParty
 from trbox.strategy.context import Context, Count
 from trbox.strategy.mark import Mark
 from trbox.strategy.types import DataHandler, DataHandlers, Heartbeats, Hook

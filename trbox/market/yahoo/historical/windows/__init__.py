@@ -4,6 +4,7 @@ from threading import Event
 from pandas import DataFrame, Timedelta, Timestamp, to_datetime
 from typing_extensions import override
 
+from trbox.backtest.monitor import monitor
 from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import utcnow
 from trbox.event.broker import AuditRequest
@@ -69,10 +70,10 @@ class YahooHistoricalWindows(MarketWorker):
             self.strategy.put(e)
             self.broker.put(e)
             self.portfolio.put(e)
-            self.monitor.put(ProgressUpdate(self.strategy.name,
-                                            e.timestamp,
-                                            self._start,
-                                            self._end))
+            monitor.put(ProgressUpdate(self.strategy.name,
+                                       e.timestamp,
+                                       self._start,
+                                       self._end))
 
             # TODO other parties should decide when to audit
             self.broker.put(AuditRequest(e.timestamp))

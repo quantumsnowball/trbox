@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process, Queue
+from threading import Thread
 from typing import TYPE_CHECKING, Iterable, Literal, Self
 
 from typing_extensions import override
@@ -13,6 +14,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event.monitor import EnableOutput
+from trbox.event.system import Exit
 from trbox.trader.digest import Digest
 
 if TYPE_CHECKING:
@@ -107,6 +109,12 @@ class Backtest(BatchRunner):
 
     @override
     def run(self, *, mode: Mode = 'process') -> Self:
+        # start monitor
+        t = Thread(target=monitor.run,
+                   name='Monitor')
+        t.start()
+
+        # run all the traders
         match(mode):
             case 'serial':
                 self._run_sync()
@@ -116,4 +124,10 @@ class Backtest(BatchRunner):
                 self._run_multiprocess()
             case _:
                 self._run_async()
+
+        # stop monitor
+        monitor.put(Exit())
+        t.join()
+
+        # return bt
         return self
