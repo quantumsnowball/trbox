@@ -1,21 +1,36 @@
 from collections import deque
-
-from typing_extensions import override
+from multiprocessing import Queue
+from queue import Full
 
 from trbox.common.utils import localnow_string
 from trbox.event import Event
-from trbox.event.handler import EventHandler
 from trbox.event.monitor import EnableOutput, ProgressUpdate
+from trbox.event.system import Exit
 
 
-class Monitor(EventHandler):
-    def __init__(self) -> None:
-        super().__init__()
+class Monitor:
+    def __init__(self, maxsize: int = 10) -> None:
+        self._inbox: Queue[Event] = Queue(maxsize=maxsize)
         self._enable = False
         self._count = 1
         self._pcts: dict[str, float] = {}
         self._rolling: deque[float] = deque([0, 0], maxlen=2)
         self._step = 5
+
+    # basic
+    def put(self, e: Event) -> None:
+        try:
+            self._inbox.put_nowait(e)
+        except Full:
+            pass
+
+    def run(self) -> None:
+        while True:
+            e = self._inbox.get()
+            self.handle(e)
+            # break handler if received the Exit event
+            if isinstance(e, Exit):
+                break
 
     @property
     def progress(self) -> float:
@@ -38,7 +53,6 @@ class Monitor(EventHandler):
             if int(prev*100//self._step) != int(val*100//self._step) or val == 0.0 or val == 1.0:
                 print(f'{localnow_string()} : {self.progress:7.2%}', flush=True)
 
-    @ override
     def handle(self, e: Event) -> None:
         if isinstance(e, ProgressUpdate):
             self.handle_progress_update(e)
