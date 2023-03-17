@@ -66,8 +66,6 @@ bt = Backtest(
     ]
 )
 
-print('Started backtest')
-bt.run(mode='process')
-print('Finished backtest')
+bt.run()
 
 bt.result.save()
