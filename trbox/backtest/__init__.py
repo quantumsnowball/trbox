@@ -74,7 +74,7 @@ class BatchRunner(ABC):
                  .by(self).tag('pool', 'finished'))
 
     @abstractmethod
-    def run(self, *, mode: Mode = 'process') -> Self:
+    def run(self, *, mode: Mode = 'thread') -> Self:
         pass
 
 
@@ -108,7 +108,7 @@ class Backtest(BatchRunner):
             return Result(*[r.digest for r in self._runners])
 
     @override
-    def run(self, *, mode: Mode = 'process') -> Self:
+    def run(self, *, mode: Mode = 'thread') -> Self:
         # start monitor
         t = Thread(target=monitor.run,
                    name='Monitor')
