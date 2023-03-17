@@ -57,7 +57,6 @@ def test_dummy(name, live):
         .on('BTC', TradeTick, do=dummy_action),
         market=GeneratedHistoricalTrades(SYMBOL, n=N),
         broker=PaperEX(SYMBOL),
-        console=TrboxDashboard()
     )
     t.run()
     # up to here the market data terminated, simular to user termination
