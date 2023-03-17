@@ -72,7 +72,7 @@ test:
 test-debug:
 	@pytest . -k 'not playground' --pdb --log-cli-level DEBUG
 test-parallel:
-	@pytest . -k 'not playground' --workers auto
+	@pytest . -k 'not playground' --workers auto --verbose
 
 #
 # Typecheck
