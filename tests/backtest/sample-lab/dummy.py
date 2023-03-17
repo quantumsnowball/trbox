@@ -31,7 +31,7 @@ bt = Backtest(
 )
 
 print('Started backtest')
-bt.run(parallel=False)
+bt.run(mode='serial')
 print('Finished backtest')
 
 bt.result.save()
