@@ -4,12 +4,11 @@ from threading import Event
 from pandas import DataFrame, Timedelta, Timestamp, to_datetime
 from typing_extensions import override
 
-from trbox.backtest.monitor import monitor
+from trbox.backtest.monitor import Tracker
 from trbox.common.types import Symbol, Symbols
 from trbox.common.utils import utcnow
 from trbox.event.broker import AuditRequest
 from trbox.event.market import OhlcvWindow
-from trbox.event.monitor import ProgressUpdate
 from trbox.market import MarketWorker
 from trbox.market.binance.historical.windows.constants import Freq
 from trbox.market.binance.historical.windows.use_dl_sqlite_cache import \
@@ -46,6 +45,8 @@ class BinanceHistoricalWindows(MarketWorker):
         self._length = length
         # work thread event
         self._alive = Event()
+        # tracker
+        self._tracker = Tracker(self._start, self._end)
 
     @ override
     def working(self) -> None:
@@ -76,10 +77,9 @@ class BinanceHistoricalWindows(MarketWorker):
             self.strategy.put(e)
             self.broker.put(e)
             self.portfolio.put(e)
-            monitor.put(ProgressUpdate(self.strategy.name,
-                                       e.timestamp,
-                                       self._start,
-                                       self._end))
+
+            # update progress
+            self._tracker.update(self.strategy.name, e.timestamp)
 
             self.broker.put(AuditRequest(e.timestamp))
 
