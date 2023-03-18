@@ -1,6 +1,6 @@
 import threading
 from collections import deque
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 T = TypeVar('T')
 
@@ -12,8 +12,8 @@ class MTQueue(Generic[T]):
     Never use across multiple processes
     """
 
-    def __init__(self) -> None:
-        self._queue = deque()
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self._queue = deque(*args, **kwargs)
         self._ready = threading.Event()
 
     def put(self, e: T) -> None:
