@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from multiprocessing import Queue
+# TODO
+# this Queue object is essential to overall performance of the program
+# it may not need inter process safe, but must be thread safe
+from queue import Queue
 
 from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
