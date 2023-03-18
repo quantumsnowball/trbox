@@ -13,7 +13,7 @@ class MTQueue(Generic[T]):
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self._queue = deque(*args, **kwargs)
+        self._queue = deque[T](*args, **kwargs)
         self._ready = threading.Event()
 
     def put(self, e: T) -> None:

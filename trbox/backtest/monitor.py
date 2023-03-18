@@ -81,7 +81,7 @@ class Tracker:
 
     def update(self,
                name: str,
-               current: Timestamp,):
+               current: Timestamp,) -> None:
         # calc current progress
         done = current - self._start
         pct = max(0, min(1, done / self.total))
