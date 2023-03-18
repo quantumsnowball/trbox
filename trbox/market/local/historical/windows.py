@@ -4,6 +4,7 @@ from typing import Callable
 from pandas import Timestamp, to_datetime
 from typing_extensions import override
 
+from trbox.backtest.monitor import Tracker
 from trbox.common.types import Symbols
 from trbox.common.utils import trim_ohlcv_by_range_length
 from trbox.event.broker import AuditRequest
@@ -36,6 +37,8 @@ class LocalHistoricalWindows(MarketWorker):
             self._dfs, self._length)
         # work thread event
         self._alive = Event()
+        # tracker
+        self._tracker = Tracker(self._start, self._end)
 
     @override
     def working(self) -> None:
@@ -52,6 +55,9 @@ class LocalHistoricalWindows(MarketWorker):
             self.strategy.put(e)
             self.broker.put(e)
             self.portfolio.put(e)
+
+            # update progress
+            self._tracker.update(self.strategy.name, e.timestamp)
 
             # TODO other parties should decide when to audit
             self.broker.put(AuditRequest(e.timestamp))
