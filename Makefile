@@ -68,11 +68,11 @@ dev-playground-binance-testnet-current-open-order:
 #
 # run all test cases with all debug message 
 test:
-	@pytest . -k 'not playground' --pdb
+	@pytest tests/ -k 'not playground' --pdb
 test-debug:
-	@pytest . -k 'not playground' --pdb --log-cli-level DEBUG
+	@pytest tests/ -k 'not playground' --pdb --log-cli-level DEBUG
 test-parallel:
-	@pytest . -k 'not playground' --workers auto --verbose
+	@pytest tests/ -k 'not playground' --workers auto --verbose
 
 #
 # Typecheck
