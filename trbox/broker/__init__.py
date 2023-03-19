@@ -4,7 +4,7 @@ from typing import Any
 from trbox.common.types import Positions, Symbol
 from trbox.event import Event
 from trbox.event.broker import AuditRequest, MarketOrder
-from trbox.event.handler import CounterParty
+from trbox.event.handler.counterparty import CounterParty
 
 
 class Broker(CounterParty, ABC):

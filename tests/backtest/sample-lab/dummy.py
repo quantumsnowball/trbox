@@ -30,8 +30,6 @@ bt = Backtest(
         broker=PaperEX(SYMBOL))
 )
 
-print('Started backtest')
 bt.run(mode='serial')
-print('Finished backtest')
 
 bt.result.save()

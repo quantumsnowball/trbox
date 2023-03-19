@@ -8,7 +8,7 @@ from trbox.common.logger import Log
 from trbox.common.logger.parser import Memo
 from trbox.common.utils import cln
 from trbox.event import Event
-from trbox.event.handler import CounterParty
+from trbox.event.handler.counterparty import CounterParty
 from trbox.event.system import Exit, Start
 
 

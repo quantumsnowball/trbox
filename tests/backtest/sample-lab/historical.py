@@ -48,8 +48,6 @@ bt = Backtest(
     progress=7,
 )
 
-print('Started backtest')
-bt.run(mode='process')
-print('Finished backtest')
+bt.run()
 
 bt.result.save()

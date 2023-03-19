@@ -8,7 +8,7 @@ from trbox.common.logger.parser import Memo
 from trbox.common.types import Positions, Symbol
 from trbox.event import Event, MarketEvent
 from trbox.event.broker import MarketOrder, OrderResult
-from trbox.event.handler import CounterParty
+from trbox.event.handler.counterparty import CounterParty
 from trbox.event.portfolio import (EquityCurveHistoryRequest,
                                    EquityCurveHistoryUpdate, EquityCurveUpdate,
                                    OrderResultUpdate, TradeLogHistoryRequest,
