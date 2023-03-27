@@ -38,6 +38,7 @@ class GeneratedHistoricalTrades(MarketWorker):
                 self._symbol, TradeTick), None)
             if hb:
                 intime = hb.wait(5)
+                hb.clear()
                 if not intime:
                     Log.error(Memo('timeout waiting for heartbeat')
                               .by(self).tag('timeout'))
@@ -51,9 +52,6 @@ class GeneratedHistoricalTrades(MarketWorker):
 
             # TODO other parties should decide when to audit
             self.broker.put(AuditRequest(e.timestamp))
-
-            if hb:
-                hb.clear()
 
             if not self._alive.is_set():
                 Log.info(Memo('requested to stop',
