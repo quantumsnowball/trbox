@@ -70,6 +70,7 @@ class BinanceHistoricalWindows(MarketWorker):
 
             if hb:
                 hb.wait(5)
+                hb.clear()
 
             e = OhlcvWindow(timestamp=df.index[-1],
                             symbol=symbol,
@@ -82,9 +83,6 @@ class BinanceHistoricalWindows(MarketWorker):
             self._tracker.update(self.strategy.name, e.timestamp)
 
             self.broker.put(AuditRequest(e.timestamp))
-
-            if hb:
-                hb.clear()
 
             if not self._alive.is_set():
                 return
