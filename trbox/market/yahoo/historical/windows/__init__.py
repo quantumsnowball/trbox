@@ -80,9 +80,6 @@ class YahooHistoricalWindows(MarketWorker):
             # TODO other parties should decide when to audit
             self.broker.put(AuditRequest(e.timestamp))
 
-            # if hb:
-            #     hb.clear()
-
             if not self._alive.is_set():
                 return
 
